@@ -1,9 +1,62 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { DragEvent, FormEvent, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+
+function FileDropZone({
+  filled,
+  active,
+  text,
+  onPick,
+  onDragActive,
+  onFile,
+}: {
+  filled: boolean;
+  active: boolean;
+  text: string;
+  onPick: () => void;
+  onDragActive: (v: boolean) => void;
+  onFile: (file: File) => void;
+}) {
+  return (
+    <div
+      className={`drop-zone${filled ? " filled" : ""}${active ? " drop-zone-active" : ""}`}
+      role="button"
+      tabIndex={0}
+      onClick={onPick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onPick();
+        }
+      }}
+      onDragEnter={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDragActive(true);
+      }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDragActive(true);
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        if (e.currentTarget === e.target) onDragActive(false);
+      }}
+      onDrop={(e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        onDragActive(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file) onFile(file);
+      }}
+    >
+      <div style={{ wordBreak: "break-word" }}>{text}</div>
+    </div>
+  );
+}
 
 export default function NewSessionPage() {
   const [company, setCompany] = useState("");
@@ -12,11 +65,26 @@ export default function NewSessionPage() {
   const [rv, setRv] = useState("");
   const [jdFileName, setJdFileName] = useState("");
   const [rvFileName, setRvFileName] = useState("");
+  const [jdDrag, setJdDrag] = useState(false);
+  const [rvDrag, setRvDrag] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const jdRef = useRef<HTMLInputElement>(null);
+  const rvRef = useRef<HTMLInputElement>(null);
 
   const ready = useMemo(() => jd.trim().length > 0 && rv.trim().length > 0, [jd, rv]);
+
+  async function ingestTextFile(file: File, setText: (s: string) => void, setName: (s: string) => void) {
+    setName(file.name);
+    if (file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")) {
+      try {
+        setText(await file.text());
+      } catch {
+        /* ignore */
+      }
+    }
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -43,7 +111,7 @@ export default function NewSessionPage() {
       active="prep"
       userName="You"
       roleTitle="New Role"
-      roleCompany={company || "Company"}
+      roleCompany={company.trim() || "Company"}
     >
       <div id="view-setup" className="view">
         <div className="breadcrumb">
@@ -58,52 +126,68 @@ export default function NewSessionPage() {
           <div className="upload-grid">
             <div className="upload-panel">
               <div className="upload-label">Target Job Description</div>
-              <label
-                className={`drop-zone${jdFileName ? " filled" : ""}`}
-                htmlFor="file-jd"
-              >
-                <div>{jdFileName || "Drag PDF/DOCX or click to upload"}</div>
-                <input
-                  type="file"
-                  id="file-jd"
-                  accept=".pdf,.docx,.txt"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    setJdFileName(f ? f.name : "");
-                  }}
-                />
-              </label>
+              <input
+                ref={jdRef}
+                type="file"
+                id="file-jd"
+                accept=".pdf,.docx,.txt"
+                className="hidden"
+                aria-hidden
+                tabIndex={-1}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void ingestTextFile(f, setJd, setJdFileName);
+                  else setJdFileName("");
+                }}
+              />
+              <FileDropZone
+                filled={!!jdFileName}
+                active={jdDrag}
+                text={jdFileName || "Drag PDF/DOCX or click to upload"}
+                onPick={() => jdRef.current?.click()}
+                onDragActive={setJdDrag}
+                onFile={(f) => void ingestTextFile(f, setJd, setJdFileName)}
+              />
               <textarea
                 className="ta"
+                id="ta-jd"
                 placeholder="…or paste text here"
                 value={jd}
                 onChange={(e) => setJd(e.target.value)}
+                autoComplete="off"
               />
             </div>
             <div className="upload-panel">
               <div className="upload-label">Your Resume / Background</div>
-              <label
-                className={`drop-zone${rvFileName ? " filled" : ""}`}
-                htmlFor="file-rv"
-              >
-                <div>{rvFileName || "Drag PDF/DOCX or click to upload"}</div>
-                <input
-                  type="file"
-                  id="file-rv"
-                  accept=".pdf,.docx,.txt"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    setRvFileName(f ? f.name : "");
-                  }}
-                />
-              </label>
+              <input
+                ref={rvRef}
+                type="file"
+                id="file-rv"
+                accept=".pdf,.docx,.txt"
+                className="hidden"
+                aria-hidden
+                tabIndex={-1}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void ingestTextFile(f, setRv, setRvFileName);
+                  else setRvFileName("");
+                }}
+              />
+              <FileDropZone
+                filled={!!rvFileName}
+                active={rvDrag}
+                text={rvFileName || "Drag PDF/DOCX or click to upload"}
+                onPick={() => rvRef.current?.click()}
+                onDragActive={setRvDrag}
+                onFile={(f) => void ingestTextFile(f, setRv, setRvFileName)}
+              />
               <textarea
                 className="ta"
+                id="ta-rv"
                 placeholder="…or paste text here"
                 value={rv}
                 onChange={(e) => setRv(e.target.value)}
+                autoComplete="off"
               />
             </div>
           </div>
@@ -124,11 +208,12 @@ export default function NewSessionPage() {
                   placeholder="e.g. Acme Corp"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
+                  autoComplete="organization"
                 />
               </div>
               <div>
                 <div className="field-label">Interview Stage</div>
-                <select className="field-select" value={stage} onChange={(e) => setStage(e.target.value)}>
+                <select className="field-select" id="field-stage" value={stage} onChange={(e) => setStage(e.target.value)}>
                   <option value="">Select stage…</option>
                   <option value="RECRUITER_SCREEN">Recruiter Screen</option>
                   <option value="HIRING_MANAGER">Hiring Manager</option>
@@ -141,8 +226,8 @@ export default function NewSessionPage() {
 
           {error ? <div className="error-msg">{error}</div> : null}
 
-          <button className="btn-primary" type="submit" disabled={!ready || loading}>
-            {loading ? "Consulting…" : ready ? "Begin Analysis →" : "Awaiting Data…"}
+          <button className="btn-primary" id="analyze-btn" type="submit" disabled={!ready || loading}>
+            {loading ? "Consulting inro…" : ready ? "Begin Analysis →" : "Awaiting Data…"}
           </button>
         </form>
       </div>
