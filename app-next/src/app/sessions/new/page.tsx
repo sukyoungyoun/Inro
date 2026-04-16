@@ -114,12 +114,20 @@ export default function NewSessionPage() {
       roleCompany={company.trim() || "Company"}
     >
       <div id="view-setup" className="view">
-        <div className="breadcrumb">
-          <Link href="/dashboard">Prep Sessions</Link> › New Role
+        <div className="setup-breadcrumb-row">
+          <div className="breadcrumb">
+            <Link href="/dashboard">Prep Sessions</Link>
+            <span aria-hidden className="breadcrumb-sep">
+              {" > "}
+            </span>
+            <span className="breadcrumb-current">New Role</span>
+          </div>
         </div>
-        <div className="setup-title">Consult with inro</div>
-        <div className="setup-sub">
-          Upload your documents or paste the text directly to generate a personalized interview brief.
+        <div className="setup-hero">
+          <div className="setup-title">Consult with inro</div>
+          <div className="setup-sub">
+            Upload your documents or paste the text directly to generate a personalized interview brief.
+          </div>
         </div>
 
         <form onSubmit={onSubmit}>
@@ -194,10 +202,7 @@ export default function NewSessionPage() {
 
           <div className="context-section">
             <div className="context-title">
-              Additional Context{" "}
-              <span style={{ fontSize: 13, color: "var(--ink3)", fontFamily: "var(--ui)", fontWeight: 400 }}>
-                (Optional)
-              </span>
+              Additional Context <span className="context-optional">(Optional)</span>
             </div>
             <div className="context-grid">
               <div>
