@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum InterviewStage {
+  RECRUITER_SCREEN
+  HIRING_MANAGER
+  PORTFOLIO_REVIEW
+  FINAL_LOOP
+}
+
+enum SessionStatus {
+  DRAFT
+  ANALYZED
+  PRACTICING
+  COMPLETED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  profile  UserProfile?
+  sessions PrepSession[]
+}
+
+model UserProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  fullName     String?
+  currentRole  String?
+  targetRoles  String[]
+  targetStage  InterviewStage?
+  onboardingAt DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PrepSession {
+  id           String         @id @default(cuid())
+  userId       String
+  title        String
+  company      String?
+  stage        InterviewStage?
+  jdText       String
+  resumeText   String
+  matchScore   Int?
+  roleSummary  String?
+  status       SessionStatus  @default(DRAFT)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis   SessionAnalysis?
+  questions  SessionQuestion[]
+
+  @@index([userId, createdAt])
+}
+
+model SessionAnalysis {
+  id                 String   @id @default(cuid())
+  sessionId          String   @unique
+  strongestAlignment String?
+  biggestRisk        String?
+  strengthsJson      Json?
+  gapsJson           Json?
+  rawResponseJson    Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  session PrepSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model SessionQuestion {
+  id          String   @id @default(cuid())
+  sessionId   String
+  category    String
+  question    String
+  insight     String?
+  principle   String?
+  workflow    String?
+  collaboration String?
+  step1       String?
+  step2       String?
+  step3       String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  session PrepSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, order])
+}
