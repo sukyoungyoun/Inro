@@ -1224,10 +1224,15 @@ async function handleFile(e, type) {
   txt.textContent = 'Reading…'; dz.classList.remove('filled');
   try {
     const text = await extractText(file);
-    store[type] = text;
+    const cleanText = (text || '').trim();
+    store[type] = cleanText;
+    const ta = document.getElementById(type === 'jd' ? 'ta-jd' : 'ta-rv');
+    if (cleanText) ta.value = cleanText;
     dz.classList.add('filled');
     txt.textContent = '✓ ' + file.name;
-  } catch { txt.textContent = 'Error reading file'; }
+  } catch {
+    txt.textContent = 'Error reading file';
+  }
   checkReady();
 }
 
@@ -1303,8 +1308,24 @@ async function callGemini(jd, rv, company, stage) {
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+  if (!data || typeof data !== "object") {
+    throw new Error("Gemini returned an empty response.");
+  }
   return data;
 }
+
+// Keep store in sync with pasted/typed text so readiness is reliable.
+["ta-jd", "ta-rv"].forEach((id) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  ["input", "change", "paste", "keyup"].forEach((evt) => {
+    el.addEventListener(evt, () => {
+      if (id === "ta-jd") store.jd = el.value.trim();
+      if (id === "ta-rv") store.rv = el.value.trim();
+      checkReady();
+    });
+  });
+});
 
 function renderBrief(r, company, stage) {
   currentQuestions = r.questions || [];
