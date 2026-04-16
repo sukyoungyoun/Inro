@@ -1128,7 +1128,7 @@ html, body { height: 100%; background: var(--bg); color: var(--ink); font-family
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-const store = { jd: "", rv: "" };
+const store = { jd: "", rv: "", jdExtracted: false, rvExtracted: false };
 let currentQuestions = [];
 let currentQIdx = 0;
 let timerSecs = 78, timerRunning = true, timerInterval = null;
@@ -1205,9 +1205,31 @@ async function extractText(file) {
     for (let i = 1; i <= pdf.numPages; i++) {
       const pg = await pdf.getPage(i);
       const c = await pg.getTextContent();
-      t += c.items.map(x => x.str).join(' ') + '\n';
+
+      // Group nearby text items into lines using Y position.
+      const lines = [];
+      for (const item of c.items) {
+        const str = (item.str || "").trim();
+        if (!str) continue;
+        const y = item.transform?.[5] ?? 0;
+        const last = lines[lines.length - 1];
+        if (last && Math.abs(last.y - y) < 3) {
+          last.parts.push(str);
+        } else {
+          lines.push({ y, parts: [str] });
+        }
+      }
+
+      const pageText = lines
+        .map(line => line.parts.join(' '))
+        .join('\n')
+        .replace(/[ \t]+/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+
+      t += pageText + '\n\n';
     }
-    return t;
+    return t.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
   }
   if (ext === 'docx') {
     const buf = await file.arrayBuffer();
@@ -1226,11 +1248,13 @@ async function handleFile(e, type) {
     const text = await extractText(file);
     const cleanText = (text || '').trim();
     store[type] = cleanText;
+    store[type + 'Extracted'] = cleanText.length > 20;
     const ta = document.getElementById(type === 'jd' ? 'ta-jd' : 'ta-rv');
     if (cleanText) ta.value = cleanText;
     dz.classList.add('filled');
     txt.textContent = '✓ ' + file.name;
   } catch {
+    store[type + 'Extracted'] = false;
     txt.textContent = 'Error reading file';
   }
   checkReady();
@@ -1270,7 +1294,10 @@ async function startAnalysis() {
   errBox.classList.add('hidden');
 
   if (!jd || !rv) {
-    errBox.textContent = "We couldn’t read enough text from one of your files. Please paste the JD and resume text, then try again.";
+    const missing = [];
+    if (!jd) missing.push(store.jdExtracted === false && document.getElementById("file-jd").files.length > 0 ? "job description PDF" : "job description");
+    if (!rv) missing.push(store.rvExtracted === false && document.getElementById("file-rv").files.length > 0 ? "resume PDF" : "resume");
+    errBox.textContent = `We couldn’t read enough text from the ${missing.join(" and ")}. Please paste the text manually and try again.`;
     errBox.classList.remove('hidden');
     return;
   }
