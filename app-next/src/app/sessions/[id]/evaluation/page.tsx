@@ -29,63 +29,113 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
       userName={session.user.email || "User"}
       roleTitle={data.title}
       roleCompany={data.company || "Company"}
+      prepHref={`/sessions/${data.id}`}
+      mockInterviewHref={`/sessions/${data.id}/practice`}
+      contentFill
     >
-      <div className="p-8 max-w-6xl">
-        <Link href={`/sessions/${id}`} className="text-sm text-[#5C5248] hover:text-[#1C1917]">← Back to Prep Sessions</Link>
-        <div className="grid md:grid-cols-[1fr_420px] gap-5 mt-4">
-          <div className="space-y-4">
-            <div className="inro-card p-6">
-              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#9C8E84] mb-2">{(q?.category || "Priority Question").toUpperCase()}</p>
-              <h1 className="text-[24px] inro-serif text-[#1C1917] mb-2">{q?.question || "Question"}</h1>
-              <p className="text-sm text-[#5C5248]">{q?.insight || "Evaluation summary based on your brief and answer structure."}</p>
-            </div>
-            <div className="inro-card p-6">
-              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#9C8E84] mb-2">Your Response</p>
-              <div className="h-2 bg-[#E0D8D0] rounded mb-4 overflow-hidden">
-                <div className="h-full bg-[#8B5E52] w-[65%]" />
+      <div id="view-eval" className="view">
+        <div className="eval-topbar">
+          <Link href={`/sessions/${id}`} className="back-btn">
+            ← Back to Prep Sessions
+          </Link>
+        </div>
+        <div className="eval-body">
+          <div>
+            <div className="q-header" style={{ marginBottom: 16 }}>
+              <div className="q-eyebrow">{(q?.category || "Priority Question").toUpperCase()}</div>
+              <div className="q-title">{q?.question || "Question"}</div>
+              <div className="insight-bar">
+                <span className="insight-icon">💡</span>
+                <div>
+                  <strong>Insight:</strong>{" "}
+                  <span>
+                    {q?.insight ||
+                      "Assesses awareness of inclusive design principles and whether it is built into your workflow."}
+                  </span>
+                </div>
               </div>
-              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#9C8E84] mb-2">Transcript</p>
-              <p className="text-sm text-[#5C5248] leading-7">
-                "For accessibility, I try to think about it from the beginning rather than treating it as an afterthought. During early wireframing stages, I make sure we have clear hierarchy and semantic structure..."
-              </p>
+            </div>
+
+            <div className="playback-card">
+              <div className="playback-header">
+                <div className="playback-label">Your Response</div>
+                <div className="playback-time">01:42</div>
+              </div>
+              <div className="playback-controls">
+                <button type="button" className="play-btn" aria-label="Play">
+                  <svg width="12" height="14" viewBox="0 0 12 14" fill="white">
+                    <path d="M1 1l10 6-10 6V1z" />
+                  </svg>
+                </button>
+                <div className="progress-bar">
+                  <div className="progress-fill" />
+                </div>
+              </div>
+              <div className="transcript-label">Transcript</div>
+              <div className="transcript-text">
+                &quot;For accessibility, I always try to think about it from the beginning rather than treating it as an
+                afterthought. During the early wireframing stages, I make sure we have a clear hierarchy and semantic
+                structure.
+                <br />
+                <br />
+                When moving to high-fidelity, I use plugins like Stark in Figma to double-check color contrast ratios to ensure
+                they meet WCAG AA standards. I also try to annotate my designs for developers, specifying focus states and ARIA
+                labels so the handoff is smooth.&quot;
+              </div>
             </div>
           </div>
-          <aside className="space-y-4">
-            <div className="inro-card p-5">
-              <div className="flex items-center justify-between mb-4">
-                <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#9C8E84]">inro Evaluation</p>
-                <span className="bg-[#3D6B50] text-white text-xs px-3 py-1 rounded-full">{score}/100</span>
+
+          <div>
+            <div className="eval-card">
+              <div className="eval-header">
+                <div className="eval-label">inro Evaluation</div>
+                <div className="eval-score">
+                  {score}/100
+                </div>
               </div>
-              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#3D6B50] mb-2">Strengths</p>
-              <div className="space-y-2 mb-4">
-                {strengths.slice(0, 2).map((s, i) => (
-                  <div key={i} className="border border-[#E0D8D0] rounded-[8px] p-3">
-                    <p className="font-semibold text-sm">{s.title}</p>
-                    <p className="text-xs text-[#5C5248] mt-1">{s.desc}</p>
+
+              <div className="eval-section-label green">Strengths</div>
+              {strengths.slice(0, 2).map((s, i) => (
+                <div key={i} className="eval-item">
+                  <div className="eval-item-title">✓ {s.title}</div>
+                  <div className="eval-item-desc">{s.desc}</div>
+                  <div className="tag-row">
+                    <div className="tag jd-tag">📋 Job requirement • Role alignment</div>
+                    <div className="tag resume-tag">📄 Resume evidence</div>
                   </div>
-                ))}
+                </div>
+              ))}
+
+              <div className="eval-section-label terra" style={{ marginTop: 14 }}>
+                Areas to Improve
               </div>
-              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#8B5E52] mb-2">Areas to Improve</p>
-              <div className="space-y-2 mb-4">
-                {gaps.slice(0, 2).map((g, i) => (
-                  <div key={i} className="border border-[#E0D8D0] rounded-[8px] p-3">
-                    <p className="font-semibold text-sm">{g.title}</p>
-                    <p className="text-xs text-[#5C5248] mt-1">{g.mitigation}</p>
+              {gaps.slice(0, 2).map((g, i) => (
+                <div key={i} className="eval-item">
+                  <div className="eval-item-title">⚠ {g.title}</div>
+                  <div className="eval-item-desc">{g.mitigation}</div>
+                  <div className="tag-row">
+                    <div className="tag jd-tag">📋 Job requirement • Deeper coverage</div>
+                    <div className="tag warn-tag">⚠ Strengthen examples</div>
                   </div>
-                ))}
-              </div>
-              <div className="border border-[#E0D8D0] rounded-[8px] p-3 text-xs text-[#5C5248] mb-3">
-                <strong>Source traceability:</strong> Every insight is grounded in your role brief and stored resume evidence.
-              </div>
-              <div className="flex gap-2">
-                <Link href={`/sessions/${id}/practice`} className="inro-btn-ghost block text-center flex-1">Retry Question</Link>
-                <Link href={`/sessions/${id}`} className="inro-btn-primary block text-center flex-1">Next Question →</Link>
+                </div>
+              ))}
+
+              <div className="traceability-note">
+                <strong>Source traceability:</strong> Every insight is grounded in the original inputs so you can see which
+                resume evidence and job requirements informed the evaluation.
               </div>
             </div>
-          </aside>
+          </div>
+        </div>
+        <div className="eval-footer">
+          <Link href={`/sessions/${id}/practice`} className="btn-ghost">
+            Retry Question
+          </Link>
+          <Link href={`/sessions/${id}`} className="btn-primary">
+            Next Question →
+          </Link>
         </div>
       </div>
     </AppShell>
   );
 }
-

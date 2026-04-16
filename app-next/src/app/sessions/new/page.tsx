@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import Link from "next/link";
+import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 
@@ -9,9 +10,13 @@ export default function NewSessionPage() {
   const [stage, setStage] = useState("");
   const [jd, setJd] = useState("");
   const [rv, setRv] = useState("");
+  const [jdFileName, setJdFileName] = useState("");
+  const [rvFileName, setRvFileName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  const ready = useMemo(() => jd.trim().length > 0 && rv.trim().length > 0, [jd, rv]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -33,67 +38,98 @@ export default function NewSessionPage() {
   }
 
   return (
-    <AppShell crumb="SETUP" active="prep" userName="You" roleTitle="New Role" roleCompany={company || "Company"}>
-      <div className="p-9">
-      <div className="max-w-4xl">
-        <p className="text-sm text-[#9C8E84] mb-2">Prep Sessions › New Role</p>
-      <div className="inro-card p-8">
-        <p className="inro-mono text-[10px] tracking-[1.2px] uppercase text-[#9C8E84] mb-2">Setup</p>
-        <h1 className="text-3xl inro-serif text-[#1C1917] mb-2">Consult with inro</h1>
-        <p className="text-sm text-[#5C5248] mb-6">
-          Provide role context and run real Gemini analysis.
-        </p>
+    <AppShell
+      crumb="SETUP"
+      active="prep"
+      userName="You"
+      roleTitle="New Role"
+      roleCompany={company || "Company"}
+    >
+      <div id="view-setup" className="view">
+        <div className="breadcrumb">
+          <Link href="/dashboard">Prep Sessions</Link> › New Role
+        </div>
+        <div className="setup-title">Consult with inro</div>
+        <div className="setup-sub">
+          Upload your documents or paste the text directly to generate a personalized interview brief.
+        </div>
 
-        <form className="space-y-6" onSubmit={onSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <p className="inro-mono text-[9px] tracking-[1.2px] uppercase text-[#9C8E84] mb-2">Target Job Description</p>
-              <div className="border border-dashed border-[#CEC5BB] rounded-[8px] px-4 py-6 text-center text-sm text-[#9C8E84] mb-3 bg-[#F2EDE8]">
-                Drag PDF/DOCX or click to upload
-              </div>
+        <form onSubmit={onSubmit}>
+          <div className="upload-grid">
+            <div className="upload-panel">
+              <div className="upload-label">Target Job Description</div>
+              <label
+                className={`drop-zone${jdFileName ? " filled" : ""}`}
+                htmlFor="file-jd"
+              >
+                <div>{jdFileName || "Drag PDF/DOCX or click to upload"}</div>
+                <input
+                  type="file"
+                  id="file-jd"
+                  accept=".pdf,.docx,.txt"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    setJdFileName(f ? f.name : "");
+                  }}
+                />
+              </label>
               <textarea
-                className="inro-textarea min-h-44"
-                placeholder="...or paste text here"
+                className="ta"
+                placeholder="…or paste text here"
                 value={jd}
                 onChange={(e) => setJd(e.target.value)}
-                required
               />
             </div>
-            <div>
-              <p className="inro-mono text-[9px] tracking-[1.2px] uppercase text-[#9C8E84] mb-2">Your Resume / Background</p>
-              <div className="border border-dashed border-[#CEC5BB] rounded-[8px] px-4 py-6 text-center text-sm text-[#9C8E84] mb-3 bg-[#F2EDE8]">
-                Drag PDF/DOCX or click to upload
-              </div>
+            <div className="upload-panel">
+              <div className="upload-label">Your Resume / Background</div>
+              <label
+                className={`drop-zone${rvFileName ? " filled" : ""}`}
+                htmlFor="file-rv"
+              >
+                <div>{rvFileName || "Drag PDF/DOCX or click to upload"}</div>
+                <input
+                  type="file"
+                  id="file-rv"
+                  accept=".pdf,.docx,.txt"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    setRvFileName(f ? f.name : "");
+                  }}
+                />
+              </label>
               <textarea
-                className="inro-textarea min-h-44"
-                placeholder="...or paste text here"
+                className="ta"
+                placeholder="…or paste text here"
                 value={rv}
                 onChange={(e) => setRv(e.target.value)}
-                required
               />
             </div>
           </div>
 
-          <div className="pt-5 border-t border-[#E0D8D0]">
-            <p className="text-[22px] inro-serif text-[#1C1917] mb-3">Additional Context (Optional)</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="context-section">
+            <div className="context-title">
+              Additional Context{" "}
+              <span style={{ fontSize: 13, color: "var(--ink3)", fontFamily: "var(--ui)", fontWeight: 400 }}>
+                (Optional)
+              </span>
+            </div>
+            <div className="context-grid">
               <div>
-                <p className="text-[12px] font-medium text-[#5C5248] mb-1.5">Target Company Name</p>
+                <div className="field-label">Target Company Name</div>
                 <input
-                  className="inro-input"
+                  className="field-input"
+                  type="text"
                   placeholder="e.g. Acme Corp"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                 />
               </div>
               <div>
-                <p className="text-[12px] font-medium text-[#5C5248] mb-1.5">Interview Stage</p>
-                <select
-                  className="inro-select"
-                  value={stage}
-                  onChange={(e) => setStage(e.target.value)}
-                >
-                  <option value="">Select stage...</option>
+                <div className="field-label">Interview Stage</div>
+                <select className="field-select" value={stage} onChange={(e) => setStage(e.target.value)}>
+                  <option value="">Select stage…</option>
                   <option value="RECRUITER_SCREEN">Recruiter Screen</option>
                   <option value="HIRING_MANAGER">Hiring Manager</option>
                   <option value="PORTFOLIO_REVIEW">Portfolio Review</option>
@@ -103,18 +139,13 @@ export default function NewSessionPage() {
             </div>
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            disabled={loading}
-            className="inro-btn-primary"
-          >
-            {loading ? "Consulting..." : "Begin Analysis →"}
+          {error ? <div className="error-msg">{error}</div> : null}
+
+          <button className="btn-primary" type="submit" disabled={!ready || loading}>
+            {loading ? "Consulting…" : ready ? "Begin Analysis →" : "Awaiting Data…"}
           </button>
         </form>
-      </div>
-      </div>
       </div>
     </AppShell>
   );
 }
-

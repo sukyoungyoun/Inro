@@ -12,18 +12,34 @@ export default async function PreferencesPage() {
     where: { userId: session.user.id },
   });
 
+  const prepSessions = await prisma.prepSession.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: "desc" },
+    take: 1,
+    select: { id: true, company: true },
+  });
+  const first = prepSessions[0];
+  const prepHref = first ? `/sessions/${first.id}` : "/sessions/new";
+  const mockInterviewHref = first ? `/sessions/${first.id}/practice` : "/sessions/new";
+
   return (
     <AppShell
       crumb="PREFERENCES"
       active="prefs"
       userName={profile?.fullName || session.user.email || "User"}
       roleTitle={profile?.currentRole || profile?.targetRoles?.[0] || "Role"}
-      roleCompany="Workspace"
+      roleCompany={first?.company || "Workspace"}
+      prepHref={prepHref}
+      mockInterviewHref={mockInterviewHref}
+      contentFill
     >
-      <div className="p-9 max-w-[760px]">
-        <p className="text-sm text-[#9C8E84] mb-2">Workspace › Preferences</p>
-        <h1 className="text-[30px] inro-serif text-[#1C1917] mb-5">Preferences</h1>
+      <div
+        id="view-preferences"
+        className="view"
+        style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}
+      >
         <PreferencesForm
+          userEmail={session.user.email || ""}
           initial={{
             fullName: profile?.fullName || "",
             currentRole: profile?.currentRole || "",
@@ -35,4 +51,3 @@ export default async function PreferencesPage() {
     </AppShell>
   );
 }
-

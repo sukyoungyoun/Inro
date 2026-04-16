@@ -1,41 +1,18 @@
 @import "tailwindcss";
-
-:root {
-  --bg: #f2ede8;
-  --panel: #ede7e0;
-  --surface: #ffffff;
-  --border: #e0d8d0;
-  --border2: #cec5bb;
-  --ink: #1c1917;
-  --ink2: #5c5248;
-  --ink3: #9c8e84;
-  --green: #3d6b50;
-  --green-bg: #eaf2ec;
-  --terra: #8b5e52;
-  --terra-bg: #f5e8e4;
-  --terra-tag: #edd5ce;
-  --green-tag: #d4e8da;
-  --r: 10px;
-  --sh: 0 1px 4px rgba(28, 25, 23, 0.07), 0 4px 16px rgba(28, 25, 23, 0.04);
-}
+@import "./inro-html.css";
 
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--ink);
 }
 
-body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
+/* Legacy helpers used by a few components */
 .inro-serif {
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--serif);
 }
 
 .inro-mono {
-  font-family: var(--font-mono), monospace;
+  font-family: var(--mono);
 }
 
 .inro-input,
@@ -74,6 +51,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  font-family: var(--ui);
 }
 
 .inro-btn-primary:hover:not(:disabled) {
@@ -93,6 +71,7 @@ body {
   padding: 9px 16px;
   font-size: 13px;
   cursor: pointer;
+  font-family: var(--ui);
 }
 
 .inro-card {

@@ -1,7 +1,26 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/app-shell";
+
+function DocIcon({ className }: { className?: string }) {
+  return (
+    <svg width="20" height="24" viewBox="0 0 20 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className} aria-hidden>
+      <rect x="2" y="1" width="16" height="22" rx="2" />
+      <path d="M6 7h8M6 11h8M6 15h5" />
+    </svg>
+  );
+}
+
+function TailoredIcon() {
+  return (
+    <svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="var(--terra)" strokeWidth="1.5" aria-hidden>
+      <rect x="1" y="1" width="16" height="20" rx="2" />
+      <path d="M5 6h8M5 10h8M5 14h5" />
+    </svg>
+  );
+}
 
 export default async function ResumeLibraryPage() {
   const session = await auth();
@@ -18,13 +37,9 @@ export default async function ResumeLibraryPage() {
   ]);
 
   const primary = sessions[0];
-  const initials =
-    profile?.fullName
-      ?.split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((x) => x[0]?.toUpperCase())
-      .join("") || "U";
+  const first = sessions[0];
+  const prepHref = first ? `/sessions/${first.id}` : "/sessions/new";
+  const mockInterviewHref = first ? `/sessions/${first.id}/practice` : "/sessions/new";
 
   return (
     <AppShell
@@ -33,46 +48,82 @@ export default async function ResumeLibraryPage() {
       userName={profile?.fullName || session.user.email || "User"}
       roleTitle={profile?.currentRole || profile?.targetRoles[0] || "Role"}
       roleCompany={sessions[0]?.company || "Company"}
+      prepHref={prepHref}
+      mockInterviewHref={mockInterviewHref}
     >
-      <div className="p-9 max-w-[1120px]">
-        <div className="flex items-start justify-between mb-7">
+      <div id="view-resume" className="view">
+        <div className="rl-header">
           <div>
-            <h1 className="text-[30px] inro-serif text-[#1C1917]">Resume Library</h1>
-            <p className="text-sm text-[#5C5248] mt-2">
-              Manage your base resume and tailored versions across prep sessions.
-            </p>
+            <h1>Resume Library</h1>
+            <p>Manage your base resume and tailored versions to get the most accurate fit insights for your target roles.</p>
           </div>
-          <button className="inro-btn-primary">Upload Resume</button>
+          <button type="button" className="btn-upload">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <path d="M7 10V3M4 6l3-3 3 3" />
+              <path d="M2 11h10" />
+            </svg>
+            Upload Resume
+          </button>
         </div>
 
-        <p className="inro-mono text-[10px] tracking-[1.2px] uppercase text-[#9C8E84] mb-3">Primary Base Resume</p>
-        <div className="inro-card p-5 mb-8 flex items-center gap-4">
-          <div className="w-11 h-11 rounded-[9px] bg-[#F5E8E4] text-[#8B5E52] flex items-center justify-center font-semibold">
-            {initials}
+        <div className="rl-section-label">Primary Base Resume</div>
+        <div className="primary-resume-card">
+          <div className="resume-icon">
+            <DocIcon />
           </div>
-          <div className="flex-1">
-            <p className="font-semibold text-[#1C1917]">
+          <div className="resume-info">
+            <div className="resume-name">
               {primary ? "base_resume.txt" : "No resume uploaded yet"}
-            </p>
-            <p className="text-xs text-[#9C8E84] mt-1">
+              {primary ? <span className="primary-badge">Primary Base</span> : null}
+            </div>
+            <div className="resume-meta">
               {primary
                 ? `Used in latest session: ${primary.title}`
                 : "Create a prep session to store your first resume input."}
-            </p>
+            </div>
           </div>
-          <button className="inro-btn-ghost">Preview</button>
+          <div className="resume-actions">
+            <button type="button" className="btn-preview">
+              Preview
+            </button>
+            <button type="button" className="btn-update">
+              Update
+            </button>
+          </div>
         </div>
 
-        <p className="inro-mono text-[10px] tracking-[1.2px] uppercase text-[#9C8E84] mb-3">Tailored Resumes</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="rl-section-label">Tailored Resumes</div>
+        <div className="tailored-grid">
           {sessions.length === 0 ? (
-            <div className="inro-card p-5 text-sm text-[#5C5248]">No tailored versions yet.</div>
+            <div className="tailored-card">
+              <div className="tailored-name">No tailored versions yet</div>
+              <div className="tailored-meta">Start a prep session to generate tailored resume context.</div>
+            </div>
           ) : (
             sessions.map((s) => (
-              <div key={s.id} className="inro-card p-5">
-                <p className="font-semibold text-[#1C1917]">{s.title}</p>
-                <p className="text-xs text-[#9C8E84] mt-1">{s.company || "Company not set"}</p>
-                <p className="text-xs text-[#5C5248] mt-3 line-clamp-3">{s.resumeText.slice(0, 170)}...</p>
+              <div key={s.id} className="tailored-card">
+                <div className="tailored-card-top">
+                  <div className="tailored-icon">
+                    <TailoredIcon />
+                  </div>
+                  <button type="button" className="more-btn" aria-label="More">
+                    ···
+                  </button>
+                </div>
+                <div className="tailored-name">{s.title}</div>
+                <div className="tailored-meta">{s.company || "Company not set"}</div>
+                <div className="tailored-tags">
+                  {(s.company ? [s.company] : []).map((t) => (
+                    <span key={t} className="tailored-tag">
+                      {t}
+                    </span>
+                  ))}
+                  <span className="tailored-tag">Session</span>
+                </div>
+                <div className="tailored-actions">
+                  <button type="button">Preview</button>
+                  <Link href={`/sessions/${s.id}`}>View Sessions</Link>
+                </div>
               </div>
             ))
           )}
@@ -81,4 +132,3 @@ export default async function ResumeLibraryPage() {
     </AppShell>
   );
 }
-

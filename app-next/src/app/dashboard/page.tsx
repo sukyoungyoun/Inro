@@ -5,6 +5,16 @@ import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/app-shell";
 import { SignOutButton } from "@/components/sign-out-button";
 
+function formatSessionTime(d: Date) {
+  const diff = Date.now() - d.getTime();
+  const h = Math.floor(diff / 3600000);
+  if (h < 1) return `${Math.max(1, Math.floor(diff / 60000))}M AGO`;
+  if (h < 24) return `${h}H AGO`;
+  const days = Math.floor(h / 24);
+  if (days === 1) return "Yesterday";
+  return `${days}D AGO`;
+}
+
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -27,83 +37,109 @@ export default async function DashboardPage() {
         )
       : 0;
 
+  const first = sessions[0];
+  const prepHref = first ? `/sessions/${first.id}` : "/sessions/new";
+  const mockInterviewHref = first ? `/sessions/${first.id}/practice` : "/sessions/new";
+  const displayName = profile.fullName || session.user.email || "there";
+
   return (
     <AppShell
       crumb="OVERVIEW"
       active="overview"
       userName={profile.fullName || session.user.email || "User"}
       roleTitle={profile.currentRole || profile.targetRoles[0] || "Role"}
-      roleCompany={sessions[0]?.company || "Company"}
+      roleCompany={first?.company || "Company"}
+      prepHref={prepHref}
+      mockInterviewHref={mockInterviewHref}
     >
-      <div className="p-9 max-w-[1100px]">
-        <div className="flex items-center justify-between mb-6">
+      <div id="view-overview" className="view">
+        <div className="overview-header">
           <div>
-            <h1 className="text-[32px] leading-tight font-serif text-[#1C1917]">
-              Welcome back, {profile.fullName || session.user.email}
-            </h1>
-            <p className="text-[#5C5248] mt-2">
-              Build a full cycle from role intake to practice and evaluation.
+            <h1>Welcome back, {displayName}</h1>
+            <p>
+              You have {sessions.length} prep session{sessions.length === 1 ? "" : "s"} on record. Continue
+              where you left off or start a new role brief.
             </p>
           </div>
-          <div className="flex gap-2">
-            <Link href="/sessions/new" className="bg-[#1C1917] text-white rounded-[10px] px-4 py-2 font-medium">
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <SignOutButton />
+            <Link href="/sessions/new" className="btn-new">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <path d="M7 2v10M2 7h10" />
+              </svg>
               New Prep Session
             </Link>
-            <SignOutButton />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Metric title="Avg. Readiness" value={`${avgScore}%`} sub="Almost ready. Focus on targeted practice modules." />
-          <Metric title="Active Preps" value={`${sessions.length}`} sub="Good volume to compare your role fit across options." />
-          <Metric title="Mock Interviews" value={`${Math.max(0, sessions.length * 3)}`} sub="Strong practice volume. Focus on specific weak spots next." />
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-label">Avg. Readiness</div>
+            <div className="stat-num">{avgScore}%</div>
+            <div className="stat-sub">Almost ready. Focus on targeted practice modules.</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">Active Preps</div>
+            <div className="stat-num">{sessions.length}</div>
+            <div className="stat-sub">Good volume to compare your role fit across options.</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">Mock Interviews</div>
+            <div className="stat-num">{Math.max(0, sessions.length * 3)}</div>
+            <div className="stat-sub">Strong practice volume. Focus on specific weak spots next.</div>
+          </div>
         </div>
 
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[10px] tracking-[1.2px] uppercase text-[#9C8E84] inro-mono">
-            Recent sessions
-          </h2>
-          <button className="text-xs text-[#8B5E52]">View All</button>
+        <div className="sessions-header">
+          <h3>Recent Sessions</h3>
+          <button type="button" className="view-all">
+            View All
+          </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="sessions-grid">
           {sessions.length === 0 ? (
-            <div className="inro-card p-5 text-[#5C5248] text-sm">No sessions yet. Create your first one.</div>
+            <div className="session-card">
+              <div className="session-role">No sessions yet</div>
+              <div className="session-company">Create your first prep session to see fit scores and next steps.</div>
+              <Link href="/sessions/new" className="session-action">
+                → Start setup
+              </Link>
+            </div>
           ) : (
             sessions.slice(0, 3).map((s) => {
               const score = s.matchScore ?? 0;
-              const badge =
+              const badgeClass = score >= 78 ? "high" : score >= 65 ? "mid" : "low";
+              const badgeLabel = `${score}% match`;
+              const status =
                 score >= 78
-                  ? { label: "Strong Fit", cls: "bg-[#D4E8DA] text-[#3D6B50]" }
+                  ? { cls: "strong", label: "Strong Fit" }
                   : score >= 65
-                    ? { label: "Needs Review", cls: "bg-[#EDD5CE] text-[#8B5E52]" }
-                    : { label: "Benchmark", cls: "bg-[#E8E4F0] text-[#5A4A7A]" };
+                    ? { cls: "review", label: "Needs Review" }
+                    : { cls: "bench", label: "Benchmark" };
               return (
-                <Link
-                  href={`/sessions/${s.id}`}
-                  key={s.id}
-                  className="inro-card p-5 hover:-translate-y-[1px] transition"
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <p className="text-[14px] font-semibold text-[#1C1917]">{s.title}</p>
-                    <p className="text-[10px] text-[#9C8E84] inro-mono">RECENT</p>
+                <Link key={s.id} href={`/sessions/${s.id}`} className="session-card">
+                  <div className="session-card-top">
+                    <div className="session-role">{s.title}</div>
+                    <div className="session-time">{formatSessionTime(s.createdAt)}</div>
                   </div>
-                  <p className="text-xs text-[#9C8E84] mb-3">{s.company || "Company"}</p>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] px-2 py-1 rounded-full bg-[#EAF2EC] text-[#3D6B50]">{score}% match</span>
-                    <div className="h-1.5 rounded bg-[#E0D8D0] flex-1 overflow-hidden">
-                      <div className="h-full bg-[#3D6B50]" style={{ width: `${Math.max(10, score)}%` }} />
+                  <div className="session-company">{s.company || "Company"}</div>
+                  <div className="match-row">
+                    <div className={`match-badge ${badgeClass}`}>{badgeLabel}</div>
+                    <div className="match-bar">
+                      <div
+                        className={`match-fill${score < 78 ? " mid" : ""}`}
+                        style={{ width: `${Math.min(100, Math.max(8, score))}%` }}
+                      />
                     </div>
                   </div>
-                  <p className="text-[11px] text-[#9C8E84] mb-2">3/5 modules</p>
-                  <span className={`inline-block text-[10px] font-semibold px-2 py-1 rounded mb-2 ${badge.cls}`}>
-                    {badge.label}
-                  </span>
-                  <p className="text-xs text-[#5C5248] mb-3">
-                    Best next step: practice systems-thinking stories tied to collaboration and product tradeoffs.
-                  </p>
-                  <div className="border border-[#E0D8D0] rounded-[8px] py-2 text-center text-[12px] text-[#5C5248]">
-                    {score >= 70 ? "→ Continue Prep" : "⟳ Review Insights"}
+                  <div className="session-modules">3/5 modules</div>
+                  <div className={`status-tag ${status.cls}`}>{status.label}</div>
+                  <div className="session-next">
+                    Best next step: open your brief and run a targeted practice block on your highest-impact gap.
                   </div>
+                  <span className="session-action">
+                    {score >= 70 ? "→ Continue Prep" : "⟳ Review Insights"}
+                  </span>
                 </Link>
               );
             })
@@ -113,14 +149,3 @@ export default async function DashboardPage() {
     </AppShell>
   );
 }
-
-function Metric({ title, value, sub }: { title: string; value: string; sub: string }) {
-  return (
-    <div className="bg-white border border-[#E0D8D0] rounded-[10px] p-5 shadow-[var(--sh)]">
-      <p className="text-[9px] uppercase tracking-[1.2px] text-[#9C8E84] inro-mono">{title}</p>
-      <p className="text-4xl inro-serif text-[#3D6B50] mt-1">{value}</p>
-      <p className="text-xs text-[#5C5248] mt-1">{sub}</p>
-    </div>
-  );
-}
-

@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { ReactNode } from "react";
+import {
+  IconMock,
+  IconOverview,
+  IconPrefs,
+  IconPrep,
+  IconResume,
+} from "@/components/inro-nav-icons";
 
-type NavKey = "overview" | "prep" | "mock" | "resume" | "prefs";
+export type AppShellNavKey = "overview" | "prep" | "mock" | "resume" | "prefs";
 
 export function AppShell({
   children,
@@ -10,86 +17,100 @@ export function AppShell({
   userName = "User",
   roleTitle = "Role",
   roleCompany = "Company",
-  rightRail,
+  prepHref = "/sessions/new",
+  mockInterviewHref = "/sessions/new",
+  contentFill = false,
 }: {
   children: ReactNode;
   crumb: string;
-  active?: NavKey;
+  active?: AppShellNavKey;
   userName?: string;
   roleTitle?: string;
   roleCompany?: string;
-  rightRail?: ReactNode;
+  /** Sidebar “Prep Sessions” target */
+  prepHref?: string;
+  /** Sidebar “Mock Interviews” target */
+  mockInterviewHref?: string;
+  /** Brief / practice / eval: #content gets height chain for full views */
+  contentFill?: boolean;
 }) {
+  const initials =
+    userName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join("") || "U";
+
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)] font-sans">
-      <div className="flex min-h-screen">
-        <aside className="w-[220px] min-w-[220px] bg-[var(--panel)] border-r border-[var(--border)] flex flex-col">
-          <div className="px-5 pt-5 pb-4 font-serif text-[18px] font-semibold">inro</div>
-          <div className="mx-3 mb-4 bg-white border border-[var(--border)] rounded-[10px] px-3 py-2">
-            <div className="text-[13px] font-semibold">{roleTitle}</div>
-            <div className="text-[11px] text-[var(--ink3)]">{roleCompany}</div>
+    <div id="app">
+      <aside id="sidebar">
+        <div className="logo">inro</div>
+        <Link href="/dashboard" className="role-switcher">
+          <div className="role-switcher-info">
+            <div className="role-switcher-title">{roleTitle}</div>
+            <div className="role-switcher-company">{roleCompany}</div>
           </div>
+          <div className="role-switcher-arrow" aria-hidden>
+            ⌄
+          </div>
+        </Link>
 
-          <div className="px-3 mb-4">
-            <NavItem href="/dashboard" active={active === "overview"} label="Overview" />
-            <NavItem href="/sessions/new" active={active === "prep"} label="Prep Sessions" />
-            <NavItem href="/sessions/new" active={active === "mock"} label="Mock Interviews" />
-          </div>
+        <div className="nav-section">
+          <NavBtn href="/dashboard" active={active === "overview"} label="Overview">
+            <IconOverview />
+          </NavBtn>
+          <NavBtn href={prepHref} active={active === "prep"} label="Prep Sessions">
+            <IconPrep />
+          </NavBtn>
+          <NavBtn href={mockInterviewHref} active={active === "mock"} label="Mock Interviews">
+            <IconMock />
+          </NavBtn>
+        </div>
 
-          <div className="px-3 mb-4">
-            <div className="text-[9px] tracking-[1.2px] uppercase text-[var(--ink3)] px-1 mb-1">Workspace</div>
-            <NavItem href="/resume" active={active === "resume"} label="Resume Library" />
-            <NavItem href="/preferences" active={active === "prefs"} label="Preferences" />
-          </div>
+        <div className="nav-section" style={{ marginTop: 0 }}>
+          <div className="nav-label">Workspace</div>
+          <NavBtn href="/resume" active={active === "resume"} label="Resume Library">
+            <IconResume />
+          </NavBtn>
+          <NavBtn href="/preferences" active={active === "prefs"} label="Preferences">
+            <IconPrefs />
+          </NavBtn>
+        </div>
 
-          <div className="mt-auto border-t border-[var(--border)] px-5 py-3 flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-[var(--terra-tag)] text-[var(--terra)] flex items-center justify-center text-[11px] font-semibold">
-              {userName
-                .split(" ")
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((p) => p[0]?.toUpperCase())
-                .join("") || "U"}
-            </div>
-            <div className="text-[12px] text-[var(--ink2)]">{userName}</div>
-          </div>
-        </aside>
+        <div className="sidebar-footer">
+          <div className="avatar">{initials}</div>
+          <div className="avatar-name">{userName}</div>
+        </div>
+      </aside>
 
-        <main className="flex-1 min-w-0 flex flex-col">
-          <div className="h-[42px] border-b border-[var(--border)] px-7 flex items-center font-mono text-[10px] tracking-[1px] text-[var(--ink3)]">
-            INRO &nbsp;•&nbsp; {crumb}
-          </div>
-          <div className={`flex-1 overflow-hidden ${rightRail ? "grid grid-cols-[1fr_340px]" : ""}`}>
-            <div className="overflow-y-auto">{children}</div>
-            {rightRail ? <aside className="bg-white border-l border-[var(--border)] overflow-y-auto">{rightRail}</aside> : null}
-          </div>
-        </main>
+      <div id="main">
+        <div id="topbar">
+          INRO &nbsp;•&nbsp; <span>{crumb}</span>
+        </div>
+        <div id="content" className={contentFill ? "inro-content-fill" : undefined}>
+          {children}
+        </div>
       </div>
     </div>
   );
 }
 
-function NavItem({ href, label, active }: { href: string; label: string; active: boolean }) {
-  const icons: Record<string, string> = {
-    Overview: "◫",
-    "Prep Sessions": "≡",
-    "Mock Interviews": "◎",
-    "Resume Library": "▦",
-    Preferences: "⚙",
-  };
-
+function NavBtn({
+  href,
+  label,
+  active,
+  children,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  children: ReactNode;
+}) {
   return (
-    <Link
-      href={href}
-      className={`flex items-center gap-2.5 text-[13px] rounded-[8px] px-[10px] py-[9px] mb-0.5 transition ${
-        active
-          ? "bg-white text-[var(--terra)] font-semibold shadow-[var(--sh)]"
-          : "text-[var(--ink2)] hover:bg-white/50 hover:text-[var(--ink)]"
-      }`}
-    >
-      <span className="text-[11px] opacity-70">{icons[label] || "•"}</span>
+    <Link href={href} className={`nav-btn${active ? " active" : ""}`}>
+      {children}
       {label}
     </Link>
   );
 }
-
