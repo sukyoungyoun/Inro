@@ -39,33 +39,45 @@ export default function OnboardingPage() {
   return (
     <AppShell crumb="PREFERENCES" active="prefs" userName={fullName || "You"} roleTitle={currentRole || "Role"} roleCompany="Company">
       <div className="p-9">
-      <div className="max-w-2xl bg-white border border-[#E0D8D0] rounded-[10px] p-8 shadow-[var(--sh)]">
-        <h1 className="text-3xl font-serif mb-2 text-[#1C1917]">Set up your prep profile</h1>
+      <div className="max-w-2xl inro-card p-8">
+        <p className="inro-mono text-[10px] tracking-[1.2px] uppercase text-[#9C8E84] mb-2">Preferences</p>
+        <h1 className="text-3xl inro-serif mb-2 text-[#1C1917]">Set up your prep profile</h1>
         <p className="text-sm text-[#5C5248] mb-6">
           This replaces mock persona data and personalizes every cycle.
         </p>
         <form className="space-y-4" onSubmit={onSubmit}>
+          <div>
+            <p className="text-[12px] font-medium text-[#5C5248] mb-1.5">Full Name</p>
           <input
-            className="w-full border border-[#E0D8D0] rounded-lg px-3 py-2"
+            className="inro-input"
             placeholder="Full name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
           />
+          </div>
+          <div>
+            <p className="text-[12px] font-medium text-[#5C5248] mb-1.5">Current Role</p>
           <input
-            className="w-full border border-[#E0D8D0] rounded-lg px-3 py-2"
+            className="inro-input"
             placeholder="Current role"
             value={currentRole}
             onChange={(e) => setCurrentRole(e.target.value)}
           />
+          </div>
+          <div>
+            <p className="text-[12px] font-medium text-[#5C5248] mb-1.5">Target Roles</p>
           <input
-            className="w-full border border-[#E0D8D0] rounded-lg px-3 py-2"
+            className="inro-input"
             placeholder="Target roles (comma-separated)"
             value={targetRoles}
             onChange={(e) => setTargetRoles(e.target.value)}
             required
           />
+          </div>
+          <div>
+            <p className="text-[12px] font-medium text-[#5C5248] mb-1.5">Preferred Stage</p>
           <select
-            className="w-full border border-[#E0D8D0] rounded-lg px-3 py-2"
+            className="inro-select"
             value={targetStage}
             onChange={(e) => setTargetStage(e.target.value)}
           >
@@ -75,10 +87,11 @@ export default function OnboardingPage() {
             <option value="PORTFOLIO_REVIEW">Portfolio Review</option>
             <option value="FINAL_LOOP">Final Loop</option>
           </select>
+          </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button
             disabled={loading}
-            className="bg-[#1C1917] text-white rounded-[10px] px-5 py-2 font-medium disabled:opacity-50"
+            className="inro-btn-primary"
           >
             {loading ? "Saving..." : "Continue to dashboard"}
           </button>

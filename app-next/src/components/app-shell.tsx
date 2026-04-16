@@ -70,15 +70,24 @@ export function AppShell({
 }
 
 function NavItem({ href, label, active }: { href: string; label: string; active: boolean }) {
+  const icons: Record<string, string> = {
+    Overview: "◫",
+    "Prep Sessions": "≡",
+    "Mock Interviews": "◎",
+    "Resume Library": "▦",
+    Preferences: "⚙",
+  };
+
   return (
     <Link
       href={href}
-      className={`block text-[13px] rounded-[8px] px-[10px] py-[9px] mb-0.5 transition ${
+      className={`flex items-center gap-2.5 text-[13px] rounded-[8px] px-[10px] py-[9px] mb-0.5 transition ${
         active
           ? "bg-white text-[var(--terra)] font-semibold shadow-[var(--sh)]"
           : "text-[var(--ink2)] hover:bg-white/50 hover:text-[var(--ink)]"
       }`}
     >
+      <span className="text-[11px] opacity-70">{icons[label] || "•"}</span>
       {label}
     </Link>
   );

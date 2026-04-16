@@ -41,15 +41,17 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[#F2EDE8] flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-xl bg-white border border-[#E0D8D0] p-8">
-        <h1 className="text-3xl font-serif text-[#1C1917] mb-2">Welcome back</h1>
+      <div className="w-full max-w-md rounded-[10px] bg-white border border-[#E0D8D0] p-8 shadow-[var(--sh)]">
+        <p className="inro-serif text-[22px] leading-none mb-6">inro</p>
+        <p className="inro-mono text-[10px] tracking-[1.2px] uppercase text-[#9C8E84] mb-3">Account Access</p>
+        <h1 className="text-3xl inro-serif text-[#1C1917] mb-2">Welcome back</h1>
         <p className="text-sm text-[#5C5248] mb-6">Sign in to continue your prep cycle.</p>
 
         <form className="space-y-4" onSubmit={onSubmit}>
           <input
             type="email"
             placeholder="Email"
-            className="w-full border border-[#E0D8D0] rounded-lg px-3 py-2"
+            className="inro-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -57,7 +59,7 @@ export default function LoginPage() {
           <input
             type="password"
             placeholder="Password"
-            className="w-full border border-[#E0D8D0] rounded-lg px-3 py-2"
+            className="inro-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -66,7 +68,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#1C1917] text-white rounded-lg py-2 font-medium disabled:opacity-50"
+            className="inro-btn-primary w-full"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>
