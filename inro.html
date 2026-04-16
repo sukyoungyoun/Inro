@@ -1234,26 +1234,42 @@ async function handleFile(e, type) {
 function checkReady() {
   const jdTa = document.getElementById("ta-jd").value.trim();
   const rvTa = document.getElementById("ta-rv").value.trim();
-  const jd = jdTa.length > 0 ? jdTa : store.jd;
-  const rv = rvTa.length > 0 ? rvTa : store.rv;
+  const jd = jdTa.length > 0 ? jdTa : (store.jd || "");
+  const rv = rvTa.length > 0 ? rvTa : (store.rv || "");
+
+  const hasJdFile = document.getElementById("file-jd").files.length > 0;
+  const hasRvFile = document.getElementById("file-rv").files.length > 0;
+
+  const jdReady = jd.length > 20 || hasJdFile;
+  const rvReady = rv.length > 20 || hasRvFile;
+
   const btn = document.getElementById("analyze-btn");
-  const ok = jd.length > 20 && rv.length > 20;
+  const ok = jdReady && rvReady;
   btn.disabled = !ok;
-  btn.textContent = ok ? "Begin Analysis →" : "Awaiting Datau2026";
+  btn.textContent = ok ? "Begin Analysis →" : "Awaiting Data…";
 }
 
 // ── ANALYSIS ──
 async function startAnalysis() {
   const jdTa = document.getElementById("ta-jd").value.trim();
   const rvTa = document.getElementById("ta-rv").value.trim();
-  const jd = jdTa.length > 0 ? jdTa : store.jd;
-  const rv = rvTa.length > 0 ? rvTa : store.rv;
-
+  const jd = jdTa.length > 0 ? jdTa : (store.jd || "");
+  const rv = rvTa.length > 0 ? rvTa : (store.rv || "");
 
   const company = document.getElementById('field-company').value.trim();
   const stage = document.getElementById('field-stage').value;
-  store.jd = jd; store.rv = rv;
-  document.getElementById('error-box').classList.add('hidden');
+  store.jd = jd;
+  store.rv = rv;
+
+  const errBox = document.getElementById('error-box');
+  errBox.classList.add('hidden');
+
+  if (!jd || !rv) {
+    errBox.textContent = "We couldn’t read enough text from one of your files. Please paste the JD and resume text, then try again.";
+    errBox.classList.remove('hidden');
+    return;
+  }
+
   go('processing');
 
   const steps = ['s0','s1','s2'], labels = ['sl0','sl1','sl2'];
