@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>inro – Interview Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F2EDE8;
+  --panel: #EDE7E0;
+  --surface: #FFFFFF;
+  --border: #E0D8D0;
+  --border2: #CEC5BB;
+  --ink: #1C1917;
+  --ink2: #5C5248;
+  --ink3: #9C8E84;
+  --green: #3D6B50;
+  --green-bg: #EAF2EC;
+  --green-tag: #D4E8DA;
+  --terra: #8B5E52;
+  --terra-bg: #F5E8E4;
+  --terra-tag: #EDD5CE;
+  --amber: #A07828;
+  --serif: "Lora", Georgia, serif;
+  --mono: "DM Mono", monospace;
+  --ui: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --r: 10px;
+  --sh: 0 1px 4px rgba(28,25,23,0.07), 0 4px 16px rgba(28,25,23,0.04);
+}
+html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: var(--ui); -webkit-font-smoothing: antialiased; overflow: hidden; }
+#app { display: flex; height: 100vh; }
+.hidden { display: none !important; }
+.view { animation: rise 0.35s ease both; }
+@keyframes rise { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ─── SIDEBAR ─── */
+#sidebar {
+  width: 220px; min-width: 220px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 0;
+}
+.logo {
+  padding: 20px 20px 16px;
+  font-family: var(--serif);
+  font-size: 18px; font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+.role-switcher {
+  margin: 0 12px 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+}
+.role-switcher-info { display: flex; flex-direction: column; gap: 2px; }
+.role-switcher-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+.role-switcher-company { font-size: 11px; color: var(--ink3); }
+.role-switcher-arrow { font-size: 12px; color: var(--ink3); }
+.nav-section { padding: 0 12px; margin-bottom: 20px; }
+.nav-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); padding: 0 4px; margin-bottom: 6px; }
+.nav-btn {
+  width: 100%; display: flex; align-items: center; gap: 9px;
+  padding: 9px 10px; border: none; background: transparent;
+  text-align: left; cursor: pointer; color: var(--ink2);
+  border-radius: 8px; margin-bottom: 2px;
+  font-size: 13px; font-family: var(--ui);
+  transition: all 0.15s;
+}
+.nav-btn svg { opacity: 0.5; flex-shrink: 0; }
+.nav-btn.active { background: white; color: var(--terra); font-weight: 600; box-shadow: var(--sh); }
+.nav-btn.active svg { opacity: 1; color: var(--terra); }
+.nav-btn:hover:not(.active) { background: rgba(255,255,255,0.5); color: var(--ink); }
+.sidebar-footer {
+  margin-top: auto; padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--terra-tag); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--terra); flex-shrink: 0; }
+.avatar-name { font-size: 12px; font-weight: 500; color: var(--ink2); }
+
+/* ─── MAIN ─── */
+#main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+#topbar {
+  height: 42px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 28px;
+  font-family: var(--mono); font-size: 10px; color: var(--ink3);
+  background: var(--bg); letter-spacing: 1px; gap: 8px; flex-shrink: 0;
+}
+#content { flex: 1; overflow-y: auto; }
+
+/* ─── OVERVIEW ─── */
+#view-overview { padding: 36px 40px; max-width: 1100px; }
+.overview-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; }
+.overview-header h1 { font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -0.4px; margin-bottom: 6px; }
+.overview-header p { font-size: 14px; color: var(--ink2); line-height: 1.5; max-width: 500px; }
+.btn-new { background: var(--ink); color: white; border: none; padding: 11px 20px; border-radius: var(--r); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all 0.2s; font-family: var(--ui); }
+.btn-new:hover { background: #2C2825; transform: translateY(-1px); }
+
+.stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 22px; box-shadow: var(--sh); }
+.stat-num { font-family: var(--serif); font-size: 36px; font-weight: 400; color: var(--green); margin-bottom: 4px; }
+.stat-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); margin-bottom: 8px; }
+.stat-sub { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+
+.sessions-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.sessions-header h3 { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); }
+.view-all { font-size: 12px; color: var(--terra); background: none; border: none; cursor: pointer; font-family: var(--ui); }
+.sessions-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.session-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 20px; box-shadow: var(--sh); cursor: pointer; transition: all 0.2s; }
+.session-card:hover { border-color: var(--border2); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.session-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.session-role { font-size: 14px; font-weight: 600; color: var(--ink); }
+.session-time { font-family: var(--mono); font-size: 10px; color: var(--ink3); }
+.session-company { font-size: 12px; color: var(--ink3); margin-bottom: 12px; }
+.match-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.match-badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.match-badge.high { background: var(--green-bg); color: var(--green); }
+.match-badge.mid { background: #FDF3E0; color: var(--amber); }
+.match-badge.low { background: var(--terra-bg); color: var(--terra); }
+.match-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.match-fill { height: 100%; border-radius: 2px; background: var(--green); }
+.match-fill.mid { background: var(--amber); }
+.session-modules { font-family: var(--mono); font-size: 10px; color: var(--ink3); margin-bottom: 8px; }
+.status-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px; }
+.status-tag.strong { background: var(--green-tag); color: var(--green); }
+.status-tag.review { background: var(--terra-tag); color: var(--terra); }
+.status-tag.bench { background: #E8E4F0; color: #5A4A7A; }
+.session-next { font-size: 12px; color: var(--ink2); line-height: 1.5; margin-bottom: 14px; }
+.session-action { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 8px; background: white; font-size: 12px; color: var(--ink2); cursor: pointer; font-family: var(--ui); display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; }
+.session-action:hover { background: var(--bg); border-color: var(--border2); }
+
+/* ─── SETUP ─── */
+#view-setup { padding: 36px 40px; max-width: 960px; margin: 0 auto; }
+.breadcrumb { font-size: 13px; color: var(--ink3); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.breadcrumb a { color: var(--ink2); cursor: pointer; text-decoration: none; }
+.breadcrumb a:hover { color: var(--terra); }
+.setup-title { font-family: var(--serif); font-size: 28px; font-weight: 500; margin-bottom: 8px; letter-spacing: -0.3px; }
+.setup-sub { font-size: 14px; color: var(--ink2); margin-bottom: 28px; }
+.upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+.upload-panel { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 20px; box-shadow: var(--sh); }
+.upload-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); margin-bottom: 12px; }
+.drop-zone {
+  border: 1.5px dashed var(--border2);
+  border-radius: 8px; padding: 20px 12px;
+  text-align: center; cursor: pointer;
+  font-size: 13px; color: var(--ink3);
+  background: var(--bg); margin-bottom: 12px;
+  transition: all 0.2s;
+}
+.drop-zone:hover { border-color: var(--terra); color: var(--terra); background: var(--terra-bg); }
+.drop-zone.filled { border-color: var(--green); border-style: solid; background: var(--green-bg); color: var(--green); }
+.drop-zone input { display: none; }
+.ta {
+  width: 100%; border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; font-family: var(--ui); font-size: 13px;
+  resize: vertical; min-height: 130px; background: var(--bg);
+  line-height: 1.55; outline: none; color: var(--ink);
+  transition: border-color 0.2s;
+}
+.ta:focus { border-color: var(--terra); background: white; }
+.ta::placeholder { color: var(--ink3); }
+
+.context-section { margin-bottom: 28px; }
+.context-title { font-family: var(--serif); font-size: 16px; font-weight: 500; margin-bottom: 16px; }
+.context-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field-label { font-size: 12px; font-weight: 500; color: var(--ink2); margin-bottom: 6px; }
+.field-input {
+  width: 100%; border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 12px; font-family: var(--ui); font-size: 13px;
+  background: white; color: var(--ink); outline: none;
+  transition: border-color 0.2s;
+}
+.field-input:focus { border-color: var(--terra); }
+.field-select {
+  width: 100%; border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 12px; font-family: var(--ui); font-size: 13px;
+  background: white; color: var(--ink); outline: none;
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239C8E84' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+
+.btn-primary {
+  background: var(--ink); color: white; border: none;
+  padding: 13px 28px; border-radius: var(--r);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: var(--ui); transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover:not(:disabled) { background: #2C2825; transform: translateY(-1px); }
+.btn-primary:disabled { background: #D5CEC9; color: #A09590; cursor: not-allowed; transform: none; }
+.btn-ghost { background: white; color: var(--ink2); border: 1px solid var(--border); padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--ui); transition: all 0.15s; }
+.btn-ghost:hover { background: var(--bg); border-color: var(--border2); }
+.btn-terra { background: var(--terra); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--ui); transition: all 0.2s; }
+.btn-terra:hover { background: #7A5248; }
+
+/* ─── PROCESSING ─── */
+#view-processing { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+.proc-title { font-family: var(--serif); font-size: 26px; font-weight: 500; margin-bottom: 8px; }
+.proc-sub { font-size: 14px; color: var(--ink2); margin-bottom: 48px; }
+.steps { width: 300px; }
+.step-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.step-dot { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--border2); flex-shrink: 0; transition: all 0.4s; }
+.step-dot.active { background: var(--terra); border-color: var(--terra); box-shadow: 0 0 0 4px rgba(139,94,82,0.15); }
+.step-dot.done { background: var(--green); border-color: var(--green); }
+.step-text { font-size: 13px; color: var(--ink2); }
+.step-text.active { color: var(--ink); font-weight: 500; }
+
+/* ─── BRIEF ─── */
+#view-brief { display: grid; grid-template-columns: 1fr 340px; gap: 0; height: 100%; overflow: hidden; }
+.brief-main { padding: 32px 36px; overflow-y: auto; border-right: 1px solid var(--border); }
+.brief-sidebar { padding: 28px 24px; overflow-y: auto; background: white; }
+
+.brief-eyebrow { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink3); margin-bottom: 10px; }
+.brief-role-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+.brief-role-name { font-family: var(--serif); font-size: 30px; font-weight: 500; letter-spacing: -0.4px; }
+.score-box { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 12px 18px; text-align: center; box-shadow: var(--sh); }
+.score-num { font-family: var(--serif); font-size: 28px; font-weight: 500; color: var(--green); line-height: 1; }
+.score-unit { font-size: 11px; color: var(--ink3); }
+.score-label { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); margin-top: 3px; }
+.brief-meta { font-size: 12px; color: var(--ink3); margin-bottom: 20px; }
+
+.brief-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 22px; margin-bottom: 16px; box-shadow: var(--sh); }
+.brief-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+.brief-summary-text { font-size: 14px; color: var(--ink2); line-height: 1.65; margin-bottom: 16px; }
+.callout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.callout-box { border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+.callout-label { font-size: 11px; font-weight: 600; color: var(--ink2); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.callout-text { font-size: 12px; color: var(--ink2); line-height: 1.5; }
+
+.section-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); margin-bottom: 12px; }
+.strength-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; background: white; }
+.strength-icon { width: 20px; height: 20px; border-radius: 50%; background: var(--green-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.strength-icon svg { color: var(--green); }
+.strength-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; color: var(--ink); }
+.strength-desc { font-size: 12px; color: var(--ink2); line-height: 1.5; }
+.gap-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; background: white; }
+.gap-icon { width: 20px; height: 20px; border-radius: 50%; background: var(--terra-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.gap-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; color: var(--ink); }
+.gap-strategy { font-size: 12px; color: var(--ink2); line-height: 1.5; }
+.gap-strategy strong { color: var(--ink); font-weight: 600; }
+
+/* Brief Sidebar */
+.sidebar-section-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); margin-bottom: 4px; }
+.sidebar-section-right { font-family: var(--mono); font-size: 9px; color: var(--ink3); text-transform: uppercase; letter-spacing: 1px; }
+.sidebar-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.q-mini { border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+.q-mini:hover { border-color: var(--border2); box-shadow: var(--sh); }
+.q-mini-tag { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); margin-bottom: 6px; }
+.q-mini-text { font-size: 13px; font-weight: 500; color: var(--ink); line-height: 1.4; margin-bottom: 10px; }
+.q-mini-insight { font-size: 11px; color: var(--ink2); line-height: 1.4; background: var(--terra-bg); padding: 7px 9px; border-radius: 6px; margin-bottom: 10px; }
+.q-mini-insight strong { color: var(--ink); }
+.q-mini-actions { display: flex; gap: 8px; }
+.q-mini-btn { flex: 1; padding: 7px 10px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.15s; font-family: var(--ui); }
+.q-mini-btn.primary { background: var(--ink); color: white; border: none; }
+.q-mini-btn.primary:hover { background: #2C2825; }
+.q-mini-btn.ghost { background: white; color: var(--ink2); border: 1px solid var(--border); }
+.q-mini-btn.ghost:hover { background: var(--bg); }
+
+.mock-card { background: var(--terra-bg); border: 1px solid var(--terra-tag); border-radius: var(--r); padding: 18px; margin-top: 16px; }
+.mock-eyebrow { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--terra); margin-bottom: 6px; }
+.mock-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.mock-desc { font-size: 12px; color: var(--ink2); line-height: 1.5; margin-bottom: 14px; }
+.mock-btn { width: 100%; padding: 11px; background: var(--ink); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--ui); display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s; }
+.mock-btn:hover { background: #2C2825; }
+
+/* ─── PRACTICE (LIVE) ─── */
+#view-practice { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.practice-topbar { padding: 16px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.back-btn { background: none; border: none; cursor: pointer; color: var(--ink2); font-size: 13px; display: flex; align-items: center; gap: 5px; font-family: var(--ui); padding: 0; }
+.back-btn:hover { color: var(--ink); }
+.practice-body { flex: 1; overflow-y: auto; padding: 28px 32px; display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+.practice-left { display: flex; flex-direction: column; gap: 0; }
+.practice-right { display: flex; flex-direction: column; gap: 16px; }
+
+.q-header { margin-bottom: 20px; }
+.q-eyebrow { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); margin-bottom: 8px; }
+.q-title { font-family: var(--serif); font-size: 22px; font-weight: 500; line-height: 1.35; letter-spacing: -0.2px; margin-bottom: 14px; color: var(--ink); }
+.insight-bar { background: var(--terra-bg); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--ink2); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
+.insight-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.insight-bar strong { color: var(--ink); }
+
+.recording-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 24px; box-shadow: var(--sh); flex: 1; display: flex; flex-direction: column; }
+.rec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.rec-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); }
+.rec-status { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--terra-bg); color: var(--terra); display: flex; align-items: center; gap: 5px; }
+.rec-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--terra); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+.timer-wrap { display: flex; justify-content: center; margin-bottom: 16px; }
+.timer-ring { position: relative; width: 120px; height: 120px; }
+.timer-ring svg { transform: rotate(-90deg); }
+.timer-ring circle.bg { fill: none; stroke: var(--border); stroke-width: 4; }
+.timer-ring circle.prog { fill: none; stroke: var(--terra); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.timer-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.timer-elapsed { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); }
+.timer-time { font-family: var(--mono); font-size: 22px; color: var(--ink); font-weight: 400; }
+
+.rec-hint { text-align: center; font-size: 12px; color: var(--ink2); line-height: 1.5; margin-bottom: 16px; max-width: 340px; align-self: center; }
+.waveform-section { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+.waveform-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.waveform-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); }
+.waveform { display: flex; align-items: center; gap: 2px; height: 36px; }
+.wbar { border-radius: 2px; background: var(--terra); width: 4px; animation: waveAnim 0.8s ease-in-out infinite; }
+.wbar:nth-child(even) { animation-delay: 0.15s; }
+.wbar:nth-child(3n) { animation-delay: 0.3s; }
+@keyframes waveAnim {
+  0%,100% { height: 6px; opacity: 0.3; }
+  50% { height: 100%; opacity: 1; }
+}
+.live-transcript { font-size: 12px; color: var(--ink2); font-style: italic; line-height: 1.5; }
+.rec-controls { display: flex; gap: 10px; margin-top: auto; padding-top: 16px; }
+.rec-btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--ui); transition: all 0.15s; border: 1px solid var(--border); background: white; color: var(--ink2); }
+.rec-btn:hover { background: var(--bg); }
+.rec-btn.finish { background: var(--ink); color: white; border-color: var(--ink); }
+.rec-btn.finish:hover { background: #2C2825; }
+.practice-footer { border-top: 1px solid var(--border); padding: 14px 32px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: white; }
+.footer-skip { background: white; border: 1px solid var(--border); color: var(--ink2); padding: 9px 20px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: var(--ui); }
+.footer-submit { background: var(--ink); color: white; border: none; padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--ui); display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+.footer-submit:hover { background: #2C2825; }
+
+.coaching-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 18px; box-shadow: var(--sh); }
+.coaching-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.coaching-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); }
+.coaching-target { font-family: var(--mono); font-size: 9px; color: var(--ink3); }
+.coaching-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.coaching-item:last-child { border-bottom: none; }
+.coaching-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.coaching-text { font-size: 12px; color: var(--ink2); line-height: 1.5; }
+.coaching-text strong { color: var(--ink); font-weight: 600; }
+
+.structure-card { background: var(--terra-bg); border: 1px solid var(--terra-tag); border-radius: var(--r); padding: 18px; }
+.structure-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.structure-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--terra); }
+.structure-note { font-family: var(--mono); font-size: 9px; color: var(--terra); opacity: 0.7; }
+.structure-item { display: flex; gap: 10px; margin-bottom: 12px; }
+.structure-item:last-child { margin-bottom: 0; }
+.structure-num { width: 18px; height: 18px; border-radius: 50%; background: var(--terra); color: white; font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.structure-title { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.structure-desc { font-size: 11px; color: var(--ink2); line-height: 1.4; }
+
+/* ─── EVAL ─── */
+#view-eval { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.eval-topbar { padding: 16px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.eval-body { flex: 1; overflow-y: auto; padding: 28px 32px; display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+
+.playback-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 24px; box-shadow: var(--sh); margin-bottom: 0; }
+.playback-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.playback-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); }
+.playback-time { font-family: var(--mono); font-size: 10px; color: var(--ink3); }
+.playback-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.play-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--ink); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all 0.15s; }
+.play-btn:hover { background: #2C2825; }
+.progress-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; position: relative; cursor: pointer; }
+.progress-fill { height: 100%; background: var(--terra); border-radius: 2px; width: 60%; }
+.transcript-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); margin-bottom: 10px; }
+.transcript-text { font-size: 13px; color: var(--ink2); line-height: 1.7; font-style: italic; }
+
+.eval-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 20px; box-shadow: var(--sh); }
+.eval-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.eval-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink3); }
+.eval-score { background: var(--green); color: white; padding: 4px 12px; border-radius: 999px; font-family: var(--mono); font-size: 12px; font-weight: 500; }
+.eval-section-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.eval-section-label.green { color: var(--green); }
+.eval-section-label.terra { color: var(--terra); }
+.eval-item { padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+.eval-item-title { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.eval-item-desc { font-size: 12px; color: var(--ink2); line-height: 1.5; margin-bottom: 8px; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag { font-size: 10px; padding: 3px 8px; border-radius: 5px; font-family: var(--mono); display: flex; align-items: center; gap: 4px; }
+.tag.jd-tag { background: #EDE9F8; color: #5A3E9A; }
+.tag.resume-tag { background: var(--green-bg); color: var(--green); }
+.tag.warn-tag { background: var(--terra-bg); color: var(--terra); }
+.traceability-note { margin-top: 14px; padding: 11px 12px; background: var(--bg); border-radius: 8px; font-size: 11px; color: var(--ink2); line-height: 1.5; border: 1px solid var(--border); }
+.traceability-note strong { color: var(--ink); }
+.eval-footer { border-top: 1px solid var(--border); padding: 14px 32px; display: flex; justify-content: space-between; flex-shrink: 0; background: white; }
+
+/* Error */
+.error-msg { background: #FEE2E2; color: #B91C1C; padding: 12px 14px; border-radius: 8px; font-size: 12px; font-family: var(--mono); margin-top: 14px; line-height: 1.5; }
+
+/* ─── RESUME LIBRARY ─── */
+#view-resume { padding: 36px 44px; max-width: 1100px; }
+.rl-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; }
+.rl-header h1 { font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -0.4px; margin-bottom: 6px; }
+.rl-header p { font-size: 14px; color: var(--ink2); line-height: 1.5; }
+.btn-upload { background: var(--ink); color: white; border: none; padding: 11px 20px; border-radius: var(--r); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-family: var(--ui); }
+.btn-upload:hover { background: #2C2825; transform: translateY(-1px); }
+.rl-section-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--ink3); margin-bottom: 12px; }
+.primary-resume-card { background: white; border: 1.5px solid var(--border2); border-radius: var(--r); padding: 20px 24px; display: flex; align-items: center; gap: 16px; margin-bottom: 28px; box-shadow: var(--sh); }
+.resume-icon { width: 44px; height: 44px; background: var(--terra-bg); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.resume-icon svg { color: var(--terra); }
+.resume-info { flex: 1; }
+.resume-name { font-size: 15px; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.primary-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: var(--green-tag); color: var(--green); text-transform: uppercase; letter-spacing: 0.5px; }
+.resume-meta { font-size: 12px; color: var(--ink3); }
+.resume-actions { display: flex; gap: 10px; }
+.btn-preview { background: white; border: 1px solid var(--border); color: var(--ink2); padding: 8px 18px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: var(--ui); transition: all 0.15s; font-weight: 500; }
+.btn-preview:hover { background: var(--bg); border-color: var(--border2); }
+.btn-update { background: var(--terra-bg); border: 1px solid var(--terra-tag); color: var(--terra); padding: 8px 18px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: var(--ui); transition: all 0.15s; font-weight: 600; }
+.btn-update:hover { background: var(--terra-tag); }
+.tailored-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.tailored-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 20px; box-shadow: var(--sh); display: flex; flex-direction: column; gap: 0; transition: all 0.2s; }
+.tailored-card:hover { border-color: var(--border2); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.tailored-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.tailored-icon { width: 38px; height: 38px; background: var(--terra-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.more-btn { background: none; border: none; cursor: pointer; color: var(--ink3); font-size: 16px; padding: 2px 4px; line-height: 1; border-radius: 4px; }
+.more-btn:hover { background: var(--bg); }
+.tailored-name { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.tailored-meta { font-size: 11px; color: var(--ink3); margin-bottom: 12px; }
+.tailored-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.tailored-tag { font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); color: var(--ink2); text-transform: uppercase; letter-spacing: 0.3px; font-family: var(--mono); }
+.tailored-actions { display: flex; gap: 8px; margin-top: auto; }
+.tailored-actions button { flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: white; font-size: 12px; color: var(--ink2); cursor: pointer; font-family: var(--ui); font-weight: 500; transition: all 0.15s; }
+.tailored-actions button:hover { background: var(--bg); border-color: var(--border2); }
+
+/* ─── PREFERENCES ─── */
+#view-preferences { padding: 0; }
+.prefs-scroll { padding: 32px 44px 80px; max-width: 720px; }
+.prefs-breadcrumb { font-size: 13px; color: var(--ink3); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.prefs-breadcrumb a { color: var(--ink2); cursor: pointer; }
+.prefs-breadcrumb a:hover { color: var(--terra); }
+.prefs-title { font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -0.4px; margin-bottom: 24px; }
+.prefs-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 28px; margin-bottom: 16px; box-shadow: var(--sh); }
+.prefs-card-title { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.prefs-card-sub { font-size: 13px; color: var(--ink2); margin-bottom: 22px; }
+.avatar-row { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+.avatar-lg { width: 60px; height: 60px; border-radius: 50%; background: var(--terra-tag); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; color: var(--terra); flex-shrink: 0; overflow: hidden; }
+.avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
+.change-img-btn { border: 1px solid var(--border); background: white; color: var(--ink2); padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: var(--ui); display: flex; align-items: center; gap: 6px; font-weight: 500; }
+.change-img-btn:hover { background: var(--bg); }
+.img-hint { font-size: 11px; color: var(--ink3); margin-top: 4px; }
+.name-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.pref-label { font-size: 12px; font-weight: 500; color: var(--ink2); margin-bottom: 6px; }
+.pref-input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: var(--ui); font-size: 13px; background: white; color: var(--ink); outline: none; transition: border-color 0.2s; }
+.pref-input:focus { border-color: var(--terra); }
+.pref-input.locked { background: var(--bg); color: var(--ink3); cursor: not-allowed; display: flex; align-items: center; gap: 8px; }
+.pref-input-lock { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: var(--ui); font-size: 13px; background: var(--bg); color: var(--ink3); display: flex; align-items: center; gap: 8px; }
+.prep-style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.style-option { border: 1.5px solid var(--border); border-radius: var(--r); padding: 16px; cursor: pointer; transition: all 0.2s; position: relative; }
+.style-option.selected { border-color: var(--terra); background: var(--terra-bg); }
+.style-option-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.style-option-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+.style-radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.style-radio.checked { border-color: var(--terra); }
+.style-radio.checked::after { content:''; width: 8px; height: 8px; border-radius: 50%; background: var(--terra); }
+.style-option-desc { font-size: 12px; color: var(--ink2); line-height: 1.5; }
+.target-roles-input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-family: var(--ui); font-size: 13px; background: white; min-height: 42px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; cursor: text; }
+.role-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; font-size: 12px; color: var(--ink2); }
+.role-chip-x { cursor: pointer; color: var(--ink3); font-size: 14px; line-height: 1; }
+.role-chip-x:hover { color: var(--terra); }
+.role-add-input { border: none; outline: none; font-size: 13px; font-family: var(--ui); color: var(--ink); background: transparent; min-width: 80px; }
+.career-ta { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-family: var(--ui); font-size: 13px; min-height: 80px; resize: vertical; background: white; color: var(--ink); outline: none; line-height: 1.55; transition: border-color 0.2s; }
+.career-ta:focus { border-color: var(--terra); }
+.notif-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.notif-row:last-child { border-bottom: none; padding-bottom: 0; }
+.notif-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.notif-desc { font-size: 12px; color: var(--ink3); line-height: 1.4; }
+.toggle { width: 44px; height: 24px; border-radius: 999px; border: none; cursor: pointer; position: relative; flex-shrink: 0; transition: background 0.2s; }
+.toggle.on { background: var(--terra); }
+.toggle.off { background: var(--border2); }
+.toggle::after { content:''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: white; top: 3px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle.on::after { left: 23px; }
+.toggle.off::after { left: 3px; }
+.prefs-footer { position: sticky; bottom: 0; background: white; border-top: 1px solid var(--border); padding: 14px 44px; display: flex; justify-content: flex-end; gap: 10px; }
+
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ─── SIDEBAR ─── -->
+<div id="sidebar">
+  <div class="logo">inro</div>
+  <div class="role-switcher" id="role-switcher" onclick="showRoleSwitcher()">
+    <div class="role-switcher-info">
+      <div class="role-switcher-title" id="current-role-title">Product Designer</div>
+      <div class="role-switcher-company" id="current-role-company">Acme Corp</div>
+    </div>
+    <div class="role-switcher-arrow">⌄</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-btn active" id="nav-overview" onclick="go('overview')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>
+      Overview
+    </div>
+    <div class="nav-btn" id="nav-prep" onclick="go('brief')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10M2 7h7M2 10h5"/></svg>
+      Prep Sessions
+    </div>
+    <div class="nav-btn" id="nav-mock" onclick="go('practice')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><circle cx="7" cy="7" r="2"/></svg>
+      Mock Interviews
+    </div>
+  </div>
+  <div class="nav-section" style="margin-top: 0;">
+    <div class="nav-label">Workspace</div>
+    <div class="nav-btn" id="nav-resume" onclick="go('resume')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><path d="M4 4h6M4 7h6M4 10h4"/></svg>
+      Resume Library
+    </div>
+    <div class="nav-btn" id="nav-prefs" onclick="go('preferences')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10M4 4V2M10 4V2M2 10h10M4 10V8M10 10V8"/></svg>
+      Preferences
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar">SJ</div>
+    <div class="avatar-name">Sarah Jenkins</div>
+  </div>
+</div>
+
+<!-- ─── MAIN ─── -->
+<div id="main">
+  <div id="topbar">
+    INRO &nbsp;•&nbsp; <span id="topbar-crumb">OVERVIEW</span>
+  </div>
+  <div id="content">
+
+    <!-- OVERVIEW -->
+    <div id="view-overview" class="view" style="padding:36px 40px; max-width: 1100px;">
+      <div class="overview-header">
+        <div>
+          <h1>Welcome back, Sarah</h1>
+          <p>You have 1 upcoming interview this week, 2 sessions that need review, and a strong momentum going into your next prep cycle.</p>
+        </div>
+        <button class="btn-new" onclick="go('setup')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 2v10M2 7h10"/></svg>
+          New Prep Session
+        </button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Avg. Readiness</div>
+          <div class="stat-num">78%</div>
+          <div class="stat-sub">Almost ready. Focus on targeted practice modules.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Preps</div>
+          <div class="stat-num">4</div>
+          <div class="stat-sub">Good volume to compare your role fit across options.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Mock Interviews</div>
+          <div class="stat-num">12</div>
+          <div class="stat-sub">Strong practice volume. Focus on specific weak spots next.</div>
+        </div>
+      </div>
+
+      <div class="sessions-header">
+        <h3>Recent Sessions</h3>
+        <button class="view-all">View All</button>
+      </div>
+      <div class="sessions-grid">
+        <div class="session-card" onclick="go('brief')">
+          <div class="session-card-top">
+            <div class="session-role">Senior Product Designer</div>
+            <div class="session-time">2H AGO</div>
+          </div>
+          <div class="session-company">Notion</div>
+          <div class="match-row">
+            <div class="match-badge high">84% match</div>
+            <div class="match-bar"><div class="match-fill" style="width:84%"></div></div>
+          </div>
+          <div class="session-modules">3/5 modules</div>
+          <div class="status-tag strong">Strong Fit</div>
+          <div class="session-next">Best next step: practice systems-thinking stories tied to collaboration and product tradeoffs.</div>
+          <button class="session-action">→ Continue Prep</button>
+        </div>
+        <div class="session-card">
+          <div class="session-card-top">
+            <div class="session-role">Product Design Lead</div>
+            <div class="session-time">Yesterday</div>
+          </div>
+          <div class="session-company">Stripe</div>
+          <div class="match-row">
+            <div class="match-badge mid">71% match</div>
+            <div class="match-bar"><div class="match-fill mid" style="width:71%"></div></div>
+          </div>
+          <div class="session-modules">2/5 modules</div>
+          <div class="status-tag review">Needs Review</div>
+          <div class="session-next">Best next step: refine examples that show analytical depth and complex systems decision-making.</div>
+          <button class="session-action" onclick="go('eval')">⟳ Review Insights</button>
+        </div>
+        <div class="session-card">
+          <div class="session-card-top">
+            <div class="session-role">Staff UX Designer</div>
+            <div class="session-time">3D AGO</div>
+          </div>
+          <div class="session-company">Figma</div>
+          <div class="match-row">
+            <div class="match-badge mid">65% match</div>
+            <div class="match-bar"><div class="match-fill mid" style="width:65%"></div></div>
+          </div>
+          <div class="session-modules">4/5 modules</div>
+          <div class="status-tag bench">Benchmark</div>
+          <div class="session-next">Best next step: use this session to compare story quality against your strongest role and sharpen examples.</div>
+          <button class="session-action">→ Continue Prep</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETUP -->
+    <div id="view-setup" class="view hidden" style="padding:36px 40px; max-width: 960px; margin: 0 auto;">
+      <div class="breadcrumb">
+        <a onclick="go('overview')">Prep Sessions</a> › New Role
+      </div>
+      <div class="setup-title">Consult with inro</div>
+      <div class="setup-sub">Upload your documents or paste the text directly to generate a personalized interview brief.</div>
+
+      <div class="upload-grid">
+        <div class="upload-panel">
+          <div class="upload-label">Target Job Description</div>
+          <div class="drop-zone" id="dz-jd" onclick="document.getElementById('file-jd').click()">
+            <div id="dz-jd-text">Drag PDF/DOCX or click to upload</div>
+            <input type="file" id="file-jd" accept=".pdf,.docx,.txt" onchange="handleFile(event,'jd')" />
+          </div>
+          <textarea class="ta" id="ta-jd" placeholder="…or paste text here" oninput="checkReady()"></textarea>
+        </div>
+        <div class="upload-panel">
+          <div class="upload-label">Your Resume / Background</div>
+          <div class="drop-zone" id="dz-rv" onclick="document.getElementById('file-rv').click()">
+            <div id="dz-rv-text">Drag PDF/DOCX or click to upload</div>
+            <input type="file" id="file-rv" accept=".pdf,.docx,.txt" onchange="handleFile(event,'rv')" />
+          </div>
+          <textarea class="ta" id="ta-rv" placeholder="…or paste text here" oninput="checkReady()"></textarea>
+        </div>
+      </div>
+
+      <div class="context-section">
+        <div class="context-title">Additional Context <span style="font-size:13px;color:var(--ink3);font-family:var(--ui);font-weight:400;">(Optional)</span></div>
+        <div class="context-grid">
+          <div>
+            <div class="field-label">Target Company Name</div>
+            <input class="field-input" id="field-company" type="text" placeholder="e.g. Acme Corp" />
+          </div>
+          <div>
+            <div class="field-label">Interview Stage</div>
+            <select class="field-select" id="field-stage">
+              <option value="">Select stage…</option>
+              <option>Recruiter Screen</option>
+              <option>Hiring Manager</option>
+              <option>Portfolio Review</option>
+              <option>Final Loop</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="analyze-btn" disabled onclick="startAnalysis()">Awaiting Data…</button>
+      <div id="error-box" class="error-msg hidden"></div>
+    </div>
+
+    <!-- PROCESSING -->
+    <div id="view-processing" class="view hidden">
+      <div class="proc-title">Consulting inro…</div>
+      <p class="proc-sub">Analyzing your documents against the role</p>
+      <div class="steps">
+        <div class="step-row"><div class="step-dot active" id="s0"></div><div class="step-text active" id="sl0">Scanning job requirements</div></div>
+        <div class="step-row"><div class="step-dot" id="s1"></div><div class="step-text" id="sl1">Mapping your experience</div></div>
+        <div class="step-row"><div class="step-dot" id="s2"></div><div class="step-text" id="sl2">Building your strategy brief</div></div>
+      </div>
+    </div>
+
+    <!-- BRIEF -->
+    <div id="view-brief" class="view hidden">
+      <div class="brief-main">
+        <div class="brief-eyebrow">Role Overview</div>
+        <div class="brief-role-row">
+          <div class="brief-role-name" id="b-role">Product Designer</div>
+          <div class="score-box">
+            <div class="score-num" id="b-score">82</div>
+            <div class="score-unit">%</div>
+            <div class="score-label">Role Match Score</div>
+          </div>
+        </div>
+        <div class="brief-meta" id="b-meta">Last edited 2 days ago • TechCorp Inc.</div>
+
+        <div class="brief-card">
+          <h3>Role Summary</h3>
+          <p class="brief-summary-text" id="b-summary">Analyzing your match…</p>
+          <div class="callout-grid">
+            <div class="callout-box">
+              <div class="callout-label">↗ Strongest Alignment</div>
+              <div class="callout-text" id="b-align">—</div>
+            </div>
+            <div class="callout-box">
+              <div class="callout-label">⚠ Biggest Risk Area</div>
+              <div class="callout-text" id="b-risk">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Top Strengths</div>
+        <div id="b-strengths"></div>
+
+        <div class="section-label" style="margin-top:20px;">Critical Gaps & Mitigations</div>
+        <div id="b-gaps"></div>
+      </div>
+
+      <div class="brief-sidebar">
+        <div class="sidebar-section-header">
+          <div class="sidebar-section-label">Up Next: Prep Lab</div>
+          <div class="sidebar-section-right">Recommended Questions</div>
+        </div>
+        <div id="b-questions"></div>
+        <div class="mock-card">
+          <div class="mock-eyebrow">Comprehensive Practice</div>
+          <div class="mock-eyebrow" style="color:var(--ink);font-family:var(--ui);text-transform:none;letter-spacing:0;font-size:15px;font-weight:600;margin-top:4px;">Full Mock Interview</div>
+          <div class="mock-title">30-Minute Targeted Session</div>
+          <div class="mock-desc">Simulates a real interview environment covering your brief, focusing heavily on your strengths and mitigating your gaps.</div>
+          <button class="mock-btn" onclick="go('practice')">▶ Start Mock Interview</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRACTICE (LIVE) -->
+    <div id="view-practice" class="view hidden">
+      <div class="practice-topbar">
+        <button class="back-btn" onclick="go('brief')">← Back to Prep Sessions</button>
+      </div>
+      <div class="practice-body">
+        <div class="practice-left">
+          <div class="q-header">
+            <div class="q-eyebrow" id="p-eyebrow">Priority Question</div>
+            <div class="q-title" id="p-question">How do you approach designing for accessibility from the start of a project?</div>
+            <div class="insight-bar">
+              <span class="insight-icon">💡</span>
+              <div><strong>Insight:</strong> <span id="p-insight">Assesses awareness of inclusive design principles and whether it's built into your workflow.</span></div>
+            </div>
+          </div>
+          <div class="recording-card">
+            <div class="rec-header">
+              <div class="rec-label">Your Live Response</div>
+              <div class="rec-status"><div class="rec-dot"></div>Recording Now</div>
+            </div>
+            <div class="timer-wrap">
+              <div class="timer-ring">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                  <circle class="bg" cx="60" cy="60" r="52"/>
+                  <circle class="prog" id="timer-prog" cx="60" cy="60" r="52" stroke-dasharray="327" stroke-dashoffset="245"/>
+                </svg>
+                <div class="timer-center">
+                  <div class="timer-elapsed">Elapsed</div>
+                  <div class="timer-time" id="timer-display">01:18</div>
+                </div>
+              </div>
+            </div>
+            <div class="rec-hint">Speak naturally and structure your answer with a clear point of view, one concrete example, and how you collaborate with engineering or research to make accessibility real.</div>
+            <div class="waveform-section">
+              <div class="waveform-row">
+                <div class="waveform-label">Mic Input</div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);">Live transcript on</div>
+              </div>
+              <div class="waveform" id="waveform"></div>
+            </div>
+            <div style="margin-bottom:14px;">
+              <div class="transcript-label">Live Transcript</div>
+              <div class="live-transcript" id="live-transcript">"I try to build accessibility in from the earliest planning stage by checking hierarchy, keyboard behavior, and contrast before the UI gets too polished. One example was…"</div>
+            </div>
+            <div class="rec-controls">
+              <button class="rec-btn" onclick="resetTimer()">Restart</button>
+              <button class="rec-btn" id="pause-btn" onclick="togglePause()">Pause</button>
+              <button class="rec-btn finish" onclick="go('eval')">Finish Answer</button>
+            </div>
+          </div>
+        </div>
+        <div class="practice-right">
+          <div class="coaching-card">
+            <div class="coaching-header">
+              <div class="coaching-label">Answer Coaching</div>
+              <div class="coaching-target">Target 1–2 min</div>
+            </div>
+            <div class="coaching-item">
+              <div class="coaching-icon">○</div>
+              <div class="coaching-text"><strong>Start with principle:</strong> Explain that accessibility is part of product quality, not a final checklist.</div>
+            </div>
+            <div class="coaching-item">
+              <div class="coaching-icon">☰</div>
+              <div class="coaching-text"><strong>Add one workflow example:</strong> Mention audits, semantic structure, annotations, or design QA in handoff.</div>
+            </div>
+            <div class="coaching-item">
+              <div class="coaching-icon">◎</div>
+              <div class="coaching-text"><strong>Close with collaboration:</strong> Reference partnering with engineers, PMs, or research to validate decisions.</div>
+            </div>
+          </div>
+          <div class="structure-card">
+            <div class="structure-header">
+              <div class="structure-label">Suggested Structure</div>
+              <div class="structure-note">3-part answer</div>
+            </div>
+            <div class="structure-item">
+              <div class="structure-num">1</div>
+              <div>
+                <div class="structure-title">Mindset</div>
+                <div class="structure-desc">Accessibility is considered from discovery and wireframes, not after launch.</div>
+              </div>
+            </div>
+            <div class="structure-item">
+              <div class="structure-num">2</div>
+              <div>
+                <div class="structure-title">Example</div>
+                <div class="structure-desc">Share a project where you checked contrast, focus order, or screen reader behavior.</div>
+              </div>
+            </div>
+            <div class="structure-item">
+              <div class="structure-num">3</div>
+              <div>
+                <div class="structure-title">Outcome</div>
+                <div class="structure-desc">Explain what improved for users or how it changed collaboration and quality.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="practice-footer">
+        <button class="footer-skip" onclick="go('brief')">Skip for Now</button>
+        <button class="footer-submit" onclick="go('eval')">Submit for Feedback →</button>
+      </div>
+    </div>
+
+    <!-- EVAL -->
+    <div id="view-eval" class="view hidden">
+      <div class="eval-topbar">
+        <button class="back-btn" onclick="go('brief')">← Back to Prep Sessions</button>
+      </div>
+      <div class="eval-body">
+        <div>
+          <div class="q-header" style="margin-bottom:16px;">
+            <div class="q-eyebrow" id="e-eyebrow">Priority Question</div>
+            <div class="q-title" id="e-question">How do you approach designing for accessibility from the start of a project?</div>
+            <div class="insight-bar">
+              <span class="insight-icon">💡</span>
+              <div><strong>Insight:</strong> <span id="e-insight">Assesses awareness of inclusive design principles and whether it's built into your workflow.</span></div>
+            </div>
+          </div>
+
+          <div class="playback-card">
+            <div class="playback-header">
+              <div class="playback-label">Your Response</div>
+              <div class="playback-time">01:42</div>
+            </div>
+            <div class="playback-controls">
+              <button class="play-btn">
+                <svg width="12" height="14" viewBox="0 0 12 14" fill="white"><path d="M1 1l10 6-10 6V1z"/></svg>
+              </button>
+              <div class="progress-bar"><div class="progress-fill"></div></div>
+            </div>
+            <div class="transcript-label">Transcript</div>
+            <div class="transcript-text" id="e-transcript">
+              "For accessibility, I always try to think about it from the beginning rather than treating it as an afterthought. During the early wireframing stages, I make sure we have a clear hierarchy and semantic structure.<br><br>
+              When moving to high-fidelity, I use plugins like Stark in Figma to double-check color contrast ratios to ensure they meet WCAG AA standards. I also try to annotate my designs for developers, specifying focus states and ARIA labels so the handoff is smooth."
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="eval-card">
+            <div class="eval-header">
+              <div class="eval-label">inro Evaluation</div>
+              <div class="eval-score" id="e-score">82/100</div>
+            </div>
+
+            <div class="eval-section-label green">Strengths</div>
+            <div id="e-strengths">
+              <div class="eval-item">
+                <div class="eval-item-title">✓ Practical tools:</div>
+                <div class="eval-item-desc">Mentioning the Stark plugin demonstrates hands-on experience with contrast checking.</div>
+                <div class="tag-row">
+                  <div class="tag jd-tag">📋 Job requirement • WCAG AA compliance</div>
+                  <div class="tag resume-tag">📄 Resume line • Uses Stark in Figma</div>
+                </div>
+              </div>
+              <div class="eval-item">
+                <div class="eval-item-title">✓ Developer collaboration:</div>
+                <div class="eval-item-desc">Proactively discussing focus states and ARIA annotations shows maturity in the handoff process.</div>
+                <div class="tag-row">
+                  <div class="tag jd-tag">📋 Job requirement • Cross-functional handoff</div>
+                  <div class="tag resume-tag">📄 Resume line • Annotated specs for engineers</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="eval-section-label terra" style="margin-top:14px;">Areas to Improve</div>
+            <div id="e-improve">
+              <div class="eval-item">
+                <div class="eval-item-title">⚠ User testing gap:</div>
+                <div class="eval-item-desc">You didn't mention testing your designs with actual users who rely on assistive technologies or conducting screen reader QA.</div>
+                <div class="tag-row">
+                  <div class="tag jd-tag">📋 Job requirement • Validate accessibility with users</div>
+                  <div class="tag warn-tag">⚠ No matching resume evidence</div>
+                </div>
+              </div>
+              <div class="eval-item">
+                <div class="eval-item-title">⚠ Beyond visual/code:</div>
+                <div class="eval-item-desc">Broaden your answer to include cognitive accessibility (clear copy, predictable navigation) and motor accessibility (touch targets).</div>
+                <div class="tag-row">
+                  <div class="tag jd-tag">📋 Job requirement • Inclusive UX across flows</div>
+                  <div class="tag warn-tag">⚠ Resume coverage is partial</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="traceability-note">
+              <strong>Source traceability:</strong> Every insight is grounded in the original inputs so the candidate can see exactly which resume evidence and job requirements informed the evaluation.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="eval-footer">
+        <button class="btn-ghost" onclick="go('practice')">Retry Question</button>
+        <button class="btn-primary" onclick="nextQuestion()">Next Question →</button>
+      </div>
+    </div>
+
+    <!-- RESUME LIBRARY -->
+    <div id="view-resume" class="view hidden">
+      <div class="rl-header">
+        <div>
+          <h1>Resume Library</h1>
+          <p>Manage your base resume and tailored versions to get the most accurate fit insights for your target roles.</p>
+        </div>
+        <button class="btn-upload">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10V3M4 6l3-3 3 3"/><path d="M2 11h10"/></svg>
+          Upload Resume
+        </button>
+      </div>
+
+      <div class="rl-section-label">Primary Base Resume</div>
+      <div class="primary-resume-card">
+        <div class="resume-icon">
+          <svg width="20" height="24" viewBox="0 0 20 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="16" height="22" rx="2"/><path d="M6 7h8M6 11h8M6 15h5"/></svg>
+        </div>
+        <div class="resume-info">
+          <div class="resume-name">
+            Sarah_Jenkins.pdf
+            <span class="primary-badge">Primary Base</span>
+          </div>
+          <div class="resume-meta">Uploaded Oct 12, 2026 • 1.2 MB • Used in 8 sessions</div>
+        </div>
+        <div class="resume-actions">
+          <button class="btn-preview">Preview</button>
+          <button class="btn-update">Update</button>
+        </div>
+      </div>
+
+      <div class="rl-section-label">Tailored Resumes</div>
+      <div class="tailored-grid">
+        <div class="tailored-card">
+          <div class="tailored-card-top">
+            <div class="tailored-icon">
+              <svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="var(--terra)" stroke-width="1.5"><rect x="1" y="1" width="16" height="20" rx="2"/><path d="M5 6h8M5 10h8M5 14h5"/></svg>
+            </div>
+            <button class="more-btn">···</button>
+          </div>
+          <div class="tailored-name">SJ_Stripe_DesignLead.pdf</div>
+          <div class="tailored-meta">Uploaded Yesterday • 1.1 MB</div>
+          <div class="tailored-tags">
+            <span class="tailored-tag">Stripe</span>
+            <span class="tailored-tag">Product Design Lead</span>
+          </div>
+          <div class="tailored-actions">
+            <button>Preview</button>
+            <button>View Sessions</button>
+          </div>
+        </div>
+        <div class="tailored-card">
+          <div class="tailored-card-top">
+            <div class="tailored-icon">
+              <svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="var(--terra)" stroke-width="1.5"><rect x="1" y="1" width="16" height="20" rx="2"/><path d="M5 6h8M5 10h8M5 14h5"/></svg>
+            </div>
+            <button class="more-btn">···</button>
+          </div>
+          <div class="tailored-name">SJ_Notion_SeniorPD.pdf</div>
+          <div class="tailored-meta">Uploaded 2 days ago • 1.3 MB</div>
+          <div class="tailored-tags">
+            <span class="tailored-tag">Notion</span>
+            <span class="tailored-tag">Senior Designer</span>
+          </div>
+          <div class="tailored-actions">
+            <button>Preview</button>
+            <button>View Sessions</button>
+          </div>
+        </div>
+        <div class="tailored-card">
+          <div class="tailored-card-top">
+            <div class="tailored-icon">
+              <svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="var(--terra)" stroke-width="1.5"><rect x="1" y="1" width="16" height="20" rx="2"/><path d="M5 6h8M5 10h8M5 14h5"/></svg>
+            </div>
+            <button class="more-btn">···</button>
+          </div>
+          <div class="tailored-name">SJ_Figma_StaffUX.pdf</div>
+          <div class="tailored-meta">Uploaded 4 days ago • 1.2 MB</div>
+          <div class="tailored-tags">
+            <span class="tailored-tag">Figma</span>
+            <span class="tailored-tag">Staff UX</span>
+          </div>
+          <div class="tailored-actions">
+            <button>Preview</button>
+            <button>View Sessions</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREFERENCES -->
+    <div id="view-preferences" class="view hidden" style="height:100%; display:flex; flex-direction:column; overflow:hidden;">
+      <div style="flex:1; overflow-y:auto;">
+        <div class="prefs-scroll">
+          <div class="prefs-breadcrumb">
+            <a>Workspace</a> › Preferences
+          </div>
+          <div class="prefs-title">Preferences</div>
+
+          <!-- Profile Information -->
+          <div class="prefs-card">
+            <div class="prefs-card-title">Profile Information</div>
+            <div class="prefs-card-sub">Manage your personal details and how you appear on the platform.</div>
+            <div class="avatar-row">
+              <div class="avatar-lg">SJ</div>
+              <div>
+                <button class="change-img-btn">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 9V4M4 6.5l2.5-2.5 2.5 2.5"/><path d="M1 10.5h11"/></svg>
+                  Change image
+                </button>
+                <div class="img-hint">JPG, GIF or PNG. 1MB max.</div>
+              </div>
+            </div>
+            <div class="name-grid">
+              <div>
+                <div class="pref-label">First Name</div>
+                <input class="pref-input" type="text" value="Sarah" />
+              </div>
+              <div>
+                <div class="pref-label">Last Name</div>
+                <input class="pref-input" type="text" value="Jenkins" />
+              </div>
+            </div>
+            <div>
+              <div class="pref-label">Email Address</div>
+              <div class="pref-input-lock">
+                <svg width="12" height="14" viewBox="0 0 12 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="6" width="10" height="8" rx="1"/><path d="M3 6V4a3 3 0 016 0v2"/></svg>
+                sarah.jenkins@example.com
+              </div>
+            </div>
+          </div>
+
+          <!-- Interview Prep Strategy -->
+          <div class="prefs-card">
+            <div class="prefs-card-title">Interview Prep Strategy</div>
+            <div class="prefs-card-sub">Customize how Inro generates your prep plans based on your learning style.</div>
+
+            <div class="pref-label" style="margin-bottom:10px;">Default Prep Style</div>
+            <div class="prep-style-grid">
+              <div class="style-option selected" onclick="selectStyle(this)">
+                <div class="style-option-header">
+                  <div class="style-option-title">Guided Co-creation</div>
+                  <div class="style-radio checked"></div>
+                </div>
+                <div class="style-option-desc">Inro provides structure and prompts, but you retain control over building and editing the final plan. Best for building confidence.</div>
+              </div>
+              <div class="style-option" onclick="selectStyle(this)">
+                <div class="style-option-header">
+                  <div class="style-option-title">Fully Automated</div>
+                  <div class="style-radio"></div>
+                </div>
+                <div class="style-option-desc">Inro builds the entire end-to-end plan instantly. Best when you need to prep fast with zero setup time.</div>
+              </div>
+            </div>
+
+            <div class="pref-label" style="margin-bottom:8px;">Target Roles</div>
+            <div class="target-roles-input" id="roles-input" onclick="document.getElementById('role-add').focus()">
+              <span class="role-chip">Product Designer <span class="role-chip-x" onclick="removeChip(this)">×</span></span>
+              <span class="role-chip">UX Researcher <span class="role-chip-x" onclick="removeChip(this)">×</span></span>
+              <input class="role-add-input" id="role-add" placeholder="Add a role…" onkeydown="addRole(event)" />
+            </div>
+
+            <div class="pref-label" style="margin-top:16px; margin-bottom:8px;">Career Context <span style="font-weight:400;color:var(--ink3);">(Optional)</span></div>
+            <textarea class="career-ta">Transitioning from agency work to an in-house SaaS product team. Looking to highlight systems thinking and cross-functional collaboration.</textarea>
+          </div>
+
+          <!-- Notifications -->
+          <div class="prefs-card">
+            <div class="prefs-card-title">Notifications</div>
+            <div class="prefs-card-sub">Manage how we communicate with you.</div>
+            <div class="notif-row">
+              <div>
+                <div class="notif-title">Interview Reminders</div>
+                <div class="notif-desc">Receive an email 24 hours before your scheduled interviews.</div>
+              </div>
+              <button class="toggle on" onclick="toggleNotif(this)"></button>
+            </div>
+            <div class="notif-row">
+              <div>
+                <div class="notif-title">Weekly Prep Digest</div>
+                <div class="notif-desc">A summary of your mock interview scores and readiness progress.</div>
+              </div>
+              <button class="toggle on" onclick="toggleNotif(this)"></button>
+            </div>
+            <div class="notif-row">
+              <div>
+                <div class="notif-title">Product Updates</div>
+                <div class="notif-desc">Occasional emails about new Inro features and improvements.</div>
+              </div>
+              <button class="toggle off" onclick="toggleNotif(this)"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="prefs-footer">
+        <button class="btn-ghost">Discard Changes</button>
+        <button class="btn-primary">Save Preferences</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const store = { jd: "", rv: "" };
+let currentQuestions = [];
+let currentQIdx = 0;
+let timerSecs = 78, timerRunning = true, timerInterval = null;
+let paused = false;
+
+// ── NAV ──
+function go(view) {
+  const views = ['overview','setup','processing','brief','practice','eval','resume','preferences'];
+  views.forEach(v => {
+    const el = document.getElementById('view-' + v);
+    if (el) el.classList.add('hidden');
+  });
+  const target = document.getElementById('view-' + view);
+  if (target) { target.classList.remove('hidden'); target.classList.add('view'); }
+
+  const navMap = {
+    overview:'nav-overview', brief:'nav-prep', setup:'nav-prep',
+    practice:'nav-mock', eval:'nav-mock',
+    resume:'nav-resume', preferences:'nav-prefs'
+  };
+  ['nav-overview','nav-prep','nav-mock','nav-resume','nav-prefs'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  if (navMap[view]) { const nb = document.getElementById(navMap[view]); if(nb) nb.classList.add('active'); }
+
+  const crumbs = {
+    overview:'OVERVIEW', setup:'SETUP', processing:'ANALYZING',
+    brief:'PREP SESSIONS', practice:'PREP EVALUATION', eval:'PREP EVALUATION',
+    resume:'RESUME LIBRARY', preferences:'PREFERENCES'
+  };
+  document.getElementById('topbar-crumb').textContent = crumbs[view] || view.toUpperCase();
+
+  if (view === 'practice') startTimer();
+  else stopTimer();
+}
+
+// ── PREFERENCES HELPERS ──
+function selectStyle(el) {
+  document.querySelectorAll('.style-option').forEach(o => {
+    o.classList.remove('selected');
+    o.querySelector('.style-radio').classList.remove('checked');
+  });
+  el.classList.add('selected');
+  el.querySelector('.style-radio').classList.add('checked');
+}
+function toggleNotif(btn) {
+  btn.classList.toggle('on');
+  btn.classList.toggle('off');
+}
+function removeChip(x) {
+  x.parentElement.remove();
+}
+function addRole(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim().replace(',','');
+    if (!val) return;
+    const chip = document.createElement('span');
+    chip.className = 'role-chip';
+    chip.innerHTML = val + ' <span class="role-chip-x" onclick="removeChip(this)">×</span>';
+    e.target.parentElement.insertBefore(chip, e.target);
+    e.target.value = '';
+  }
+}
+
+// ── FILE HANDLING ──
+async function extractText(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'pdf') {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let t = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const pg = await pdf.getPage(i);
+      const c = await pg.getTextContent();
+      t += c.items.map(x => x.str).join(' ') + '\n';
+    }
+    return t;
+  }
+  if (ext === 'docx') {
+    const buf = await file.arrayBuffer();
+    const r = await mammoth.extractRawText({ arrayBuffer: buf });
+    return r.value;
+  }
+  return new Promise(res => { const fr = new FileReader(); fr.onload = e => res(e.target.result); fr.readAsText(file); });
+}
+
+async function handleFile(e, type) {
+  const file = e.target.files[0]; if (!file) return;
+  const txt = document.getElementById('dz-'+type+'-text');
+  const dz = document.getElementById('dz-'+type);
+  txt.textContent = 'Reading…'; dz.classList.remove('filled');
+  try {
+    const text = await extractText(file);
+    store[type] = text;
+    dz.classList.add('filled');
+    txt.textContent = '✓ ' + file.name;
+  } catch { txt.textContent = 'Error reading file'; }
+  checkReady();
+}
+
+function checkReady() {
+  const jd = store.jd || document.getElementById('ta-jd').value.trim();
+  const rv = store.rv || document.getElementById('ta-rv').value.trim();
+  const btn = document.getElementById('analyze-btn');
+  const ok = jd.length > 20 && rv.length > 20;
+  btn.disabled = !ok;
+  btn.textContent = ok ? 'Begin Analysis →' : 'Awaiting Data…';
+}
+
+// ── ANALYSIS ──
+async function startAnalysis() {
+  const jd = store.jd || document.getElementById('ta-jd').value.trim();
+  const rv = store.rv || document.getElementById('ta-rv').value.trim();
+  const company = document.getElementById('field-company').value.trim();
+  const stage = document.getElementById('field-stage').value;
+  store.jd = jd; store.rv = rv;
+  document.getElementById('error-box').classList.add('hidden');
+  go('processing');
+
+  const steps = ['s0','s1','s2'], labels = ['sl0','sl1','sl2'];
+  let cur = 0;
+  const iv = setInterval(() => {
+    if (cur > 0) { document.getElementById(steps[cur-1]).classList.remove('active','done'); document.getElementById(steps[cur-1]).classList.add('done'); document.getElementById(labels[cur-1]).classList.remove('active'); }
+    if (cur < steps.length) { document.getElementById(steps[cur]).classList.add('active'); document.getElementById(labels[cur]).classList.add('active'); cur++; }
+  }, 1200);
+
+  try {
+    const result = await callClaude(jd, rv, company, stage);
+    clearInterval(iv);
+    steps.forEach(s => { document.getElementById(s).classList.remove('active'); document.getElementById(s).classList.add('done'); });
+    renderBrief(result, company, stage);
+    go('brief');
+  } catch(err) {
+    clearInterval(iv);
+    go('setup');
+    const box = document.getElementById('error-box');
+    box.textContent = 'Error: ' + err.message;
+    box.classList.remove('hidden');
+  }
+}
+
+async function callClaude(jd, rv, company, stage) {
+  const stageNote = stage ? `Interview stage: ${stage}.` : '';
+  const companyNote = company ? `Target company: ${company}.` : '';
+  const prompt = `You are an expert interview coach. Analyze the job description and resume.
+${companyNote} ${stageNote}
+
+Return ONLY a valid JSON object — no markdown, no code fences.
+
+{
+  "role": "concise job title",
+  "matchScore": 0-100,
+  "summary": "2-3 sentences on fit and focus",
+  "strongestAlignment": "one sentence on the strongest alignment",
+  "biggestRisk": "one sentence on the biggest risk",
+  "strengths": [
+    { "title": "strength title", "desc": "2 sentences with specific coaching" },
+    { "title": "...", "desc": "..." },
+    { "title": "...", "desc": "..." }
+  ],
+  "gaps": [
+    { "title": "gap title", "mitigation": "specific mitigation strategy" },
+    { "title": "...", "mitigation": "..." }
+  ],
+  "questions": [
+    { "type": "SYSTEM DESIGN", "q": "question text", "insight": "why this matters", "category": "behavioral" },
+    { "type": "BEHAVIORAL", "q": "...", "insight": "...", "category": "behavioral" },
+    { "type": "PRODUCT SENSE", "q": "...", "insight": "...", "category": "product" }
+  ]
+}
+
+JD:
+${jd.substring(0, 3500)}
+
+RESUME:
+${rv.substring(0, 3500)}`;
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'API error'); }
+  const data = await res.json();
+  let raw = data.content.map(b => b.text||'').join('').replace(/```json|```/gi,'').trim();
+  return JSON.parse(raw);
+}
+
+function renderBrief(r, company, stage) {
+  currentQuestions = r.questions || [];
+  const score = r.matchScore ?? 0;
+  document.getElementById('b-role').textContent = r.role || 'Role Analysis';
+  document.getElementById('b-score').textContent = score;
+  document.getElementById('b-score').style.color = score >= 75 ? 'var(--green)' : score >= 55 ? 'var(--amber)' : 'var(--terra)';
+  const metaParts = [];
+  if (company) metaParts.push(company);
+  if (stage) metaParts.push(stage);
+  document.getElementById('b-meta').textContent = metaParts.length ? metaParts.join(' • ') : 'Role Analysis';
+  document.getElementById('b-summary').textContent = r.summary || '';
+  document.getElementById('b-align').textContent = r.strongestAlignment || '—';
+  document.getElementById('b-risk').textContent = r.biggestRisk || '—';
+
+  // Role in switcher
+  document.getElementById('current-role-title').textContent = r.role || 'Role';
+  document.getElementById('current-role-company').textContent = company || 'Company';
+
+  // Strengths
+  document.getElementById('b-strengths').innerHTML = (r.strengths || []).map(s => `
+    <div class="strength-item">
+      <div class="strength-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5l2 2 4-4"/></svg></div>
+      <div><div class="strength-title">${s.title}</div><div class="strength-desc">${s.desc}</div></div>
+    </div>`).join('');
+
+  // Gaps
+  document.getElementById('b-gaps').innerHTML = (r.gaps || []).map(g => `
+    <div class="gap-item">
+      <div class="gap-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--terra)" stroke-width="2"><circle cx="5" cy="5" r="4"/><path d="M5 3v3M5 7.5v.5"/></svg></div>
+      <div><div class="gap-title">${g.title}</div><div class="gap-strategy"><strong>Mitigation strategy:</strong> ${g.mitigation}</div></div>
+    </div>`).join('');
+
+  // Sidebar questions
+  const [q1, q2, q3] = currentQuestions;
+  document.getElementById('b-questions').innerHTML = (q1 ? `
+    <div class="q-mini" onclick="startQuestion(0)">
+      <div class="q-mini-tag">Priority Question • ${q1.type||'Behavioral'}</div>
+      <div class="q-mini-text">${q1.q}</div>
+      <div class="q-mini-insight"><strong>Insight:</strong> ${q1.insight||''}</div>
+      <div class="q-mini-actions">
+        <button class="q-mini-btn primary" onclick="event.stopPropagation();startQuestion(0)">🎤 Practice Answer</button>
+        <button class="q-mini-btn ghost">✏ Write Draft</button>
+      </div>
+    </div>` : '') +
+    (q2 ? `<div class="q-mini" onclick="startQuestion(1)">
+      <div class="q-mini-tag">${q2.type||'Behavioral'}</div>
+      <div class="q-mini-text">${q2.q}</div>
+      <button class="q-mini-btn primary" style="width:100%;" onclick="event.stopPropagation();startQuestion(1)">🎤 Practice Answer</button>
+    </div>` : '') +
+    (q3 ? `<div class="q-mini" onclick="startQuestion(2)">
+      <div class="q-mini-tag">${q3.type||'Product Sense'}</div>
+      <div class="q-mini-text">${q3.q}</div>
+      <button class="q-mini-btn primary" style="width:100%;" onclick="event.stopPropagation();startQuestion(2)">🎤 Practice Answer</button>
+    </div>` : '');
+}
+
+function startQuestion(idx) {
+  currentQIdx = idx;
+  const q = currentQuestions[idx];
+  if (!q) return;
+  document.getElementById('p-eyebrow').textContent = (q.type || 'Question').toUpperCase();
+  document.getElementById('p-question').textContent = q.q;
+  document.getElementById('p-insight').textContent = q.insight || '';
+  document.getElementById('e-eyebrow').textContent = (q.type || 'Question').toUpperCase();
+  document.getElementById('e-question').textContent = q.q;
+  document.getElementById('e-insight').textContent = q.insight || '';
+  go('practice');
+}
+
+function nextQuestion() {
+  if (currentQIdx + 1 < currentQuestions.length) {
+    startQuestion(currentQIdx + 1);
+    go('practice');
+  } else {
+    go('brief');
+  }
+}
+
+// ── TIMER ──
+function startTimer() {
+  timerSecs = 0; paused = false;
+  document.getElementById('pause-btn').textContent = 'Pause';
+  stopTimer();
+  timerInterval = setInterval(() => {
+    if (!paused) { timerSecs++; updateTimerDisplay(); }
+  }, 1000);
+  buildWaveform();
+}
+function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
+function resetTimer() { timerSecs = 0; updateTimerDisplay(); }
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pause-btn').textContent = paused ? 'Resume' : 'Pause';
+}
+function updateTimerDisplay() {
+  const m = String(Math.floor(timerSecs/60)).padStart(2,'0');
+  const s = String(timerSecs%60).padStart(2,'0');
+  document.getElementById('timer-display').textContent = m+':'+s;
+  // ring: 2min target
+  const pct = Math.min(timerSecs / 120, 1);
+  const circ = 327;
+  document.getElementById('timer-prog').style.strokeDashoffset = circ - (circ * pct);
+}
+
+function buildWaveform() {
+  const wf = document.getElementById('waveform');
+  wf.innerHTML = '';
+  for (let i = 0; i < 38; i++) {
+    const b = document.createElement('div');
+    b.className = 'wbar';
+    const h = 6 + Math.random() * 28;
+    b.style.height = h + 'px';
+    b.style.animationDelay = (Math.random() * 0.8) + 's';
+    b.style.animationDuration = (0.6 + Math.random() * 0.6) + 's';
+    wf.appendChild(b);
+  }
+}
+
+function showRoleSwitcher() { go('setup'); }
+
+// init
+go('overview');
+buildWaveform();
+</script>
+</body>
+</html>

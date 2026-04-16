@@ -454,8 +454,6 @@
 
   <script>
     // === CONFIG ===
-    const GEMINI_API_KEY = "AIzaSyDjvkkXs9eBJZLvKsyYzqBDopIhMIAN96c"; // replace with your key if needed
-
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
@@ -607,68 +605,26 @@
     }
 
     async function callGemini() {
-      const url =
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
-
-      const prompt = `
-Analyze this Job Description (JD) and Resume.
-
-Return ONLY a JSON object, no markdown, no extra text.
-
-The JSON schema:
-{
-  "role": "Concise role title",
-  "summary": "2-3 sentence plain English summary of how this candidate fits the role.",
-  "matchScore": 0-100,
-  "strengths": ["bullet", "bullet", "bullet"],
-  "gaps": ["bullet", "bullet", "bullet"],
-  "questions": [
-    { "q": "behavioral or technical interview question", "reason": "why this question matters" },
-    { "q": "...", "reason": "..." },
-    { "q": "...", "reason": "..." }
-  ]
-}
-
-JD:
-${dataStore.jdText.substring(0, 4000)}
-
-Resume:
-${dataStore.rvText.substring(0, 4000)}
-      `.trim();
-
-      const body = {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }]
-          }
-        ]
-      };
-
       try {
-        const response = await fetch(url, {
+        const response = await fetch("/.netlify/functions/analyze", {
           method: "POST",
           headers: {
-            "x-goog-api-key": GEMINI_API_KEY,
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(body)
+          body: JSON.stringify({
+            jdText: dataStore.jdText,
+            rvText: dataStore.rvText
+          })
         });
 
         const data = await response.json();
         if (!response.ok) {
-          const msg = data.error?.message || "Unknown API error";
+          const msg = data.error || "Unknown API error";
           throw new Error(msg);
         }
 
-        let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-        if (rawText.includes("```")) {
-          rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
-        }
-
-        const parsed = JSON.parse(rawText);
-        return parsed;
+        // Backend already parsed and normalized the JSON, so just return it.
+        return data;
       } catch (err) {
         console.error(err);
         const box = document.getElementById("error-display");
