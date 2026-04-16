@@ -38,8 +38,8 @@ export function AppShell({
 
           <div className="px-3 mb-4">
             <div className="text-[9px] tracking-[1.2px] uppercase text-[var(--ink3)] px-1 mb-1">Workspace</div>
-            <NavItem href="/dashboard" active={active === "resume"} label="Resume Library" />
-            <NavItem href="/onboarding" active={active === "prefs"} label="Preferences" />
+            <NavItem href="/resume" active={active === "resume"} label="Resume Library" />
+            <NavItem href="/preferences" active={active === "prefs"} label="Preferences" />
           </div>
 
           <div className="mt-auto border-t border-[var(--border)] px-5 py-3 flex items-center gap-2.5">

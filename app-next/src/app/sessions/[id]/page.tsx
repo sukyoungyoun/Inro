@@ -44,14 +44,22 @@ export default async function SessionDetailPage({
                 <p className="text-xs uppercase text-[#9C8E84]">{q.category}</p>
                 <p className="text-sm font-medium mt-1">{q.question}</p>
                 {q.insight && <p className="text-xs text-[#5C5248] mt-2">{q.insight}</p>}
+                <div className="flex gap-2 mt-2">
+                  <Link href={`/sessions/${data.id}/practice`} className="text-[11px] px-2 py-1 rounded-[6px] bg-[#1C1917] text-white">
+                    Practice
+                  </Link>
+                  <Link href={`/sessions/${data.id}/evaluation`} className="text-[11px] px-2 py-1 rounded-[6px] border border-[#E0D8D0] text-[#5C5248]">
+                    Evaluate
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
           <Link
-            href="/sessions/new"
+            href={`/sessions/${data.id}/practice`}
             className="mt-4 inline-block w-full text-center bg-[#1C1917] text-white rounded-[8px] py-2"
           >
-            Start another cycle
+            Start Mock Interview
           </Link>
         </div>
       }
