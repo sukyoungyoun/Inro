@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/app-shell";
+import { SignOutButton } from "@/components/sign-out-button";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -48,16 +49,7 @@ export default async function DashboardPage() {
             <Link href="/sessions/new" className="bg-[#1C1917] text-white rounded-[10px] px-4 py-2 font-medium">
               New Prep Session
             </Link>
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/login" });
-              }}
-            >
-              <button className="border border-[#E0D8D0] bg-white rounded-[10px] px-4 py-2">
-                Sign out
-              </button>
-            </form>
+            <SignOutButton />
           </div>
         </div>
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -10,8 +10,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [callbackUrl, setCallbackUrl] = useState("/");
   const router = useRouter();
-  const search = useSearchParams();
+
+  useEffect(() => {
+    const search = new URLSearchParams(window.location.search);
+    setCallbackUrl(search.get("callbackUrl") || "/");
+  }, []);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -31,8 +36,7 @@ export default function LoginPage() {
       return;
     }
 
-    const next = search.get("callbackUrl") || "/";
-    router.push(next);
+    router.push(callbackUrl);
   }
 
   return (

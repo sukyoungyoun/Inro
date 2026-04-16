@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
+import { getServerSession, type NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
@@ -35,14 +35,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const protectedPaths = ["/dashboard", "/onboarding", "/sessions"];
-      const isProtected = protectedPaths.some((p) => nextUrl.pathname.startsWith(p));
-
-      if (isProtected) return isLoggedIn;
-      return true;
-    },
     async jwt({ token, user }) {
       if (user?.id) token.sub = user.id;
       return token;
@@ -54,5 +46,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
-});
+};
+
+export function auth() {
+  return getServerSession(authOptions);
+}
 
