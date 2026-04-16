@@ -32,7 +32,7 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
     >
       <div className="p-8 max-w-6xl">
         <Link href={`/sessions/${id}`} className="text-sm text-[#5C5248] hover:text-[#1C1917]">← Back to Prep Sessions</Link>
-        <div className="grid md:grid-cols-[1fr_340px] gap-5 mt-4">
+        <div className="grid md:grid-cols-[1fr_420px] gap-5 mt-4">
           <div className="space-y-4">
             <div className="inro-card p-6">
               <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#9C8E84] mb-2">{(q?.category || "Priority Question").toUpperCase()}</p>
@@ -40,8 +40,24 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
               <p className="text-sm text-[#5C5248]">{q?.insight || "Evaluation summary based on your brief and answer structure."}</p>
             </div>
             <div className="inro-card p-6">
-              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#3D6B50] mb-3">Strengths</p>
-              <div className="space-y-2">
+              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#9C8E84] mb-2">Your Response</p>
+              <div className="h-2 bg-[#E0D8D0] rounded mb-4 overflow-hidden">
+                <div className="h-full bg-[#8B5E52] w-[65%]" />
+              </div>
+              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#9C8E84] mb-2">Transcript</p>
+              <p className="text-sm text-[#5C5248] leading-7">
+                "For accessibility, I try to think about it from the beginning rather than treating it as an afterthought. During early wireframing stages, I make sure we have clear hierarchy and semantic structure..."
+              </p>
+            </div>
+          </div>
+          <aside className="space-y-4">
+            <div className="inro-card p-5">
+              <div className="flex items-center justify-between mb-4">
+                <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#9C8E84]">inro Evaluation</p>
+                <span className="bg-[#3D6B50] text-white text-xs px-3 py-1 rounded-full">{score}/100</span>
+              </div>
+              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#3D6B50] mb-2">Strengths</p>
+              <div className="space-y-2 mb-4">
                 {strengths.slice(0, 2).map((s, i) => (
                   <div key={i} className="border border-[#E0D8D0] rounded-[8px] p-3">
                     <p className="font-semibold text-sm">{s.title}</p>
@@ -49,10 +65,8 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
                   </div>
                 ))}
               </div>
-            </div>
-            <div className="inro-card p-6">
-              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#8B5E52] mb-3">Areas to Improve</p>
-              <div className="space-y-2">
+              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#8B5E52] mb-2">Areas to Improve</p>
+              <div className="space-y-2 mb-4">
                 {gaps.slice(0, 2).map((g, i) => (
                   <div key={i} className="border border-[#E0D8D0] rounded-[8px] p-3">
                     <p className="font-semibold text-sm">{g.title}</p>
@@ -60,20 +74,12 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-          <aside className="space-y-4">
-            <div className="inro-card p-5 text-center">
-              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#9C8E84]">Practice Score</p>
-              <p className="text-[44px] inro-serif text-[#3D6B50] leading-none mt-2">{score}</p>
-              <p className="text-xs text-[#9C8E84] mt-1">out of 100</p>
-            </div>
-            <div className="inro-card p-5">
-              <p className="inro-mono text-[10px] tracking-[1px] uppercase text-[#9C8E84] mb-2">Next Step</p>
-              <p className="text-sm text-[#5C5248] mb-3">Retry this question with a tighter structure and role-specific impact metrics.</p>
-              <div className="space-y-2">
-                <Link href={`/sessions/${id}/practice`} className="inro-btn-ghost block text-center">Retry Question</Link>
-                <Link href={`/sessions/${id}`} className="inro-btn-primary block text-center">Return to Brief</Link>
+              <div className="border border-[#E0D8D0] rounded-[8px] p-3 text-xs text-[#5C5248] mb-3">
+                <strong>Source traceability:</strong> Every insight is grounded in your role brief and stored resume evidence.
+              </div>
+              <div className="flex gap-2">
+                <Link href={`/sessions/${id}/practice`} className="inro-btn-ghost block text-center flex-1">Retry Question</Link>
+                <Link href={`/sessions/${id}`} className="inro-btn-primary block text-center flex-1">Next Question →</Link>
               </div>
             </div>
           </aside>

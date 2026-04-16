@@ -37,13 +37,18 @@ export default async function SessionDetailPage({
       roleCompany={data.company || "Company"}
       rightRail={
         <div className="p-5">
-          <h3 className="text-xs tracking-widest uppercase text-[#9C8E84] mb-3">Recommended questions</h3>
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-[10px] tracking-[1.2px] uppercase text-[#9C8E84] inro-mono">Up Next: Prep Lab</h3>
+            <p className="text-[9px] tracking-[1px] uppercase text-[#9C8E84] inro-mono">Recommended Questions</p>
+          </div>
           <div className="space-y-3">
             {data.questions.map((q) => (
               <div key={q.id} className="border border-[#E0D8D0] rounded-[8px] p-3">
-                <p className="text-xs uppercase text-[#9C8E84]">{q.category}</p>
-                <p className="text-sm font-medium mt-1">{q.question}</p>
-                {q.insight && <p className="text-xs text-[#5C5248] mt-2">{q.insight}</p>}
+                <p className="text-[9px] inro-mono uppercase tracking-[1px] text-[#9C8E84] mb-1">
+                  {q.category}
+                </p>
+                <p className="text-sm font-medium mt-1 mb-2">{q.question}</p>
+                {q.insight && <p className="text-xs text-[#5C5248] mt-2 border-l-2 border-[#E0D8D0] pl-2"><strong>Insight:</strong> {q.insight}</p>}
                 <div className="flex gap-2 mt-2">
                   <Link href={`/sessions/${data.id}/practice`} className="text-[11px] px-2 py-1 rounded-[6px] bg-[#1C1917] text-white">
                     Practice
@@ -55,12 +60,19 @@ export default async function SessionDetailPage({
               </div>
             ))}
           </div>
-          <Link
-            href={`/sessions/${data.id}/practice`}
-            className="mt-4 inline-block w-full text-center bg-[#1C1917] text-white rounded-[8px] py-2"
-          >
-            Start Mock Interview
-          </Link>
+          <div className="mt-4 p-4 rounded-[10px] bg-[#F5E8E4] border border-[#EDD5CE]">
+            <p className="text-[9px] tracking-[1px] uppercase text-[#8B5E52] inro-mono mb-1">Comprehensive Practice</p>
+            <p className="text-sm font-semibold mb-1">30-Minute Targeted Session</p>
+            <p className="text-xs text-[#5C5248] mb-3">
+              Simulates a real interview environment covering your brief and focus areas.
+            </p>
+            <Link
+              href={`/sessions/${data.id}/practice`}
+              className="inline-block w-full text-center bg-[#1C1917] text-white rounded-[8px] py-2"
+            >
+              ▷ Start Mock Interview
+            </Link>
+          </div>
         </div>
       }
     >

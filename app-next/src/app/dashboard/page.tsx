@@ -54,51 +54,72 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Metric title="Avg Match Score" value={`${avgScore}%`} />
-          <Metric title="Active Sessions" value={`${sessions.length}`} />
-          <Metric title="Target Roles" value={`${profile.targetRoles.length}`} />
+          <Metric title="Avg. Readiness" value={`${avgScore}%`} sub="Almost ready. Focus on targeted practice modules." />
+          <Metric title="Active Preps" value={`${sessions.length}`} sub="Good volume to compare your role fit across options." />
+          <Metric title="Mock Interviews" value={`${Math.max(0, sessions.length * 3)}`} sub="Strong practice volume. Focus on specific weak spots next." />
         </div>
 
-        <div className="bg-white border border-[#E0D8D0] rounded-[10px] p-5 shadow-[var(--sh)]">
-          <h2 className="text-sm tracking-widest uppercase text-[#9C8E84] mb-3">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-[10px] tracking-[1.2px] uppercase text-[#9C8E84] inro-mono">
             Recent sessions
           </h2>
-          <div className="space-y-3">
-            {sessions.length === 0 ? (
-              <p className="text-[#5C5248]">No sessions yet. Create your first one.</p>
-            ) : (
-              sessions.map((s) => (
+          <button className="text-xs text-[#8B5E52]">View All</button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {sessions.length === 0 ? (
+            <div className="inro-card p-5 text-[#5C5248] text-sm">No sessions yet. Create your first one.</div>
+          ) : (
+            sessions.slice(0, 3).map((s) => {
+              const score = s.matchScore ?? 0;
+              const badge =
+                score >= 78
+                  ? { label: "Strong Fit", cls: "bg-[#D4E8DA] text-[#3D6B50]" }
+                  : score >= 65
+                    ? { label: "Needs Review", cls: "bg-[#EDD5CE] text-[#8B5E52]" }
+                    : { label: "Benchmark", cls: "bg-[#E8E4F0] text-[#5A4A7A]" };
+              return (
                 <Link
                   href={`/sessions/${s.id}`}
                   key={s.id}
-                  className="block border border-[#E0D8D0] rounded-[8px] p-4 hover:bg-[#F8F5F3]"
+                  className="inro-card p-5 hover:-translate-y-[1px] transition"
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-[#1C1917]">{s.title}</p>
-                      <p className="text-sm text-[#5C5248]">
-                        {s.company || "Company not set"} • {s.status}
-                      </p>
-                    </div>
-                    <div className="text-xl font-serif text-[#3D6B50]">
-                      {s.matchScore ?? 0}%
+                  <div className="flex justify-between items-start mb-1">
+                    <p className="text-[14px] font-semibold text-[#1C1917]">{s.title}</p>
+                    <p className="text-[10px] text-[#9C8E84] inro-mono">RECENT</p>
+                  </div>
+                  <p className="text-xs text-[#9C8E84] mb-3">{s.company || "Company"}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[10px] px-2 py-1 rounded-full bg-[#EAF2EC] text-[#3D6B50]">{score}% match</span>
+                    <div className="h-1.5 rounded bg-[#E0D8D0] flex-1 overflow-hidden">
+                      <div className="h-full bg-[#3D6B50]" style={{ width: `${Math.max(10, score)}%` }} />
                     </div>
                   </div>
+                  <p className="text-[11px] text-[#9C8E84] mb-2">3/5 modules</p>
+                  <span className={`inline-block text-[10px] font-semibold px-2 py-1 rounded mb-2 ${badge.cls}`}>
+                    {badge.label}
+                  </span>
+                  <p className="text-xs text-[#5C5248] mb-3">
+                    Best next step: practice systems-thinking stories tied to collaboration and product tradeoffs.
+                  </p>
+                  <div className="border border-[#E0D8D0] rounded-[8px] py-2 text-center text-[12px] text-[#5C5248]">
+                    {score >= 70 ? "→ Continue Prep" : "⟳ Review Insights"}
+                  </div>
                 </Link>
-              ))
-            )}
-          </div>
+              );
+            })
+          )}
         </div>
       </div>
     </AppShell>
   );
 }
 
-function Metric({ title, value }: { title: string; value: string }) {
+function Metric({ title, value, sub }: { title: string; value: string; sub: string }) {
   return (
     <div className="bg-white border border-[#E0D8D0] rounded-[10px] p-5 shadow-[var(--sh)]">
-      <p className="text-xs uppercase tracking-widest text-[#9C8E84]">{title}</p>
-      <p className="text-4xl font-serif text-[#3D6B50] mt-2">{value}</p>
+      <p className="text-[9px] uppercase tracking-[1.2px] text-[#9C8E84] inro-mono">{title}</p>
+      <p className="text-4xl inro-serif text-[#3D6B50] mt-1">{value}</p>
+      <p className="text-xs text-[#5C5248] mt-1">{sub}</p>
     </div>
   );
 }
