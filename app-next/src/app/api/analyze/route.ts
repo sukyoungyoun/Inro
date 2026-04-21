@@ -27,6 +27,52 @@ type GeminiResult = {
   }>;
 };
 
+async function sleep(ms: number) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function callGeminiWithFallback(apiKey: string, prompt: string) {
+  const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
+  let lastStatus = 500;
+  let lastMessage = "Gemini API error";
+
+  for (const model of models) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: "POST",
+          headers: {
+            "x-goog-api-key": apiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.4 },
+          }),
+        }
+      );
+
+      const data = await res.json();
+      if (res.ok) return { ok: true as const, data };
+
+      const message = String(data?.error?.message || "Gemini API error");
+      lastStatus = res.status || 500;
+      lastMessage = message;
+
+      const retriable =
+        res.status === 429 ||
+        res.status === 503 ||
+        /high demand|temporar|overloaded|unavailable|quota/i.test(message);
+      if (!retriable) break;
+
+      await sleep(600 * (attempt + 1));
+    }
+  }
+
+  return { ok: false as const, status: lastStatus, message: lastMessage };
+}
+
 async function extractTextFromFile(file: File): Promise<string> {
   const lower = file.name.toLowerCase();
   const arrayBuffer = await file.arrayBuffer();
@@ -144,28 +190,14 @@ ${jd.substring(0, 4000)}
 RESUME:
 ${rv.substring(0, 4000)}`.trim();
 
-    const geminiRes = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-    {
-      method: "POST",
-      headers: {
-        "x-goog-api-key": apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.4 },
-      }),
-    }
-  );
-
-    const rawData = await geminiRes.json();
-    if (!geminiRes.ok) {
+    const gemini = await callGeminiWithFallback(apiKey, prompt);
+    if (!gemini.ok) {
       return NextResponse.json(
-        { error: rawData.error?.message || "Gemini API error" },
-        { status: geminiRes.status }
+        { error: gemini.message || "Gemini API error" },
+        { status: gemini.status || 500 }
       );
     }
+    const rawData = gemini.data;
 
     let raw = rawData.candidates?.[0]?.content?.parts?.[0]?.text || "";
     raw = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
