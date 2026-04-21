@@ -79,8 +79,18 @@ export async function POST(req: Request) {
     stage = String(form.get("stage") || "").trim();
     const jdFile = form.get("jdFile");
     const rvFile = form.get("rvFile");
-    if (!jd && jdFile instanceof File) jd = await extractTextFromFile(jdFile);
-    if (!rv && rvFile instanceof File) rv = await extractTextFromFile(rvFile);
+    if (!jd && jdFile instanceof File) {
+      jd = await extractTextFromFile(jdFile);
+      if (!jd) {
+        jd = `Uploaded Job Description file: ${jdFile.name}. Text extraction was unavailable, so analysis should infer likely role context from filename and other provided fields.`;
+      }
+    }
+    if (!rv && rvFile instanceof File) {
+      rv = await extractTextFromFile(rvFile);
+      if (!rv) {
+        rv = `Uploaded Resume file: ${rvFile.name}. Text extraction was unavailable, so analysis should proceed with conservative assumptions and highlight uncertainty.`;
+      }
+    }
   } else {
     const body = await req.json();
     jd = String(body.jd || "").trim();
