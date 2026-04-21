@@ -37,6 +37,45 @@ export function SessionBriefClient({
 
   return (
     <div id="view-brief" className="view">
+      <div className="mobile-prep-view">
+        <div className="mobile-prep-eyebrow">PRACTICE LAB</div>
+        <h2 className="mobile-prep-title">Tailored Questions</h2>
+        <p className="mobile-prep-sub">Review the most relevant prompts for this role and choose how you want to practice.</p>
+        <div className="mobile-prep-tabs">
+          <button type="button" className="mobile-prep-tab">Setup</button>
+          <button type="button" className="mobile-prep-tab">Brief</button>
+          <button type="button" className="mobile-prep-tab active">Prep Lab</button>
+        </div>
+
+        <div className="mobile-prep-card">
+          <div className="mobile-card-label">NEW USER INSIGHT</div>
+          <div className="mobile-card-copy">
+            {cleanedSummary || "Users respond best when interview prep feels collaborative instead of prescriptive."}
+          </div>
+        </div>
+
+        {questions.map((q, idx) => (
+          <div key={`mobile-${q.id}`} className="mobile-prep-card">
+            <div className="mobile-card-label">PRIORITY QUESTION</div>
+            <div className="mobile-q-text">{q.question}</div>
+            {q.insight ? <div className="mobile-q-insight"><strong>Insight:</strong> {q.insight}</div> : null}
+            {idx === 0 ? (
+              <div className="mobile-q-actions">
+                <Link href={`/sessions/${id}/practice`} className="mobile-btn-primary">Practice</Link>
+                <button type="button" className="mobile-btn-ghost">Write draft</button>
+              </div>
+            ) : null}
+          </div>
+        ))}
+
+        <div className="mobile-bottom-nav">
+          <div className="mobile-nav-item"><span>⌂</span><small>Home</small></div>
+          <div className="mobile-nav-item"><span>▣</span><small>Role</small></div>
+          <div className="mobile-nav-item"><span>▤</span><small>Brief</small></div>
+          <div className="mobile-nav-item active"><span>◍</span><small>Prep</small></div>
+        </div>
+      </div>
+
       <div className="brief-main">
         <div className="brief-eyebrow">Role Overview</div>
         <div className="brief-role-row">
