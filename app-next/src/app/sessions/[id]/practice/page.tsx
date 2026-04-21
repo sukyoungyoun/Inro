@@ -16,6 +16,13 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
   });
   if (!data) notFound();
   const q = data.questions[0];
+  const categoryTone = (() => {
+    const c = (q?.category || "").toLowerCase();
+    if (c.includes("behavior")) return "var(--color-accent)";
+    if (c.includes("system")) return "#5a4a7a";
+    if (c.includes("product")) return "var(--color-accent-green)";
+    return "var(--color-text-label)";
+  })();
 
   return (
     <AppShell
@@ -37,7 +44,10 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
         <div className="practice-body">
           <div className="practice-left">
             <div className="q-header">
-              <div className="q-eyebrow">{(q?.category || "Priority Question").toUpperCase()}</div>
+              <div className="q-eyebrow" style={{ color: categoryTone }}>
+                <span className="q-mini-dot" style={{ background: categoryTone }} />
+                {(q?.category || "Priority Question").toUpperCase()}
+              </div>
               <div className="q-title">{q?.question || "No question found."}</div>
               <div className="insight-bar">
                 <span className="insight-icon">💡</span>
@@ -88,7 +98,7 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
                 </div>
               </div>
               <div className="rec-controls">
-                <button type="button" className="rec-btn">
+                <button type="button" className="rec-btn rec-btn-tertiary">
                   Restart
                 </button>
                 <button type="button" className="rec-btn">
@@ -159,17 +169,6 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
               </div>
             </div>
           </div>
-        </div>
-        <div className="practice-footer">
-          <button type="button" className="rec-btn">
-            Restart
-          </button>
-          <button type="button" className="rec-btn">
-            Pause
-          </button>
-          <Link href={`/sessions/${id}/evaluation`} className="footer-submit" style={{ flex: 1, justifyContent: "center" }}>
-            Submit for Feedback →
-          </Link>
         </div>
       </div>
     </AppShell>

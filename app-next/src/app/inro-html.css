@@ -913,3 +913,242 @@ body, p { font-size: 14px; color: var(--ink-secondary); }
   .btn-new, .btn-upload, .btn-primary { width: 100%; justify-content: center; }
   .q-mini-actions, .resume-actions, .tailored-actions, .rec-controls { flex-direction: column; }
 }
+
+/* ===== Comprehensive UI/UX redesign tokens & hierarchy ===== */
+:root {
+  --color-surface-1: #f7f4f3;
+  --color-surface-2: #f6eae3;
+  --color-surface-3: #f2ede8;
+  --color-accent: #8b5e52;
+  --color-accent-muted: rgba(139, 94, 82, 0.2);
+  --color-text-primary: #1c1917;
+  --color-text-secondary: rgba(28, 25, 23, 0.5);
+  --color-text-label: rgba(28, 25, 23, 0.4);
+  --color-border: rgba(28, 25, 23, 0.08);
+  --color-accent-green: #4d7358;
+}
+
+html, body {
+  background: var(--color-surface-1);
+  color: var(--color-text-primary);
+}
+#content > .view {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+h1, .q-title {
+  font-family: var(--serif);
+  letter-spacing: -0.02em;
+}
+.section-label, .q-mini-tag, .q-eyebrow, .stat-label, .nav-label, .rl-section-label {
+  font-family: var(--ui);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-label);
+  font-weight: 500;
+}
+.session-time, .rec-status, .coaching-target, .timer-combo, .match-badge, .score-num {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+body, p, .session-next, .brief-summary-text, .coaching-text, .gap-strategy, .strength-desc {
+  font-family: var(--ui);
+  font-size: 0.875rem;
+}
+
+/* 8pt spacing rhythm */
+.stats-grid, .sessions-grid, .tailored-grid, .upload-grid, .practice-body, .eval-body { gap: 24px; }
+.prefs-card, .stat-card, .session-card, .brief-card, .q-mini, .recording-card, .coaching-card, .structure-card, .eval-card, .playback-card {
+  padding: 24px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+}
+
+/* Sidebar/nav hierarchy */
+#sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--color-surface-2);
+  border-right: 1px solid var(--color-border);
+}
+.role-switcher {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface-1);
+}
+.role-switcher-arrow { opacity: 0.7; }
+.nav-btn {
+  min-height: 44px;
+  color: var(--color-text-secondary);
+  transition: all 150ms ease;
+}
+.nav-btn.active {
+  background: var(--color-accent-muted);
+  border-left: 2px solid var(--color-accent);
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+.nav-btn:hover:not(.active) { background: transparent; color: var(--color-text-primary); }
+.avatar { background: var(--color-accent-muted); color: var(--color-accent); position: relative; }
+.avatar::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent-green);
+  border: 2px solid var(--color-surface-2);
+}
+
+/* Dashboard hierarchy */
+.stat-num {
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  line-height: 1;
+}
+.stats-grid .stat-card:first-child {
+  grid-column: span 2;
+  background: linear-gradient(180deg, var(--color-surface-2), var(--color-surface-1));
+}
+.metric-delta {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.stat-card:hover, .session-card:hover, .q-mini:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: all 150ms ease;
+}
+.match-badge { border-radius: 999px; background: var(--color-accent-muted); color: var(--color-accent); }
+.status-tag.bench {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-1);
+  color: var(--color-text-primary);
+}
+.session-next {
+  border-left: 2px solid var(--color-accent);
+  padding-left: 8px;
+  background: rgba(139, 94, 82, 0.06);
+}
+.module-segment { width: 10px; height: 10px; border-radius: 50%; }
+
+/* Prep sessions split and cards */
+#view-brief { gap: 24px; }
+.brief-main { border-right: 1px solid var(--color-border); padding-right: 24px; }
+.brief-sidebar { padding-left: 0; }
+.score-ring circle:last-child { animation: drawRing 600ms ease; }
+@keyframes drawRing { from { stroke-dashoffset: 176; } to { stroke-dashoffset: inherit; } }
+.callout-box:first-child { border-left: 3px solid var(--color-accent-green); }
+.callout-box:last-child { border-left: 3px solid #a07828; }
+.gap-item .gap-icon { color: #a07828; background: rgba(160,120,40,0.12); }
+.gap-strategy { margin-left: 2px; color: var(--color-text-secondary); }
+.q-mini { padding: 24px; }
+.q-mini-tag { display: inline-flex; align-items: center; gap: 6px; }
+.q-mini-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.q-mini-insight {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: var(--color-surface-3);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+.q-mini-actions .primary { background: var(--color-accent); color: #fff; }
+.q-mini-actions .ghost { border: 1px solid var(--color-border); background: transparent; color: var(--color-text-primary); }
+
+/* Practice hierarchy */
+.q-title { font-size: 1.375rem; max-width: 60ch; }
+.insight-bar strong { color: var(--color-text-primary); }
+.timer-combo { font-size: 1.5rem; }
+.timer-target-bar { height: 2px; }
+.rec-dot { background: #d1433f; animation: pulseRecord 1s infinite; }
+@keyframes pulseRecord { 0%{opacity:1;}50%{opacity:.35;}100%{opacity:1;} }
+.live-transcript-panel {
+  background: var(--color-surface-3);
+  min-height: 80px;
+}
+.live-transcript { font-style: italic; }
+.rec-btn { min-height: 44px; }
+.rec-btn.finish { background: var(--color-accent); border-color: var(--color-accent); }
+.rec-btn-tertiary { border: none; background: transparent; color: var(--color-text-secondary); }
+.coaching-header .coaching-target {
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+.coaching-item { align-items: flex-start; }
+.coaching-badge { width: 24px; height: 24px; background: var(--color-accent); color: #fff; }
+.coaching-text strong { display: block; margin-bottom: 2px; color: var(--color-text-primary); }
+.structure-card { border-top: 1px solid var(--color-border); }
+.structure-item {
+  border-left: 4px solid var(--color-accent-muted);
+  padding: 12px;
+  border-radius: 4px;
+  background: var(--color-surface-1);
+}
+.practice-footer {
+  position: sticky;
+  bottom: 0;
+  box-shadow: 0 -1px 3px rgba(0,0,0,0.06);
+}
+
+/* Preferences grouping */
+.prefs-card + .prefs-card {
+  border-top: 1px solid var(--color-border);
+}
+.prefs-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+.pref-input:focus, .career-ta:focus, .field-input:focus, .field-select:focus, .target-roles-input:focus-within {
+  box-shadow: 0 0 0 2px rgba(139,94,82,0.25);
+  border-color: var(--color-accent);
+}
+.style-option {
+  min-height: 132px;
+  border-color: var(--color-border);
+}
+.style-option.selected {
+  border-color: var(--color-accent);
+}
+.style-option .style-option-header::after {
+  content: "✓";
+  opacity: 0;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+.style-option.selected .style-option-header::after { opacity: 1; }
+.role-chip {
+  border-radius: 999px;
+  background: var(--color-accent-muted);
+  color: var(--color-accent);
+}
+.notif-row { border-bottom: 1px solid var(--color-border); }
+.prefs-footer .btn-ghost {
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+.prefs-footer .btn-primary {
+  background: var(--color-accent);
+}
+
+/* Motion and targets */
+button, a {
+  transition: all 150ms ease;
+}
+.view { transition: all 200ms ease; }
+button, .btn-primary, .btn-ghost, .btn-new, .btn-upload, .q-mini-btn, .session-action, .mock-btn {
+  min-height: 44px;
+}
