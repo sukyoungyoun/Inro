@@ -31,16 +31,9 @@ export function SessionBriefClient({
   const cleanedSummary = roleSummary.replace(/generated in fallback mode[\s\S]*/gi, "").trim() || "No summary yet.";
   const arc = useMemo(() => {
     const pct = Math.max(0, Math.min(100, score));
-    const c = 2 * Math.PI * 28;
+    const c = 2 * Math.PI * 34;
     return { c, offset: c * (1 - pct / 100) };
   }, [score]);
-  const categoryTone = (category: string) => {
-    const c = category.toLowerCase();
-    if (c.includes("behavior")) return "var(--color-accent)";
-    if (c.includes("system")) return "#5a4a7a";
-    if (c.includes("product")) return "var(--color-accent-green)";
-    return "var(--color-text-label)";
-  };
 
   return (
     <div id="view-brief" className="view">
@@ -49,21 +42,21 @@ export function SessionBriefClient({
         <div className="brief-role-row">
           <div className="brief-role-name">Role Brief</div>
           <div className="gauge-wrap">
-            <svg width="72" height="72" viewBox="0 0 72 72" aria-hidden className="score-ring">
-              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--border)" strokeWidth="6" />
+            <svg width="92" height="92" viewBox="0 0 92 92" aria-hidden>
+              <circle cx="46" cy="46" r="34" fill="none" stroke="var(--border)" strokeWidth="7" />
               <circle
-                cx="36"
-                cy="36"
-                r="28"
+                cx="46"
+                cy="46"
+                r="34"
                 fill="none"
-                stroke="var(--color-accent)"
-                strokeWidth="6"
+                stroke="var(--accent)"
+                strokeWidth="7"
                 strokeLinecap="round"
                 strokeDasharray={arc.c}
                 strokeDashoffset={arc.offset}
-                transform="rotate(-90 36 36)"
+                transform="rotate(-90 46 46)"
               />
-              <text x="36" y="40" textAnchor="middle" style={{ fontFamily: "var(--mono)", fontSize: 16, fill: "var(--color-text-primary)" }}>
+              <text x="46" y="52" textAnchor="middle" style={{ fontFamily: "var(--serif)", fontSize: 36, fill: "var(--text-primary)" }}>
                 {score}
               </text>
             </svg>
@@ -129,10 +122,7 @@ export function SessionBriefClient({
         </div>
         {(tab === "questions" ? questions : questions.slice(0, 3)).map((q) => (
           <div key={q.id} className="q-mini">
-            <div className="q-mini-tag" style={{ color: categoryTone(q.category) }}>
-              <span className="q-mini-dot" style={{ background: categoryTone(q.category) }} />
-              {q.category}
-            </div>
+            <div className="q-mini-tag">{q.category}</div>
             <div className="q-mini-text">{q.question}</div>
             {q.insight ? <div className="q-mini-insight">{q.insight}</div> : null}
             <div className="q-mini-actions">
