@@ -165,16 +165,16 @@ a.role-switcher {
 .session-action:hover { background: var(--bg); border-color: var(--border2); }
 
 /* ─── SETUP (Figma 48:3277) ─── */
-#view-setup { padding: 40px; max-width: 960px; margin: 0 auto; }
+#view-setup { padding: 40px; max-width: 1100px; margin: 0; }
 .setup-breadcrumb-row {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 .setup-breadcrumb-row .breadcrumb {
   margin-bottom: 0;
-  justify-content: center;
+  justify-content: flex-start;
   font-family: var(--ui);
   letter-spacing: 0.01em;
 }
@@ -190,7 +190,7 @@ a.role-switcher {
 .breadcrumb a { color: var(--ink2); cursor: pointer; text-decoration: none; }
 .breadcrumb a:hover { color: var(--terra); }
 .setup-hero {
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 .setup-title { font-family: var(--serif); font-size: 32px; font-weight: 500; margin-bottom: 10px; letter-spacing: -0.4px; line-height: 1.2; color: var(--ink); }
 .setup-sub { font-size: 14px; color: var(--ink2); margin-bottom: 0; line-height: 1.55; max-width: 42rem; }
