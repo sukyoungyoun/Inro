@@ -55,55 +55,64 @@ async function extractTextFromFile(file: File): Promise<string> {
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "GEMINI_API_KEY missing in server env." }, { status: 500 });
-  }
-
-  const contentType = req.headers.get("content-type") || "";
-  let jd = "";
-  let rv = "";
-  let company = "";
-  let stage = "";
-
-  if (contentType.includes("multipart/form-data")) {
-    const form = await req.formData();
-    jd = String(form.get("jd") || "").trim();
-    rv = String(form.get("rv") || "").trim();
-    company = String(form.get("company") || "").trim();
-    stage = String(form.get("stage") || "").trim();
-    const jdFile = form.get("jdFile");
-    const rvFile = form.get("rvFile");
-    if (!jd && jdFile instanceof File) {
-      jd = await extractTextFromFile(jdFile);
-      if (!jd) {
-        jd = `Uploaded Job Description file: ${jdFile.name}. Text extraction was unavailable, so analysis should infer likely role context from filename and other provided fields.`;
-      }
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if (!rv && rvFile instanceof File) {
-      rv = await extractTextFromFile(rvFile);
-      if (!rv) {
-        rv = `Uploaded Resume file: ${rvFile.name}. Text extraction was unavailable, so analysis should proceed with conservative assumptions and highlight uncertainty.`;
-      }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: "GEMINI_API_KEY missing in server env." }, { status: 500 });
     }
-  } else {
-    const body = await req.json();
-    jd = String(body.jd || "").trim();
-    rv = String(body.rv || "").trim();
-    company = String(body.company || "").trim();
-    stage = String(body.stage || "").trim();
-  }
 
-  if (!jd || !rv) {
-    return NextResponse.json({ error: "Both jd and rv are required." }, { status: 400 });
-  }
+    const contentType = req.headers.get("content-type") || "";
+    let jd = "";
+    let rv = "";
+    let company = "";
+    let stage = "";
 
-  const prompt = `You are an expert interview coach. Analyze the job description and resume.
+    if (contentType.includes("multipart/form-data")) {
+      const form = await req.formData();
+      jd = String(form.get("jd") || "").trim();
+      rv = String(form.get("rv") || "").trim();
+      company = String(form.get("company") || "").trim();
+      stage = String(form.get("stage") || "").trim();
+      const jdFile = form.get("jdFile");
+      const rvFile = form.get("rvFile");
+      if (!jd && jdFile instanceof File) {
+        try {
+          jd = await extractTextFromFile(jdFile);
+        } catch {
+          jd = "";
+        }
+        if (!jd) {
+          jd = `Uploaded Job Description file: ${jdFile.name}. Text extraction was unavailable, so analysis should infer likely role context from filename and other provided fields.`;
+        }
+      }
+      if (!rv && rvFile instanceof File) {
+        try {
+          rv = await extractTextFromFile(rvFile);
+        } catch {
+          rv = "";
+        }
+        if (!rv) {
+          rv = `Uploaded Resume file: ${rvFile.name}. Text extraction was unavailable, so analysis should proceed with conservative assumptions and highlight uncertainty.`;
+        }
+      }
+    } else {
+      const body = await req.json();
+      jd = String(body.jd || "").trim();
+      rv = String(body.rv || "").trim();
+      company = String(body.company || "").trim();
+      stage = String(body.stage || "").trim();
+    }
+
+    if (!jd || !rv) {
+      return NextResponse.json({ error: "Both jd and rv are required." }, { status: 400 });
+    }
+
+    const prompt = `You are an expert interview coach. Analyze the job description and resume.
 ${company ? `Target company: ${company}.` : ""} ${stage ? `Interview stage: ${stage}.` : ""}
 
 Return ONLY a valid JSON object — no markdown, no code fences, no extra text.
@@ -135,7 +144,7 @@ ${jd.substring(0, 4000)}
 RESUME:
 ${rv.substring(0, 4000)}`.trim();
 
-  const geminiRes = await fetch(
+    const geminiRes = await fetch(
     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
     {
       method: "POST",
@@ -150,30 +159,30 @@ ${rv.substring(0, 4000)}`.trim();
     }
   );
 
-  const rawData = await geminiRes.json();
-  if (!geminiRes.ok) {
-    return NextResponse.json(
-      { error: rawData.error?.message || "Gemini API error" },
-      { status: geminiRes.status }
-    );
-  }
-
-  let raw = rawData.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  raw = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
-
-  let parsed: GeminiResult;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    const s = raw.indexOf("{");
-    const e = raw.lastIndexOf("}");
-    if (s === -1 || e <= s) {
-      return NextResponse.json({ error: "Gemini returned invalid JSON." }, { status: 502 });
+    const rawData = await geminiRes.json();
+    if (!geminiRes.ok) {
+      return NextResponse.json(
+        { error: rawData.error?.message || "Gemini API error" },
+        { status: geminiRes.status }
+      );
     }
-    parsed = JSON.parse(raw.slice(s, e + 1));
-  }
 
-  const created = await prisma.prepSession.create({
+    let raw = rawData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    raw = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+
+    let parsed: GeminiResult;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      const s = raw.indexOf("{");
+      const e = raw.lastIndexOf("}");
+      if (s === -1 || e <= s) {
+        return NextResponse.json({ error: "Gemini returned invalid JSON." }, { status: 502 });
+      }
+      parsed = JSON.parse(raw.slice(s, e + 1));
+    }
+
+    const created = await prisma.prepSession.create({
     data: {
       userId: session.user.id,
       title: parsed.role || company || "Role Analysis",
@@ -215,16 +224,22 @@ ${rv.substring(0, 4000)}`.trim();
     },
   });
 
-  return NextResponse.json({
-    id: created.id,
-    role: parsed.role || "Role Analysis",
-    matchScore: parsed.matchScore ?? 0,
-    summary: parsed.summary || "",
-    strongestAlignment: parsed.strongestAlignment || "",
-    biggestRisk: parsed.biggestRisk || "",
-    strengths: parsed.strengths || [],
-    gaps: parsed.gaps || [],
-    questions: parsed.questions || [],
-  });
+    return NextResponse.json({
+      id: created.id,
+      role: parsed.role || "Role Analysis",
+      matchScore: parsed.matchScore ?? 0,
+      summary: parsed.summary || "",
+      strongestAlignment: parsed.strongestAlignment || "",
+      biggestRisk: parsed.biggestRisk || "",
+      strengths: parsed.strengths || [],
+      gaps: parsed.gaps || [],
+      questions: parsed.questions || [],
+    });
+  } catch {
+    return NextResponse.json(
+      { error: "Server error during analysis. Please try again in a few seconds." },
+      { status: 500 }
+    );
+  }
 }
 
