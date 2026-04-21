@@ -194,14 +194,10 @@ export default function NewSessionPage() {
       roleCompany={company.trim() || "Company"}
     >
       <div id="view-setup" className="view">
-        <div className="setup-breadcrumb-row">
-          <div className="breadcrumb">
-            <Link href="/dashboard">Prep Sessions</Link>
-            <span aria-hidden className="breadcrumb-sep">
-              {" > "}
-            </span>
-            <span className="breadcrumb-current">New Role</span>
-          </div>
+        <div className="breadcrumb">
+          <Link href="/dashboard">Prep Sessions</Link>
+          <span aria-hidden>{" > "}</span>
+          <span className="breadcrumb-current">New Role</span>
         </div>
         <div className="setup-hero">
           <div className="setup-title">Consult with inro</div>
