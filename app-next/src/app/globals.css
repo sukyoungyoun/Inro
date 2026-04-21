@@ -45,9 +45,9 @@
   background: var(--ink);
   color: white;
   border: none;
-  border-radius: var(--r);
-  padding: 11px 20px;
-  font-size: 13px;
+  border-radius: var(--r-lg);
+  padding: 12px 22px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -67,16 +67,17 @@
   border: 1px solid var(--border);
   background: white;
   color: var(--ink2);
-  border-radius: 8px;
+  border-radius: var(--r);
   padding: 9px 16px;
-  font-size: 13px;
+  font-size: 15px;
   cursor: pointer;
   font-family: var(--ui);
+  font-weight: 600;
 }
 
 .inro-card {
   background: white;
   border: 1px solid var(--border);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
   box-shadow: var(--sh);
 }

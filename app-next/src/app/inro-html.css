@@ -1,19 +1,19 @@
 /* Design tokens — align with Figma: inro (file gX1Yd9MKaHDouyJUR1nHxk), node 48:3277 “Consult / setup”.
    Re-export spacing/radius from Dev Mode when available. */
 :root {
-  --bg: #fdfbf7;
-  --panel: #f5f1ed;
+  --bg: #f7f4f3;
+  --panel: #f6eae3;
   --surface: #ffffff;
-  --border: #ebe6e0;
-  --border2: #d9d3cc;
-  --ink: #1C1917;
-  --ink2: #5C5248;
-  --ink3: #9C8E84;
-  --green: #3D6B50;
-  --green-bg: #EAF2EC;
+  --border: #e4dad4;
+  --border2: #d0c4bc;
+  --ink: #1c1917;
+  --ink2: #6b6058;
+  --ink3: #a8998f;
+  --green: #4d7358;
+  --green-bg: #ebf2ed;
   --green-tag: #D4E8DA;
   --terra: #8B5E52;
-  --terra-bg: #F5E8E4;
+  --terra-bg: #f6eae3;
   --terra-tag: #EDD5CE;
   --amber: #a07828;
   /* Next.js font variables from layout.tsx */
@@ -21,7 +21,7 @@
   --mono: var(--font-mono), "DM Mono", monospace;
   --ui: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --r: 10px;
-  --sh: 0 1px 3px rgba(28, 25, 23, 0.06), 0 8px 24px rgba(28, 25, 23, 0.05);
+  --sh: 0 2px 10px rgba(0, 0, 0, 0.03);
   --r-lg: 12px;
 }
 html,
@@ -97,12 +97,12 @@ a.role-switcher {
   width: 100%; display: flex; align-items: center; gap: 9px;
   padding: 9px 10px; border: none; background: transparent;
   text-align: left; cursor: pointer; color: var(--ink2);
-  border-radius: 8px; margin-bottom: 2px;
+  border-radius: 12px; margin-bottom: 2px;
   font-size: 13px; font-family: var(--ui);
   transition: all 0.15s;
 }
 .nav-btn svg { opacity: 0.5; flex-shrink: 0; }
-.nav-btn.active { background: white; color: var(--terra); font-weight: 600; box-shadow: var(--sh); }
+.nav-btn.active { background: var(--terra-bg); color: var(--terra); font-weight: 600; box-shadow: none; }
 .nav-btn.active svg { opacity: 1; color: var(--terra); }
 .nav-btn:hover:not(.active) { background: rgba(255,255,255,0.5); color: var(--ink); }
 .sidebar-footer {
@@ -116,32 +116,32 @@ a.role-switcher {
 /* ─── MAIN ─── */
 #main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
 #topbar {
-  height: 42px; border-bottom: 1px solid var(--border);
+  height: 48px; border-bottom: 1px solid var(--border);
   display: flex; align-items: center; padding: 0 28px;
-  font-family: var(--mono); font-size: 10px; color: var(--ink3);
-  background: var(--bg); letter-spacing: 1px; gap: 8px; flex-shrink: 0;
+  font-family: var(--mono); font-size: 11px; color: var(--ink3);
+  background: var(--surface); letter-spacing: 1px; gap: 8px; flex-shrink: 0;
 }
 #content { flex: 1; overflow-y: auto; }
 
 /* ─── OVERVIEW ─── */
-#view-overview { padding: 36px 40px; max-width: 1100px; }
+#view-overview { padding: 40px; max-width: 1100px; }
 .overview-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; }
-.overview-header h1 { font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -0.4px; margin-bottom: 6px; }
+.overview-header h1 { font-family: var(--serif); font-size: 32px; font-weight: 500; letter-spacing: -0.4px; margin-bottom: 6px; }
 .overview-header p { font-size: 14px; color: var(--ink2); line-height: 1.5; max-width: 500px; }
 .btn-new { background: var(--ink); color: white; border: none; padding: 11px 20px; border-radius: var(--r); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all 0.2s; font-family: var(--ui); }
 .btn-new:hover { background: #2C2825; transform: translateY(-1px); }
 
 .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
-.stat-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 22px; box-shadow: var(--sh); }
+.stat-card { background: white; border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px; box-shadow: var(--sh); }
 .stat-num { font-family: var(--serif); font-size: 36px; font-weight: 400; color: var(--green); margin-bottom: 4px; }
-.stat-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); margin-bottom: 8px; }
+.stat-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); margin-bottom: 8px; }
 .stat-sub { font-size: 12px; color: var(--ink2); line-height: 1.4; }
 
 .sessions-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .sessions-header h3 { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); }
 .view-all { font-size: 12px; color: var(--terra); background: none; border: none; cursor: pointer; font-family: var(--ui); }
 .sessions-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
-.session-card { background: white; border: 1px solid var(--border); border-radius: var(--r); padding: 20px; box-shadow: var(--sh); cursor: pointer; transition: all 0.2s; }
+.session-card { background: white; border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px; box-shadow: var(--sh); cursor: pointer; transition: all 0.2s; }
 .session-card:hover { border-color: var(--border2); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
 .session-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
 .session-role { font-size: 14px; font-weight: 600; color: var(--ink); }
@@ -165,7 +165,7 @@ a.role-switcher {
 .session-action:hover { background: var(--bg); border-color: var(--border2); }
 
 /* ─── SETUP (Figma 48:3277) ─── */
-#view-setup { padding: 40px 48px 48px; max-width: 960px; margin: 0 auto; }
+#view-setup { padding: 40px; max-width: 960px; margin: 0 auto; }
 .setup-breadcrumb-row {
   display: flex;
   justify-content: center;
@@ -192,7 +192,7 @@ a.role-switcher {
 .setup-hero {
   margin-bottom: 32px;
 }
-.setup-title { font-family: var(--serif); font-size: 28px; font-weight: 500; margin-bottom: 10px; letter-spacing: -0.4px; line-height: 1.2; color: var(--ink); }
+.setup-title { font-family: var(--serif); font-size: 32px; font-weight: 500; margin-bottom: 10px; letter-spacing: -0.4px; line-height: 1.2; color: var(--ink); }
 .setup-sub { font-size: 14px; color: var(--ink2); margin-bottom: 0; line-height: 1.55; max-width: 42rem; }
 .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
 .upload-panel {
@@ -279,7 +279,7 @@ label.drop-zone {
 .btn-primary {
   background: var(--ink); color: white; border: none;
   padding: 14px 32px; border-radius: var(--r-lg);
-  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-size: 15px; font-weight: 600; cursor: pointer;
   font-family: var(--ui); transition: all 0.2s;
   display: inline-flex; align-items: center; gap: 8px;
 }
