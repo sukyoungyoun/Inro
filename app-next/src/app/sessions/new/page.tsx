@@ -73,7 +73,9 @@ export default function NewSessionPage() {
   const jdRef = useRef<HTMLInputElement>(null);
   const rvRef = useRef<HTMLInputElement>(null);
 
-  const ready = useMemo(() => jd.trim().length > 0 && rv.trim().length > 0, [jd, rv]);
+  const hasJd = useMemo(() => jd.trim().length > 0 || jdFileName.trim().length > 0, [jd, jdFileName]);
+  const hasRv = useMemo(() => rv.trim().length > 0 || rvFileName.trim().length > 0, [rv, rvFileName]);
+  const ready = hasJd && hasRv;
 
   async function ingestTextFile(file: File, setText: (s: string) => void, setName: (s: string) => void) {
     setName(file.name);
@@ -88,21 +90,50 @@ export default function NewSessionPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!ready) return;
     setLoading(true);
     setError("");
 
-    const res = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ company, stage, jd, rv }),
-    });
-    const data = await res.json();
-    setLoading(false);
-    if (!res.ok) {
-      setError(data.error || "Could not analyze this session.");
+    const normalizedJd = jd.trim();
+    const normalizedRv = rv.trim();
+
+    // For non-txt files we can't extract content client-side, so require pasted text.
+    if (!normalizedJd || !normalizedRv) {
+      setLoading(false);
+      setError(
+        "Please paste both Job Description and Resume text. Uploading PDF/DOCX currently marks selection only."
+      );
       return;
     }
-    router.push(`/sessions/${data.id}`);
+
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company, stage, jd: normalizedJd, rv: normalizedRv }),
+      });
+
+      let data: { id?: string; error?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        /* keep default */
+      }
+
+      setLoading(false);
+      if (!res.ok) {
+        setError(data.error || "Could not analyze this session.");
+        return;
+      }
+      if (!data.id) {
+        setError("Analysis finished but no session id was returned.");
+        return;
+      }
+      router.push(`/sessions/${data.id}`);
+    } catch {
+      setLoading(false);
+      setError("Network error while contacting analysis API. Please try again.");
+    }
   }
 
   return (
