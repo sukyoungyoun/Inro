@@ -78,19 +78,40 @@ body:has(#app) {
   background: white;
   border: 1px solid var(--border);
   border-radius: var(--r);
+  position: relative;
+}
+.role-switcher-trigger {
+  list-style: none;
   padding: 10px 12px;
   display: flex; align-items: center; justify-content: space-between;
   cursor: pointer;
 }
-a.role-switcher {
-  text-decoration: none;
-  color: inherit;
-  box-sizing: border-box;
+.role-switcher-trigger::-webkit-details-marker {
+  display: none;
 }
 .role-switcher-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .role-switcher-title { font-size: 13px; font-weight: 600; color: var(--ink); }
 .role-switcher-company { font-size: 11px; color: var(--ink3); }
 .role-switcher-arrow { font-size: 12px; color: var(--ink3); }
+.role-switcher[open] .role-switcher-arrow { transform: rotate(180deg); }
+.role-switcher-menu {
+  border-top: 1px solid var(--border);
+  padding: 6px;
+  display: grid;
+  gap: 4px;
+}
+.role-switcher-option {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--ink2);
+  font-size: 12px;
+}
+.role-switcher-option:hover {
+  background: rgba(139, 94, 82, 0.1);
+  color: var(--ink);
+}
 .nav-section { padding: 0 12px; margin-bottom: 20px; }
 .nav-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); padding: 0 4px; margin-bottom: 6px; }
 .nav-btn {
@@ -973,6 +994,15 @@ html, body {
   margin: 0 10px 14px !important;
   border-radius: 8px !important;
 }
+.role-switcher-trigger {
+  padding: 10px 12px !important;
+}
+.role-switcher-menu {
+  padding: 6px !important;
+}
+.role-switcher-option {
+  min-height: 32px !important;
+}
 .nav-section { padding: 0 10px !important; }
 .nav-btn {
   min-height: 36px !important;
@@ -1333,12 +1363,15 @@ html, body {
 
   .mobile-wordmark {
     display: block !important;
-    font-family: var(--serif) !important;
-    font-size: 18px !important;
-    font-style: italic !important;
-    font-weight: 500 !important;
-    letter-spacing: -0.02em !important;
-    color: var(--ink) !important;
+    width: 58px !important;
+    height: 24px !important;
+    background-image: url("/inrologo.png") !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: left center !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
   }
 
   #topbar .breadcrumb {

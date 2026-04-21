@@ -33,6 +33,7 @@ export default async function PreferencesPage() {
       briefHref={prepHref}
       mockInterviewHref={mockInterviewHref}
       mobileTab="role"
+      showRoleSwitcher={false}
       contentFill
     >
       <div

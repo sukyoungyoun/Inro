@@ -44,6 +44,7 @@ export default async function ResumeLibraryPage() {
       briefHref={prepHref}
       mockInterviewHref={mockInterviewHref}
       mobileTab="role"
+      showRoleSwitcher={false}
     >
       <div id="view-resume" className="view">
         <div className="rl-header">

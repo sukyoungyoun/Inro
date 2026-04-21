@@ -58,15 +58,25 @@ export function AppShell({
       <aside id="sidebar">
         <div className="logo">inro</div>
         {showRoleSwitcher ? (
-          <Link href="/dashboard" className="role-switcher">
-            <div className="role-switcher-info">
-              <div className="role-switcher-title">{roleTitle}</div>
-              <div className="role-switcher-company">{roleCompany}</div>
+          <details className="role-switcher">
+            <summary className="role-switcher-trigger">
+              <div className="role-switcher-info">
+                <div className="role-switcher-title">{roleTitle}</div>
+                <div className="role-switcher-company">{roleCompany}</div>
+              </div>
+              <div className="role-switcher-arrow" aria-hidden>
+                ⌄
+              </div>
+            </summary>
+            <div className="role-switcher-menu">
+              <Link href="/dashboard" className="role-switcher-option">
+                Choose role
+              </Link>
+              <Link href="/sessions/new" className="role-switcher-option">
+                Add new role
+              </Link>
             </div>
-            <div className="role-switcher-arrow" aria-hidden>
-              ⌄
-            </div>
-          </Link>
+          </details>
         ) : (
           <div style={{ height: 10 }} />
         )}
