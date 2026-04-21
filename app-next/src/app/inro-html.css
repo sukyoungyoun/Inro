@@ -742,6 +742,12 @@ body, p, .setup-sub, .brief-summary-text, .strength-desc, .gap-strategy, .coachi
   margin-bottom: 12px;
 }
 .gauge-wrap { display: flex; flex-direction: column; align-items: center; }
+.gauge-wrap svg {
+  width: 92px;
+  height: 92px;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+}
 .gauge-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--text-muted); margin-top: 6px; }
 
 .timer-combo { font-family: var(--mono); font-size: 20px; color: var(--text-primary); text-align: center; margin-bottom: 8px; }
@@ -951,12 +957,17 @@ html, body {
   border-right: 1px solid var(--border) !important;
 }
 .logo {
-  font-family: var(--serif) !important;
-  font-style: italic !important;
-  font-size: 18px !important;
-  font-weight: 500 !important;
-  letter-spacing: -0.02em !important;
-  padding: 20px 16px 14px !important;
+  width: 82px !important;
+  height: 32px !important;
+  margin: 18px 16px 14px !important;
+  background-image: url("/inrologo.png") !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: left center !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  padding: 0 !important;
 }
 .role-switcher {
   margin: 0 10px 14px !important;

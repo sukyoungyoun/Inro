@@ -42,7 +42,7 @@ export function SessionBriefClient({
         <div className="brief-role-row">
           <div className="brief-role-name">Role Brief</div>
           <div className="gauge-wrap">
-            <svg width="92" height="92" viewBox="0 0 92 92" aria-hidden>
+            <svg width="92" height="92" viewBox="0 0 92 92" aria-hidden preserveAspectRatio="xMidYMid meet" style={{ display: "block" }}>
               <circle cx="46" cy="46" r="34" fill="none" stroke="var(--border)" strokeWidth="7" />
               <circle
                 cx="46"

@@ -27,6 +27,16 @@ export default async function SessionDetailPage({
     (data.analysis?.strengthsJson as Array<{ title: string; desc: string }> | null) || [];
   const gaps =
     (data.analysis?.gapsJson as Array<{ title: string; mitigation: string }> | null) || [];
+  const fallbackSummary = [
+    data.analysis?.strongestAlignment ? `Strongest alignment: ${data.analysis.strongestAlignment}` : "",
+    data.analysis?.biggestRisk ? `Biggest risk: ${data.analysis.biggestRisk}` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const summary =
+    data.roleSummary?.trim() ||
+    fallbackSummary ||
+    "We could not generate a full role summary yet. Add richer JD and resume details, then rerun analysis.";
 
   const score = data.matchScore ?? 0;
   return (
@@ -43,7 +53,7 @@ export default async function SessionDetailPage({
       <SessionBriefClient
         id={data.id}
         score={score}
-        roleSummary={data.roleSummary || "No summary yet."}
+        roleSummary={summary}
         strengths={strengths}
         gaps={gaps}
         questions={data.questions.map((q) => ({ id: q.id, category: q.category, question: q.question, insight: q.insight }))}

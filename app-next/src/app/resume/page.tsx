@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/app-shell";
 import { TailoredResumeCard } from "@/components/tailored-resume-card";
+import { PrimaryResumeActions } from "@/components/primary-resume-actions";
 
 function DocIcon({ className }: { className?: string }) {
   return (
@@ -48,7 +49,7 @@ export default async function ResumeLibraryPage() {
             <h1>Resume Library</h1>
             <p>Manage your base resume and tailored versions to get the most accurate fit insights for your target roles.</p>
           </div>
-          <button type="button" className="btn-upload">
+          <button type="button" className="btn-upload" disabled>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
               <path d="M7 10V3M4 6l3-3 3 3" />
               <path d="M2 11h10" />
@@ -73,14 +74,7 @@ export default async function ResumeLibraryPage() {
                 : "Create a prep session to store your first resume input."}
             </div>
           </div>
-          <div className="resume-actions">
-            <button type="button" className="btn-preview">
-              Preview
-            </button>
-            <button type="button" className="btn-update">
-              Update
-            </button>
-          </div>
+          <PrimaryResumeActions sessionId={primary?.id || null} resumeText={primary?.resumeText || ""} />
         </div>
 
         <div className="rl-section-label">Tailored Resumes</div>
