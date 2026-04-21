@@ -33,6 +33,7 @@
 .inro-select:focus,
 .inro-textarea:focus {
   border-color: var(--terra);
+  box-shadow: 0 0 0 3px rgba(139, 94, 82, 0.12);
 }
 
 .inro-textarea {
