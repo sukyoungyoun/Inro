@@ -625,9 +625,10 @@ h1, .setup-title, .brief-role-name, .prefs-title, .rl-header h1, .overview-heade
 }
 .logo {
   font-family: var(--serif);
-  font-style: italic;
-  font-size: 18px;
-  letter-spacing: -0.02em;
+  font-style: normal;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 .nav-label, .stat-label, .section-label, .upload-label, .eval-label, .coaching-label, .mock-eyebrow, .rl-section-label {
   font-family: var(--mono);

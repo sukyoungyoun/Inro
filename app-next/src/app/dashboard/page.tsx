@@ -15,6 +15,15 @@ function formatSessionTime(d: Date) {
   return `${days}D AGO`;
 }
 
+function greetingName(fullName: string | null | undefined, email: string | null | undefined) {
+  const cleanedFull = (fullName || "").trim();
+  if (cleanedFull) return cleanedFull.split(/\s+/)[0];
+  const local = (email || "").split("@")[0] || "";
+  const cleaned = local.replace(/[._-]+/g, " ").replace(/\d+/g, "").trim();
+  const first = cleaned.split(/\s+/)[0] || "there";
+  return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+}
+
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -40,7 +49,7 @@ export default async function DashboardPage() {
   const first = sessions[0];
   const prepHref = first ? `/sessions/${first.id}` : "/sessions/new";
   const mockInterviewHref = first ? `/sessions/${first.id}/practice` : "/sessions/new";
-  const displayName = profile.fullName || session.user.email || "there";
+  const displayName = greetingName(profile.fullName, session.user.email);
   const weakest = avgScore < 65 ? "specificity gap" : "systems examples";
 
   return (

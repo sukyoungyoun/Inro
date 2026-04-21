@@ -34,8 +34,9 @@ export function AppShell({
   /** Brief / practice / eval: #content gets height chain for full views */
   contentFill?: boolean;
 }) {
+  const displayUserName = toDisplayName(userName);
   const initials =
-    userName
+    displayUserName
       .split(" ")
       .filter(Boolean)
       .slice(0, 2)
@@ -80,7 +81,7 @@ export function AppShell({
 
         <div className="sidebar-footer">
           <div className="avatar">{initials}</div>
-          <div className="avatar-name">{userName}</div>
+          <div className="avatar-name">{displayUserName}</div>
         </div>
       </aside>
 
@@ -96,6 +97,17 @@ export function AppShell({
       </div>
     </div>
   );
+}
+
+function toDisplayName(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "User";
+  if (!trimmed.includes("@")) return trimmed;
+  const local = trimmed.split("@")[0] || "";
+  const cleaned = local.replace(/[._-]+/g, " ").replace(/\d+/g, "").trim();
+  if (!cleaned) return "User";
+  const first = cleaned.split(/\s+/)[0] || cleaned;
+  return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
 }
 
 function NavBtn({
