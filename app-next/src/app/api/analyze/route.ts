@@ -27,6 +27,77 @@ type GeminiResult = {
   }>;
 };
 
+function buildHeuristicFallback(jd: string, rv: string, company: string): GeminiResult {
+  const lowerJd = jd.toLowerCase();
+  const lowerRv = rv.toLowerCase();
+  const keywords = [
+    "design",
+    "product",
+    "research",
+    "analytics",
+    "leadership",
+    "system",
+    "accessibility",
+    "collaboration",
+    "strategy",
+  ];
+  const overlap = keywords.filter((k) => lowerJd.includes(k) && lowerRv.includes(k));
+  const roleGuess =
+    (jd.match(/(?:senior|staff|lead)?\s*(product|ux|ui|design|research)[^,\n]*/i)?.[0] || "")
+      .trim() || "Role Analysis";
+  const score = Math.max(52, Math.min(88, 52 + overlap.length * 4));
+
+  return {
+    role: roleGuess,
+    matchScore: score,
+    summary:
+      `Generated in fallback mode due to model capacity limits. You show ${overlap.length} direct skill overlaps with the role requirements; prioritize concrete examples tailored to this job.`,
+    strongestAlignment:
+      overlap[0]
+        ? `Clear overlap in ${overlap[0]} between your resume and the job description.`
+        : "General role-relevant experience appears in your profile.",
+    biggestRisk:
+      "Evidence specificity may be too generic; quantify outcomes and tie each story to role requirements.",
+    strengths: [
+      {
+        title: "Keyword alignment",
+        desc: "Resume language overlaps with job requirements, giving a usable base for interview story framing.",
+      },
+      {
+        title: "Role relevance",
+        desc: "Your materials suggest transferable experience for this position and company context.",
+      },
+    ],
+    gaps: [
+      {
+        title: "Specificity gap",
+        mitigation: "Prepare STAR examples with measurable outcomes for each priority requirement.",
+      },
+      {
+        title: "Company tailoring",
+        mitigation: `Connect your examples to ${company || "the target company"} product domain and collaboration model.`,
+      },
+    ],
+    questions: [
+      {
+        type: "BEHAVIORAL",
+        q: "Tell me about a project where you had to balance quality, speed, and stakeholder constraints.",
+        insight: "Tests prioritization and cross-functional communication.",
+      },
+      {
+        type: "PRODUCT SENSE",
+        q: "How would you evaluate whether your solution improved user outcomes after launch?",
+        insight: "Tests metric design and decision-making rigor.",
+      },
+      {
+        type: "SYSTEM DESIGN",
+        q: "Walk through how you would structure a scalable workflow for this role’s core responsibilities.",
+        insight: "Tests systems thinking and execution planning.",
+      },
+    ],
+  };
+}
+
 async function sleep(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -191,27 +262,24 @@ RESUME:
 ${rv.substring(0, 4000)}`.trim();
 
     const gemini = await callGeminiWithFallback(apiKey, prompt);
-    if (!gemini.ok) {
-      return NextResponse.json(
-        { error: gemini.message || "Gemini API error" },
-        { status: gemini.status || 500 }
-      );
-    }
-    const rawData = gemini.data;
-
-    let raw = rawData.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    raw = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
-
     let parsed: GeminiResult;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      const s = raw.indexOf("{");
-      const e = raw.lastIndexOf("}");
-      if (s === -1 || e <= s) {
-        return NextResponse.json({ error: "Gemini returned invalid JSON." }, { status: 502 });
+    if (!gemini.ok) {
+      parsed = buildHeuristicFallback(jd, rv, company);
+    } else {
+      const rawData = gemini.data;
+      let raw = rawData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      raw = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        const s = raw.indexOf("{");
+        const e = raw.lastIndexOf("}");
+        if (s === -1 || e <= s) {
+          parsed = buildHeuristicFallback(jd, rv, company);
+        } else {
+          parsed = JSON.parse(raw.slice(s, e + 1));
+        }
       }
-      parsed = JSON.parse(raw.slice(s, e + 1));
     }
 
     const created = await prisma.prepSession.create({
