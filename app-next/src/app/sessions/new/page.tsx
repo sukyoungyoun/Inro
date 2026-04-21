@@ -105,21 +105,21 @@ export default function NewSessionPage() {
     setLoading(true);
     setError("");
 
-    const normalizedJd = jd.trim();
-    const normalizedRv = rv.trim();
+    const normalizedJd =
+      jd.trim() || (jdFileName ? `Uploaded Job Description file: ${jdFileName}` : "");
+    const normalizedRv =
+      rv.trim() || (rvFileName ? `Uploaded Resume file: ${rvFileName}` : "");
 
     try {
-      const payload = new FormData();
-      payload.append("company", company);
-      payload.append("stage", stage);
-      payload.append("jd", normalizedJd);
-      payload.append("rv", normalizedRv);
-      if (jdFile) payload.append("jdFile", jdFile);
-      if (rvFile) payload.append("rvFile", rvFile);
-
       const res = await fetch("/api/analyze", {
         method: "POST",
-        body: payload,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company,
+          stage,
+          jd: normalizedJd,
+          rv: normalizedRv,
+        }),
       });
 
       let data: { id?: string; error?: string } = {};
