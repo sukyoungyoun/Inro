@@ -73,18 +73,73 @@ export default function NewSessionPage() {
   const jdRef = useRef<HTMLInputElement>(null);
   const rvRef = useRef<HTMLInputElement>(null);
 
-  const hasJd = useMemo(() => jd.trim().length > 0 || jdFileName.trim().length > 0, [jd, jdFileName]);
-  const hasRv = useMemo(() => rv.trim().length > 0 || rvFileName.trim().length > 0, [rv, rvFileName]);
+  const hasJd = useMemo(() => jd.trim().length > 0, [jd]);
+  const hasRv = useMemo(() => rv.trim().length > 0, [rv]);
   const ready = hasJd && hasRv;
 
-  async function ingestTextFile(file: File, setText: (s: string) => void, setName: (s: string) => void) {
+  async function extractPdfText(arrayBuffer: ArrayBuffer): Promise<string> {
+    const pdfjs = await import("pdfjs-dist");
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+      "pdfjs-dist/build/pdf.worker.min.mjs",
+      import.meta.url
+    ).toString();
+
+    const pdf = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+    const pages: string[] = [];
+    for (let p = 1; p <= pdf.numPages; p += 1) {
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      const text = content.items
+        .map((item) => ("str" in item ? item.str : ""))
+        .join(" ")
+        .trim();
+      if (text) pages.push(text);
+    }
+    return pages.join("\n\n");
+  }
+
+  async function extractDocxText(arrayBuffer: ArrayBuffer): Promise<string> {
+    const mammoth = await import("mammoth/mammoth.browser");
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    return (result.value || "").trim();
+  }
+
+  async function ingestFile(
+    file: File,
+    setText: (s: string) => void,
+    setName: (s: string) => void,
+    label: "Job Description" | "Resume"
+  ) {
     setName(file.name);
-    if (file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")) {
-      try {
-        setText(await file.text());
-      } catch {
-        /* ignore */
+    setError("");
+
+    try {
+      const lower = file.name.toLowerCase();
+      let text = "";
+
+      if (file.type === "text/plain" || lower.endsWith(".txt")) {
+        text = (await file.text()).trim();
+      } else if (file.type === "application/pdf" || lower.endsWith(".pdf")) {
+        text = await extractPdfText(await file.arrayBuffer());
+      } else if (
+        file.type ===
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        lower.endsWith(".docx")
+      ) {
+        text = await extractDocxText(await file.arrayBuffer());
+      } else {
+        throw new Error("Unsupported file format. Please upload PDF, DOCX, or TXT.");
       }
+
+      const cleaned = text.trim();
+      if (!cleaned) {
+        throw new Error(`Could not extract text from ${label} file. Please paste text manually.`);
+      }
+      setText(cleaned);
+    } catch (e) {
+      setText("");
+      const message = e instanceof Error ? e.message : "Could not process file.";
+      setError(message);
     }
   }
 
@@ -99,15 +154,6 @@ export default function NewSessionPage() {
 
     const normalizedJd = jd.trim();
     const normalizedRv = rv.trim();
-
-    // For non-txt files we can't extract content client-side, so require pasted text.
-    if (!normalizedJd || !normalizedRv) {
-      setLoading(false);
-      setError(
-        "Please paste both Job Description and Resume text. Uploading PDF/DOCX currently marks selection only."
-      );
-      return;
-    }
 
     try {
       const res = await fetch("/api/analyze", {
@@ -178,7 +224,7 @@ export default function NewSessionPage() {
                 tabIndex={-1}
                 onChange={(e) => {
                   const f = e.target.files?.[0];
-                  if (f) void ingestTextFile(f, setJd, setJdFileName);
+                  if (f) void ingestFile(f, setJd, setJdFileName, "Job Description");
                   else setJdFileName("");
                 }}
               />
@@ -188,7 +234,7 @@ export default function NewSessionPage() {
                 text={jdFileName || "Drag PDF/DOCX or click to upload"}
                 onPick={() => jdRef.current?.click()}
                 onDragActive={setJdDrag}
-                onFile={(f) => void ingestTextFile(f, setJd, setJdFileName)}
+                onFile={(f) => void ingestFile(f, setJd, setJdFileName, "Job Description")}
               />
               <textarea
                 className="ta"
@@ -211,7 +257,7 @@ export default function NewSessionPage() {
                 tabIndex={-1}
                 onChange={(e) => {
                   const f = e.target.files?.[0];
-                  if (f) void ingestTextFile(f, setRv, setRvFileName);
+                  if (f) void ingestFile(f, setRv, setRvFileName, "Resume");
                   else setRvFileName("");
                 }}
               />
@@ -221,7 +267,7 @@ export default function NewSessionPage() {
                 text={rvFileName || "Drag PDF/DOCX or click to upload"}
                 onPick={() => rvRef.current?.click()}
                 onDragActive={setRvDrag}
-                onFile={(f) => void ingestTextFile(f, setRv, setRvFileName)}
+                onFile={(f) => void ingestFile(f, setRv, setRvFileName, "Resume")}
               />
               <textarea
                 className="ta"
@@ -265,8 +311,8 @@ export default function NewSessionPage() {
 
           {error ? <div className="error-msg">{error}</div> : null}
 
-          <button className="btn-primary" id="analyze-btn" type="submit" disabled={loading}>
-            {loading ? "Consulting inro…" : "Begin Analysis →"}
+          <button className="btn-primary" id="analyze-btn" type="submit" disabled={!ready || loading}>
+            {loading ? "Consulting inro…" : ready ? "Begin Analysis →" : "Awaiting Data…"}
           </button>
         </form>
       </div>
