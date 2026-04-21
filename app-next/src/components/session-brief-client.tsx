@@ -100,26 +100,9 @@ export function SessionBriefClient({
           </button>
         </div>
 
-        <div className="mobile-prep-card ai-transparency-card">
-          <div className="mobile-card-label">AI-GENERATED BRIEF</div>
-          <p className="mobile-card-copy" style={{ fontSize: 12, color: "var(--ink2)", marginBottom: 10 }}>
-            Built from your JD and resume. On desktop you can edit the role summary and alignment notes if anything looks
-            off.
-            {usedFallback ? " This session used a fallback estimate (model unavailable or invalid response)." : ""}
-          </p>
-          {limitations ? (
-            <p className="mobile-card-copy" style={{ fontSize: 12, marginBottom: 8 }}>
-              <strong>Limits:</strong> {limitations}
-            </p>
-          ) : null}
-          {evidenceSummary ? (
-            <p className="mobile-card-copy" style={{ fontSize: 12 }}>
-              <strong>Grounding:</strong> {evidenceSummary}
-            </p>
-          ) : null}
-          <p className="mobile-card-copy" style={{ marginTop: 10 }}>
-            {cleanedSummary}
-          </p>
+        <div className="mobile-prep-card">
+          <div className="mobile-card-label">ROLE SUMMARY</div>
+          <p className="mobile-card-copy">{cleanedSummary}</p>
         </div>
 
         {questions.map((q, idx) => (
@@ -143,35 +126,17 @@ export function SessionBriefClient({
             ) : null}
           </div>
         ))}
+
+        <div className="ai-transparency-footer" role="note">
+          <div className="ai-transparency-title ai-transparency-title--compact">AI from your documents</div>
+          <p className="ai-transparency-body ai-transparency-body--compact">
+            Gemini may misread text. Match % is a prep hint only. Edit summary &amp; alignment on wider screens.
+          </p>
+          {usedFallback ? <p className="ai-transparency-warn ai-transparency-warn--compact">Fallback run—rough estimate.</p> : null}
+        </div>
       </div>
 
       <div className="brief-main">
-        <div className="ai-transparency-banner" role="region" aria-label="About this AI-generated brief">
-          <div className="ai-transparency-title">AI-generated from your documents</div>
-          <p className="ai-transparency-body">
-            inro uses Google Gemini to read your job description and resume. It can misread files, miss nuance, or
-            overstate fit. The match score is a <strong>prep heuristic</strong>, not a hiring verdict. You can adjust the{" "}
-            <strong>role summary</strong> and the <strong>strongest alignment / biggest risk</strong> notes below if
-            they do not match your understanding.
-          </p>
-          {usedFallback ? (
-            <p className="ai-transparency-warn">
-              This brief used an automatic fallback (AI unavailable or unreadable response). Treat scores and bullets as
-              rough guesses until you revise the editable sections.
-            </p>
-          ) : null}
-          {limitations ? (
-            <p className="ai-transparency-meta">
-              <strong>Model caveats:</strong> {limitations}
-            </p>
-          ) : null}
-          {evidenceSummary ? (
-            <p className="ai-transparency-meta">
-              <strong>What we grounded on:</strong> {evidenceSummary}
-            </p>
-          ) : null}
-        </div>
-
         <div className="brief-eyebrow">Role Overview</div>
         <div className="brief-role-row">
           <div>
@@ -232,6 +197,27 @@ export function SessionBriefClient({
             </div>
           </div>
         ))}
+
+        <div className="ai-transparency-banner ai-transparency-banner--footer" role="note" aria-label="AI disclaimer">
+          <div className="ai-transparency-title ai-transparency-title--compact">AI-generated from your documents</div>
+          <p className="ai-transparency-body ai-transparency-body--compact">
+            Gemini read your JD and resume—mistakes happen. Match % is a prep heuristic, not hiring advice. Edit the
+            summary and alignment notes above if they look off.
+          </p>
+          {usedFallback ? (
+            <p className="ai-transparency-warn ai-transparency-warn--compact">Fallback analysis—treat scores as rough.</p>
+          ) : null}
+          {limitations ? (
+            <p className="ai-transparency-meta ai-transparency-meta--clamp" title={limitations}>
+              <strong>Caveats:</strong> {limitations}
+            </p>
+          ) : null}
+          {evidenceSummary ? (
+            <p className="ai-transparency-meta ai-transparency-meta--clamp" title={evidenceSummary}>
+              <strong>Grounding:</strong> {evidenceSummary}
+            </p>
+          ) : null}
+        </div>
       </div>
       <div className="brief-sidebar">
         <div className="brief-tabs">
