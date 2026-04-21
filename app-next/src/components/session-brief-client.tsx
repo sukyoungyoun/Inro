@@ -67,13 +67,6 @@ export function SessionBriefClient({
             ) : null}
           </div>
         ))}
-
-        <div className="mobile-bottom-nav">
-          <div className="mobile-nav-item"><span>⌂</span><small>Home</small></div>
-          <div className="mobile-nav-item"><span>▣</span><small>Role</small></div>
-          <div className="mobile-nav-item"><span>▤</span><small>Brief</small></div>
-          <div className="mobile-nav-item active"><span>◍</span><small>Prep</small></div>
-        </div>
       </div>
 
       <div className="brief-main">

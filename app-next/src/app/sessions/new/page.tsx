@@ -159,6 +159,10 @@ export default function NewSessionPage() {
       userName="You"
       roleTitle="New Role"
       roleCompany={company.trim() || "Company"}
+      prepHref="/sessions/new"
+      briefHref="/sessions/new"
+      mockInterviewHref="/sessions/new"
+      mobileTab="role"
     >
       <div id="view-setup" className="view">
         <div className="breadcrumb">

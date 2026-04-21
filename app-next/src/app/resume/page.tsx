@@ -41,7 +41,9 @@ export default async function ResumeLibraryPage() {
       roleTitle={profile?.currentRole || profile?.targetRoles[0] || "Role"}
       roleCompany={sessions[0]?.company || "Company"}
       prepHref={prepHref}
+      briefHref={prepHref}
       mockInterviewHref={mockInterviewHref}
+      mobileTab="role"
     >
       <div id="view-resume" className="view">
         <div className="rl-header">

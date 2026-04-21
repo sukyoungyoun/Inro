@@ -29,8 +29,10 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
       userName={session.user.email || "User"}
       roleTitle={data.title}
       roleCompany={data.company || "Company"}
-      prepHref={`/sessions/${data.id}`}
+      prepHref="/sessions/new"
+      briefHref={`/sessions/${data.id}`}
       mockInterviewHref={`/sessions/${data.id}/practice`}
+      mobileTab="prep"
       contentFill
     >
       <div id="view-eval" className="view">

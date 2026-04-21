@@ -30,7 +30,9 @@ export default async function PreferencesPage() {
       roleTitle={profile?.currentRole || profile?.targetRoles?.[0] || "Role"}
       roleCompany={first?.company || "Workspace"}
       prepHref={prepHref}
+      briefHref={prepHref}
       mockInterviewHref={mockInterviewHref}
+      mobileTab="role"
       contentFill
     >
       <div

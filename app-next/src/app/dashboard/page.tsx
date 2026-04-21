@@ -60,7 +60,9 @@ export default async function DashboardPage() {
       roleTitle={profile.currentRole || profile.targetRoles[0] || "Role"}
       roleCompany={first?.company || "Company"}
       prepHref={prepHref}
+      briefHref={prepHref}
       mockInterviewHref={mockInterviewHref}
+      mobileTab="home"
     >
       <div id="view-overview" className="view">
         <div className="overview-header">

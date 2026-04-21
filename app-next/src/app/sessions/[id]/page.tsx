@@ -46,8 +46,10 @@ export default async function SessionDetailPage({
       userName={session.user.email || "User"}
       roleTitle={data.title}
       roleCompany={data.company || "Company"}
-      prepHref={`/sessions/${data.id}`}
+      prepHref="/sessions/new"
+      briefHref={`/sessions/${data.id}`}
       mockInterviewHref={`/sessions/${data.id}/practice`}
+      mobileTab="brief"
       contentFill
     >
       <SessionBriefClient
