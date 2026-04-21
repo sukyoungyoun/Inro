@@ -44,14 +44,8 @@ export function AppShell({
   /** Brief / practice / eval: #content gets height chain for full views */
   contentFill?: boolean;
 }) {
-  const displayUserName = toDisplayName(userName);
-  const initials =
-    displayUserName
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((p) => p[0]?.toUpperCase())
-      .join("") || "U";
+  const firstName = toFirstName(userName);
+  const initial = firstName.charAt(0).toUpperCase() || "U";
 
   return (
     <div id="app">
@@ -104,8 +98,8 @@ export function AppShell({
         </div>
 
         <div className="sidebar-footer">
-          <div className="avatar">{initials}</div>
-          <div className="avatar-name">{displayUserName}</div>
+          <div className="avatar">{initial}</div>
+          <div className="avatar-name">{firstName}</div>
         </div>
       </aside>
 
@@ -151,12 +145,11 @@ export function AppShell({
   );
 }
 
-function toDisplayName(value: string) {
+function toFirstName(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return "User";
-  if (!trimmed.includes("@")) return trimmed;
-  const local = trimmed.split("@")[0] || "";
-  const cleaned = local.replace(/[._-]+/g, " ").replace(/\d+/g, "").trim();
+  const source = trimmed.includes("@") ? trimmed.split("@")[0] || "" : trimmed;
+  const cleaned = source.replace(/[._-]+/g, " ").replace(/\d+/g, "").trim();
   if (!cleaned) return "User";
   const first = cleaned.split(/\s+/)[0] || cleaned;
   return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
