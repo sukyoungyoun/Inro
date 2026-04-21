@@ -1,23 +1,14 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/app-shell";
+import { TailoredResumeCard } from "@/components/tailored-resume-card";
 
 function DocIcon({ className }: { className?: string }) {
   return (
     <svg width="20" height="24" viewBox="0 0 20 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className} aria-hidden>
       <rect x="2" y="1" width="16" height="22" rx="2" />
       <path d="M6 7h8M6 11h8M6 15h5" />
-    </svg>
-  );
-}
-
-function TailoredIcon() {
-  return (
-    <svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="var(--terra)" strokeWidth="1.5" aria-hidden>
-      <rect x="1" y="1" width="16" height="20" rx="2" />
-      <path d="M5 6h8M5 10h8M5 14h5" />
     </svg>
   );
 }
@@ -100,32 +91,7 @@ export default async function ResumeLibraryPage() {
               <div className="tailored-meta">Start a prep session to generate tailored resume context.</div>
             </div>
           ) : (
-            sessions.map((s) => (
-              <div key={s.id} className="tailored-card">
-                <div className="tailored-card-top">
-                  <div className="tailored-icon">
-                    <TailoredIcon />
-                  </div>
-                  <button type="button" className="more-btn" aria-label="More">
-                    ···
-                  </button>
-                </div>
-                <div className="tailored-name">{s.title}</div>
-                <div className="tailored-meta">{s.company || "Company not set"}</div>
-                <div className="tailored-tags">
-                  {(s.company ? [s.company] : []).map((t) => (
-                    <span key={t} className="tailored-tag">
-                      {t}
-                    </span>
-                  ))}
-                  <span className="tailored-tag">Session</span>
-                </div>
-                <div className="tailored-actions">
-                  <button type="button">Preview</button>
-                  <Link href={`/sessions/${s.id}`}>View Sessions</Link>
-                </div>
-              </div>
-            ))
+            sessions.map((s) => <TailoredResumeCard key={s.id} id={s.id} title={s.title} company={s.company} />)
           )}
         </div>
       </div>

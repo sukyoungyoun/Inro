@@ -217,13 +217,23 @@ export function PreferencesForm({
         <div className="pref-label" style={{ marginTop: 16, marginBottom: 8 }}>
           Preferred stage
         </div>
-        <select className="field-select" style={{ marginBottom: 16 }} value={targetStage} onChange={(e) => setTargetStage(e.target.value)}>
-          <option value="">Select stage…</option>
-          <option value="RECRUITER_SCREEN">Recruiter Screen</option>
-          <option value="HIRING_MANAGER">Hiring Manager</option>
-          <option value="PORTFOLIO_REVIEW">Portfolio Review</option>
-          <option value="FINAL_LOOP">Final Loop</option>
-        </select>
+        <div className="segmented" style={{ marginBottom: 16 }}>
+          {[
+            ["PORTFOLIO_REVIEW", "Portfolio Review"],
+            ["RECRUITER_SCREEN", "Initial Screen"],
+            ["HIRING_MANAGER", "Technical"],
+            ["FINAL_LOOP", "Final Round"],
+          ].map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={`segment${targetStage === value ? " active" : ""}`}
+              onClick={() => setTargetStage(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
         <div className="pref-label" style={{ marginTop: 16, marginBottom: 8 }}>
           Career Context <span style={{ fontWeight: 400, color: "var(--ink3)" }}>(Optional)</span>

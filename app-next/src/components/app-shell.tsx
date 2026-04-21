@@ -86,7 +86,9 @@ export function AppShell({
 
       <div id="main">
         <div id="topbar">
-          INRO &nbsp;•&nbsp; <span>{crumb}</span>
+          <div className="breadcrumb">
+            <span>INRO</span> <span aria-hidden>&gt;</span> <span className="breadcrumb-current">{crumb}</span>
+          </div>
         </div>
         <div id="content" className={contentFill ? "inro-content-fill" : undefined}>
           {children}

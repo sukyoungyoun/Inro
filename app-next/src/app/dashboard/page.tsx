@@ -41,6 +41,7 @@ export default async function DashboardPage() {
   const prepHref = first ? `/sessions/${first.id}` : "/sessions/new";
   const mockInterviewHref = first ? `/sessions/${first.id}/practice` : "/sessions/new";
   const displayName = profile.fullName || session.user.email || "there";
+  const weakest = avgScore < 65 ? "specificity gap" : "systems examples";
 
   return (
     <AppShell
@@ -77,16 +78,21 @@ export default async function DashboardPage() {
             <div className="stat-label">Avg. Readiness</div>
             <div className="stat-num">{avgScore}%</div>
             <div className="stat-sub">Almost ready. Focus on targeted practice modules.</div>
+            <div className={`metric-delta ${avgScore >= 65 ? "good" : "gap"}`}>
+              {avgScore >= 65 ? "↑ Strong momentum in storytelling clarity" : `↑ Your weakest category: ${weakest}`}
+            </div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Active Preps</div>
             <div className="stat-num">{sessions.length}</div>
             <div className="stat-sub">Good volume to compare your role fit across options.</div>
+            <div className="metric-delta good">↑ Keep weekly cadence at 2 sessions</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Mock Interviews</div>
             <div className="stat-num">{Math.max(0, sessions.length * 3)}</div>
             <div className="stat-sub">Strong practice volume. Focus on specific weak spots next.</div>
+            <div className="metric-delta gap">↑ Weak area: quantified outcomes</div>
           </div>
         </div>
 
@@ -98,17 +104,20 @@ export default async function DashboardPage() {
         </div>
         <div className="sessions-grid">
           {sessions.length === 0 ? (
-            <div className="session-card">
+            <div className="inro-empty-state">
+              <svg width="88" height="56" viewBox="0 0 88 56" fill="none" aria-hidden>
+                <rect x="1" y="1" width="86" height="54" rx="10" stroke="var(--border2)" />
+                <path d="M16 38h56M16 30h40M16 22h26" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" />
+              </svg>
               <div className="session-role">No sessions yet</div>
-              <div className="session-company">Create your first prep session to see fit scores and next steps.</div>
-              <Link href="/sessions/new" className="session-action">
-                → Start setup
+              <div className="session-company">Start your first prep session to see your readiness score.</div>
+              <Link href="/sessions/new" className="btn-primary">
+                New Prep Session
               </Link>
             </div>
           ) : (
             sessions.slice(0, 3).map((s) => {
               const score = s.matchScore ?? 0;
-              const badgeClass = score >= 78 ? "high" : score >= 65 ? "mid" : "low";
               const badgeLabel = `${score}% match`;
               const status =
                 score >= 78
@@ -124,7 +133,7 @@ export default async function DashboardPage() {
                   </div>
                   <div className="session-company">{s.company || "Company"}</div>
                   <div className="match-row">
-                    <div className={`match-badge ${badgeClass}`}>{badgeLabel}</div>
+                    <div className="match-badge accent">{badgeLabel}</div>
                     <div className="match-bar">
                       <div
                         className={`match-fill${score < 78 ? " mid" : ""}`}
@@ -132,7 +141,12 @@ export default async function DashboardPage() {
                       />
                     </div>
                   </div>
-                  <div className="session-modules">3/5 modules</div>
+                  <div className="session-modules">3/6 modules</div>
+                  <div className="module-segments" aria-label="module completion segments">
+                    {[0, 1, 2, 3, 4, 5].map((idx) => (
+                      <span key={idx} className={`module-segment${idx < 3 ? " done" : ""}`} />
+                    ))}
+                  </div>
                   <div className={`status-tag ${status.cls}`}>{status.label}</div>
                   <div className="session-next">
                     Best next step: open your brief and run a targeted practice block on your highest-impact gap.

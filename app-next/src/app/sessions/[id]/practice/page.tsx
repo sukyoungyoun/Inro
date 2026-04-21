@@ -59,21 +59,13 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
                 </div>
               </div>
               <div className="timer-wrap">
-                <div className="timer-ring">
-                  <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden>
-                    <circle className="bg" cx="60" cy="60" r="52" />
-                    <circle
-                      className="prog"
-                      cx="60"
-                      cy="60"
-                      r="52"
-                      strokeDasharray="327"
-                      strokeDashoffset="245"
-                    />
-                  </svg>
-                  <div className="timer-center">
-                    <div className="timer-elapsed">Elapsed</div>
-                    <div className="timer-time">01:18</div>
+                <div style={{ width: "100%", maxWidth: 420 }}>
+                  <div className="timer-combo">01:18 / 2:00</div>
+                  <div className="timer-target-bar">
+                    <div className="timer-target-fill" style={{ width: "59%" }} />
+                  </div>
+                  <div className="timer-elapsed" aria-live="polite">
+                    59%
                   </div>
                 </div>
               </div>
@@ -88,7 +80,7 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
                 </div>
                 <WaveformBars />
               </div>
-              <div style={{ marginBottom: 14 }}>
+              <div className="live-transcript-panel" style={{ marginBottom: 14 }}>
                 <div className="transcript-label">Live Transcript</div>
                 <div className="live-transcript">
                   &quot;I try to build accessibility in from the earliest planning stage by checking hierarchy, keyboard
@@ -106,6 +98,9 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
                   Finish Answer
                 </Link>
               </div>
+              <Link href={`/sessions/${id}`} className="view-all" style={{ marginTop: 12 }}>
+                Skip for Now
+              </Link>
             </div>
           </div>
           <div className="practice-right">
@@ -115,21 +110,21 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
                 <div className="coaching-target">Target 1–2 min</div>
               </div>
               <div className="coaching-item">
-                <div className="coaching-icon">○</div>
+                <div className="coaching-badge">1</div>
                 <div className="coaching-text">
                   <strong>Start with principle:</strong> Explain that accessibility is part of product quality, not a final
                   checklist.
                 </div>
               </div>
               <div className="coaching-item">
-                <div className="coaching-icon">☰</div>
+                <div className="coaching-badge">2</div>
                 <div className="coaching-text">
                   <strong>Add one workflow example:</strong> Mention audits, semantic structure, annotations, or design QA in
                   handoff.
                 </div>
               </div>
-              <div className="coaching-item">
-                <div className="coaching-icon">◎</div>
+              <div className="coaching-item done">
+                <div className="coaching-badge">3</div>
                 <div className="coaching-text">
                   <strong>Close with collaboration:</strong> Reference partnering with engineers, PMs, or research to validate
                   decisions.
@@ -141,22 +136,22 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
                 <div className="structure-label">Suggested Structure</div>
                 <div className="structure-note">3-part answer</div>
               </div>
-              <div className="structure-item">
-                <div className="structure-num">1</div>
+              <div className="structure-item stepper">
+                <div className="stepper-dot active" />
                 <div>
                   <div className="structure-title">Mindset</div>
                   <div className="structure-desc">Accessibility is considered from discovery and wireframes, not after launch.</div>
                 </div>
               </div>
-              <div className="structure-item">
-                <div className="structure-num">2</div>
+              <div className="structure-item stepper">
+                <div className="stepper-dot" />
                 <div>
                   <div className="structure-title">Example</div>
                   <div className="structure-desc">Share a project where you checked contrast, focus order, or screen reader behavior.</div>
                 </div>
               </div>
-              <div className="structure-item">
-                <div className="structure-num">3</div>
+              <div className="structure-item stepper">
+                <div className="stepper-dot" />
                 <div>
                   <div className="structure-title">Outcome</div>
                   <div className="structure-desc">Explain what improved for users or how it changed collaboration and quality.</div>
@@ -166,10 +161,13 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
           </div>
         </div>
         <div className="practice-footer">
-          <Link href={`/sessions/${id}`} className="footer-skip">
-            Skip for Now
-          </Link>
-          <Link href={`/sessions/${id}/evaluation`} className="footer-submit">
+          <button type="button" className="rec-btn">
+            Restart
+          </button>
+          <button type="button" className="rec-btn">
+            Pause
+          </button>
+          <Link href={`/sessions/${id}/evaluation`} className="footer-submit" style={{ flex: 1, justifyContent: "center" }}>
             Submit for Feedback →
           </Link>
         </div>
