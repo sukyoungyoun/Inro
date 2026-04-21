@@ -7,6 +7,7 @@ import {
   IconPrep,
   IconResume,
 } from "@/components/inro-nav-icons";
+import { toFirstNameForSidebar } from "@/lib/user-display-name";
 
 export type AppShellNavKey = "overview" | "prep" | "mock" | "resume" | "prefs";
 type MobileTabKey = "home" | "role" | "brief" | "prep";
@@ -44,7 +45,7 @@ export function AppShell({
   /** Brief / practice / eval: #content gets height chain for full views */
   contentFill?: boolean;
 }) {
-  const firstName = toFirstName(userName);
+  const firstName = toFirstNameForSidebar(userName);
   const initial = firstName.charAt(0).toUpperCase() || "U";
 
   return (
@@ -143,16 +144,6 @@ export function AppShell({
       </nav>
     </div>
   );
-}
-
-function toFirstName(value: string) {
-  const trimmed = value.trim();
-  if (!trimmed) return "User";
-  const source = trimmed.includes("@") ? trimmed.split("@")[0] || "" : trimmed;
-  const cleaned = source.replace(/[._-]+/g, " ").replace(/\d+/g, "").trim();
-  if (!cleaned) return "User";
-  const first = cleaned.split(/\s+/)[0] || cleaned;
-  return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
 }
 
 function NavBtn({

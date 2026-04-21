@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getDisplayNameSourceForUser } from "@/lib/user-display-name";
 import { AppShell } from "@/components/app-shell";
 
 export default async function EvaluationPage({ params }: { params: Promise<{ id: string }> }) {
@@ -9,10 +10,13 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const data = await prisma.prepSession.findFirst({
-    where: { id, userId: session.user.id },
-    include: { analysis: true, questions: { orderBy: { order: "asc" } } },
-  });
+  const [data, sidebarUserName] = await Promise.all([
+    prisma.prepSession.findFirst({
+      where: { id, userId: session.user.id },
+      include: { analysis: true, questions: { orderBy: { order: "asc" } } },
+    }),
+    getDisplayNameSourceForUser(session.user.id, session.user.email),
+  ]);
   if (!data) notFound();
 
   const strengths =
@@ -26,7 +30,7 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
     <AppShell
       crumb="PREP EVALUATION"
       active="mock"
-      userName={session.user.email || "User"}
+      userName={sidebarUserName}
       roleTitle={data.title}
       roleCompany={data.company || "Company"}
       prepHref="/sessions/new"

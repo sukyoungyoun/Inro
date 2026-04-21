@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getDisplayNameSourceForUser } from "@/lib/user-display-name";
 import { AppShell } from "@/components/app-shell";
 import { WaveformBars } from "@/components/waveform-bars";
 
@@ -10,10 +11,13 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const data = await prisma.prepSession.findFirst({
-    where: { id, userId: session.user.id },
-    include: { questions: { orderBy: { order: "asc" } } },
-  });
+  const [data, sidebarUserName] = await Promise.all([
+    prisma.prepSession.findFirst({
+      where: { id, userId: session.user.id },
+      include: { questions: { orderBy: { order: "asc" } } },
+    }),
+    getDisplayNameSourceForUser(session.user.id, session.user.email),
+  ]);
   if (!data) notFound();
   const q = data.questions[0];
 
@@ -21,7 +25,7 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
     <AppShell
       crumb="MOCK INTERVIEW"
       active="mock"
-      userName={session.user.email || "User"}
+      userName={sidebarUserName}
       roleTitle={data.title}
       roleCompany={data.company || "Company"}
       prepHref="/sessions/new"

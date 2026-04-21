@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/app-shell";
 import { SignOutButton } from "@/components/sign-out-button";
+import { toFirstNameForSidebar } from "@/lib/user-display-name";
 
 function formatSessionTime(d: Date) {
   const diff = Date.now() - d.getTime();
@@ -13,15 +14,6 @@ function formatSessionTime(d: Date) {
   const days = Math.floor(h / 24);
   if (days === 1) return "Yesterday";
   return `${days}D AGO`;
-}
-
-function greetingName(fullName: string | null | undefined, email: string | null | undefined) {
-  const cleanedFull = (fullName || "").trim();
-  if (cleanedFull) return cleanedFull.split(/\s+/)[0];
-  const local = (email || "").split("@")[0] || "";
-  const cleaned = local.replace(/[._-]+/g, " ").replace(/\d+/g, "").trim();
-  const first = cleaned.split(/\s+/)[0] || "there";
-  return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
 }
 
 function cleanRoleTitle(raw: string) {
@@ -58,7 +50,7 @@ export default async function DashboardPage() {
   const first = sessions[0];
   const prepHref = first ? `/sessions/${first.id}` : "/sessions/new";
   const mockInterviewHref = first ? `/sessions/${first.id}/practice` : "/sessions/new";
-  const displayName = greetingName(profile.fullName, session.user.email);
+  const displayName = toFirstNameForSidebar(profile.fullName || session.user.email || "");
   const weakest = avgScore < 65 ? "specificity gap" : "systems examples";
 
   return (

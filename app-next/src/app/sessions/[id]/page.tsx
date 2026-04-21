@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getDisplayNameSourceForUser } from "@/lib/user-display-name";
 import { AppShell } from "@/components/app-shell";
 import { SessionBriefClient } from "@/components/session-brief-client";
 
@@ -13,13 +14,16 @@ export default async function SessionDetailPage({
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const data = await prisma.prepSession.findFirst({
-    where: { id, userId: session.user.id },
-    include: {
-      analysis: true,
-      questions: { orderBy: { order: "asc" } },
-    },
-  });
+  const [data, sidebarUserName] = await Promise.all([
+    prisma.prepSession.findFirst({
+      where: { id, userId: session.user.id },
+      include: {
+        analysis: true,
+        questions: { orderBy: { order: "asc" } },
+      },
+    }),
+    getDisplayNameSourceForUser(session.user.id, session.user.email),
+  ]);
 
   if (!data) notFound();
 
@@ -43,7 +47,7 @@ export default async function SessionDetailPage({
     <AppShell
       crumb="PREP SESSIONS"
       active="prep"
-      userName={session.user.email || "User"}
+      userName={sidebarUserName}
       roleTitle={data.title}
       roleCompany={data.company || "Company"}
       prepHref="/sessions/new"
