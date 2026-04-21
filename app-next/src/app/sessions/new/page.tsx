@@ -63,6 +63,8 @@ export default function NewSessionPage() {
   const [stage, setStage] = useState("");
   const [jd, setJd] = useState("");
   const [rv, setRv] = useState("");
+  const [jdFile, setJdFile] = useState<File | null>(null);
+  const [rvFile, setRvFile] = useState<File | null>(null);
   const [jdFileName, setJdFileName] = useState("");
   const [rvFileName, setRvFileName] = useState("");
   const [jdDrag, setJdDrag] = useState(false);
@@ -73,36 +75,24 @@ export default function NewSessionPage() {
   const jdRef = useRef<HTMLInputElement>(null);
   const rvRef = useRef<HTMLInputElement>(null);
 
-  const hasJd = useMemo(() => jd.trim().length > 0, [jd]);
-  const hasRv = useMemo(() => rv.trim().length > 0, [rv]);
+  const hasJd = useMemo(() => jd.trim().length > 0 || !!jdFile, [jd, jdFile]);
+  const hasRv = useMemo(() => rv.trim().length > 0 || !!rvFile, [rv, rvFile]);
   const ready = hasJd && hasRv;
 
   async function ingestFile(
     file: File,
-    setText: (s: string) => void,
+    setFile: (f: File | null) => void,
     setName: (s: string) => void,
-    label: "Job Description" | "Resume"
+    label: "Job Description" | "Resume",
+    clearText: () => void
   ) {
+    setFile(file);
     setName(file.name);
     setError("");
-
-    try {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await fetch("/api/extract-text", { method: "POST", body: form });
-      const payload = (await res.json()) as { text?: string; error?: string };
-      if (!res.ok) {
-        throw new Error(payload.error || "Could not process file.");
-      }
-      const cleaned = (payload.text || "").trim();
-      if (!cleaned) {
-        throw new Error(`Could not extract text from ${label} file. Please paste text manually.`);
-      }
-      setText(cleaned);
-    } catch (e) {
-      setText("");
-      const message = e instanceof Error ? e.message : "Could not process file.";
-      setError(message);
+    // Server-side extraction happens on submit to avoid client runtime parser issues.
+    clearText();
+    if (!file.name.toLowerCase().match(/\.(pdf|docx|txt)$/)) {
+      setError(`Unsupported ${label} format. Please upload PDF, DOCX, or TXT.`);
     }
   }
 
@@ -119,10 +109,17 @@ export default function NewSessionPage() {
     const normalizedRv = rv.trim();
 
     try {
+      const payload = new FormData();
+      payload.append("company", company);
+      payload.append("stage", stage);
+      payload.append("jd", normalizedJd);
+      payload.append("rv", normalizedRv);
+      if (jdFile) payload.append("jdFile", jdFile);
+      if (rvFile) payload.append("rvFile", rvFile);
+
       const res = await fetch("/api/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ company, stage, jd: normalizedJd, rv: normalizedRv }),
+        body: payload,
       });
 
       let data: { id?: string; error?: string } = {};
@@ -183,8 +180,11 @@ export default function NewSessionPage() {
                 tabIndex={-1}
                 onChange={(e) => {
                   const f = e.target.files?.[0];
-                  if (f) void ingestFile(f, setJd, setJdFileName, "Job Description");
-                  else setJdFileName("");
+                  if (f) void ingestFile(f, setJdFile, setJdFileName, "Job Description", () => setJd(""));
+                  else {
+                    setJdFileName("");
+                    setJdFile(null);
+                  }
                 }}
               />
               <FileDropZone
@@ -193,7 +193,7 @@ export default function NewSessionPage() {
                 text={jdFileName || "Drag PDF/DOCX or click to upload"}
                 onPick={() => jdRef.current?.click()}
                 onDragActive={setJdDrag}
-                onFile={(f) => void ingestFile(f, setJd, setJdFileName, "Job Description")}
+                onFile={(f) => void ingestFile(f, setJdFile, setJdFileName, "Job Description", () => setJd(""))}
               />
               <textarea
                 className="ta"
@@ -216,8 +216,11 @@ export default function NewSessionPage() {
                 tabIndex={-1}
                 onChange={(e) => {
                   const f = e.target.files?.[0];
-                  if (f) void ingestFile(f, setRv, setRvFileName, "Resume");
-                  else setRvFileName("");
+                  if (f) void ingestFile(f, setRvFile, setRvFileName, "Resume", () => setRv(""));
+                  else {
+                    setRvFileName("");
+                    setRvFile(null);
+                  }
                 }}
               />
               <FileDropZone
@@ -226,7 +229,7 @@ export default function NewSessionPage() {
                 text={rvFileName || "Drag PDF/DOCX or click to upload"}
                 onPick={() => rvRef.current?.click()}
                 onDragActive={setRvDrag}
-                onFile={(f) => void ingestFile(f, setRv, setRvFileName, "Resume")}
+                onFile={(f) => void ingestFile(f, setRvFile, setRvFileName, "Resume", () => setRv(""))}
               />
               <textarea
                 className="ta"

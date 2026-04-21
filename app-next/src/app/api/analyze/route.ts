@@ -27,6 +27,33 @@ type GeminiResult = {
   }>;
 };
 
+async function extractTextFromFile(file: File): Promise<string> {
+  const lower = file.name.toLowerCase();
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  if (file.type === "text/plain" || lower.endsWith(".txt")) {
+    return buffer.toString("utf-8").trim();
+  }
+  if (file.type === "application/pdf" || lower.endsWith(".pdf")) {
+    const pdfParseModule = await import("pdf-parse");
+    const pdfParse =
+      (pdfParseModule as unknown as { default?: (b: Buffer) => Promise<{ text?: string }> }).default ||
+      (pdfParseModule as unknown as (b: Buffer) => Promise<{ text?: string }>);
+    const parsed = await pdfParse(buffer);
+    return (parsed?.text || "").trim();
+  }
+  if (
+    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    lower.endsWith(".docx")
+  ) {
+    const mammoth = await import("mammoth");
+    const parsed = await mammoth.extractRawText({ buffer });
+    return (parsed.value || "").trim();
+  }
+  return "";
+}
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -38,11 +65,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "GEMINI_API_KEY missing in server env." }, { status: 500 });
   }
 
-  const body = await req.json();
-  const jd = String(body.jd || "").trim();
-  const rv = String(body.rv || "").trim();
-  const company = String(body.company || "").trim();
-  const stage = String(body.stage || "").trim();
+  const contentType = req.headers.get("content-type") || "";
+  let jd = "";
+  let rv = "";
+  let company = "";
+  let stage = "";
+
+  if (contentType.includes("multipart/form-data")) {
+    const form = await req.formData();
+    jd = String(form.get("jd") || "").trim();
+    rv = String(form.get("rv") || "").trim();
+    company = String(form.get("company") || "").trim();
+    stage = String(form.get("stage") || "").trim();
+    const jdFile = form.get("jdFile");
+    const rvFile = form.get("rvFile");
+    if (!jd && jdFile instanceof File) jd = await extractTextFromFile(jdFile);
+    if (!rv && rvFile instanceof File) rv = await extractTextFromFile(rvFile);
+  } else {
+    const body = await req.json();
+    jd = String(body.jd || "").trim();
+    rv = String(body.rv || "").trim();
+    company = String(body.company || "").trim();
+    stage = String(body.stage || "").trim();
+  }
 
   if (!jd || !rv) {
     return NextResponse.json({ error: "Both jd and rv are required." }, { status: 400 });
