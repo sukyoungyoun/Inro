@@ -1000,10 +1000,16 @@ html, body {
   padding: 0 28px !important;
   display: flex !important;
   align-items: center !important;
+  justify-content: center !important;
   font-family: var(--mono) !important;
   font-size: 11px !important;
   color: var(--ink3) !important;
   letter-spacing: 1px !important;
+}
+.breadcrumb {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1 !important;
 }
 
 #view-overview, #view-setup, #view-resume {

@@ -24,6 +24,15 @@ function greetingName(fullName: string | null | undefined, email: string | null 
   return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
 }
 
+function cleanRoleTitle(raw: string) {
+  const trimmed = (raw || "").trim();
+  if (!trimmed) return "Untitled role";
+  return trimmed
+    .replace(/\.(pdf|docx|txt)$/i, "")
+    .replace(/\s+copy$/i, "")
+    .trim();
+}
+
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -57,8 +66,8 @@ export default async function DashboardPage() {
       crumb="OVERVIEW"
       active="overview"
       userName={profile.fullName || session.user.email || "User"}
-      roleTitle={profile.currentRole || profile.targetRoles[0] || "Role"}
-      roleCompany={first?.company || "Company"}
+      roleTitle="All Roles"
+      roleCompany="No specific role selected"
       prepHref={prepHref}
       briefHref={prepHref}
       mockInterviewHref={mockInterviewHref}
@@ -139,10 +148,15 @@ export default async function DashboardPage() {
               return (
                 <Link key={s.id} href={`/sessions/${s.id}`} className="session-card">
                   <div className="session-card-top">
-                    <div className="session-role">{s.title}</div>
+                    <div className="session-role">{cleanRoleTitle(s.title)}</div>
                     <div className="session-time">{formatSessionTime(s.createdAt)}</div>
                   </div>
-                  <div className="session-company">{s.company || "Company"}</div>
+                  <div className="session-company">
+                    <strong>Role:</strong> {cleanRoleTitle(s.title)}
+                  </div>
+                  <div className="session-company" style={{ marginTop: -6 }}>
+                    <strong>Company:</strong> {s.company || "Not set"}
+                  </div>
                   <div className="match-row">
                     <div className="match-badge accent">{badgeLabel}</div>
                     <div className="match-bar">
