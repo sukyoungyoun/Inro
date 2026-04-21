@@ -632,7 +632,7 @@ button.style-option {
   --accent-light: #f2e4d8;
   --text-primary: #1a1714;
   --text-secondary: #6b5e57;
-  --text-muted: #9a8f87;
+  --text-muted: #86756d;
   --success: #4a7c5f;
   --warning: #c17b5c;
   --destructive: #b85450;
@@ -847,7 +847,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   --border-mid: #D0C4BC;
   --ink-primary: #1C1917;
   --ink-secondary: #6B6058;
-  --ink-muted: #A8998F;
+  --ink-muted: #86756d;
   --accent-terra: #8B5E52;
   --accent-terra-bg: #F6EAE3;
   --accent-green: #4D7358;
