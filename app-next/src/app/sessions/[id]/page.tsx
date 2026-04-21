@@ -43,6 +43,12 @@ export default async function SessionDetailPage({
     "We could not generate a full role summary yet. Add richer JD and resume details, then rerun analysis.";
 
   const score = data.matchScore ?? 0;
+  const rawMeta = data.analysis?.rawResponseJson as {
+    usedFallbackAnalysis?: boolean;
+    limitations?: string;
+    evidenceSummary?: string;
+  } | null;
+
   return (
     <AppShell
       crumb="PREP SESSIONS"
@@ -57,7 +63,10 @@ export default async function SessionDetailPage({
       contentFill
     >
       <SessionBriefClient
+        key={data.updatedAt.toISOString()}
         id={data.id}
+        sessionTitle={data.title}
+        company={data.company || ""}
         score={score}
         roleSummary={summary}
         strengths={strengths}
@@ -65,6 +74,9 @@ export default async function SessionDetailPage({
         questions={data.questions.map((q) => ({ id: q.id, category: q.category, question: q.question, insight: q.insight }))}
         strongest={data.analysis?.strongestAlignment || ""}
         risk={data.analysis?.biggestRisk || ""}
+        usedFallback={Boolean(rawMeta?.usedFallbackAnalysis)}
+        limitations={typeof rawMeta?.limitations === "string" ? rawMeta.limitations : ""}
+        evidenceSummary={typeof rawMeta?.evidenceSummary === "string" ? rawMeta.evidenceSummary : ""}
       />
     </AppShell>
   );

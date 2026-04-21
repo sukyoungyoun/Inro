@@ -8,6 +8,10 @@ type GeminiResult = {
   summary?: string;
   strongestAlignment?: string;
   biggestRisk?: string;
+  /** Honest caveats: missing info, ambiguity, assumptions */
+  limitations?: string;
+  /** 1–3 short bullets: what in JD/resume you grounded claims in */
+  evidenceSummary?: string;
   strengths?: Array<{ title: string; desc: string }>;
   gaps?: Array<{ title: string; mitigation: string }>;
   questions?: Array<{
@@ -50,6 +54,12 @@ function buildHeuristicFallback(jd: string, rv: string, company: string): Gemini
   return {
     role: roleGuess,
     matchScore: score,
+    limitations:
+      "Automatic fallback ran (AI model unavailable or response invalid). Scores and bullets are heuristic guesses from keyword overlap—not verified against your full documents.",
+    evidenceSummary:
+      overlap.length > 0
+        ? `Keyword overlap detected: ${overlap.slice(0, 5).join(", ")}.`
+        : "Limited keyword overlap between pasted JD and resume text.",
     summary:
       `Generated in fallback mode due to model capacity limits. You show ${overlap.length} direct skill overlaps with the role requirements; prioritize concrete examples tailored to this job.`,
     strongestAlignment:
@@ -119,7 +129,7 @@ async function callGeminiWithFallback(apiKey: string, prompt: string) {
           },
           body: JSON.stringify({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.4 },
+            generationConfig: { temperature: 0.22 },
           }),
         }
       );
@@ -229,39 +239,54 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Both jd and rv are required." }, { status: 400 });
     }
 
-    const prompt = `You are an expert interview coach. Analyze the job description and resume.
-${company ? `Target company: ${company}.` : ""} ${stage ? `Interview stage: ${stage}.` : ""}
+    const jdChunk = jd.length > 12000 ? `${jd.slice(0, 12000)}\n\n[JD truncated for length]` : jd;
+    const rvChunk = rv.length > 12000 ? `${rv.slice(0, 12000)}\n\n[Resume truncated for length]` : rv;
 
-Return ONLY a valid JSON object — no markdown, no code fences, no extra text.
+    const prompt = `You are a careful interview-prep assistant. Your job is to help the candidate prepare — NOT to flatter, invent credentials, or claim certainty you do not have.
+
+GROUND RULES (critical):
+- Base every claim ONLY on the JD and resume text below. If something is not stated, do not imply the candidate did it.
+- If the JD or resume is vague, thin, or contradictory, say so in "limitations" and lower confidence in your language (avoid absolute words like "proven" unless the resume explicitly shows it).
+- "matchScore" is a rough heuristic estimate of narrative fit for interview prep — NOT a hiring decision or guarantee. Never present it as an objective hiring score.
+- "evidenceSummary": 1–3 short clauses listing what you actually used (e.g. "JD asks for X; resume mentions Y").
+- "limitations": one honest paragraph on gaps, ambiguity, missing company name, OCR noise, or anything that could make this brief wrong.
+
+${company ? `Stated target company: ${company}.` : "No company name was provided — do not invent a company."}
+${stage ? `Interview stage: ${stage}.` : ""}
+
+Return ONLY a valid JSON object — no markdown, no code fences, no commentary before or after.
 
 {
-  "role": "concise job title",
-  "matchScore": 0-100,
-  "summary": "2-3 sentences on fit and focus",
-  "strongestAlignment": "one sentence on the strongest alignment",
-  "biggestRisk": "one sentence on the biggest risk",
+  "role": "concise inferred job title from JD (not from filename alone)",
+  "matchScore": integer 0-100,
+  "summary": "2-3 sentences; qualify uncertainty where needed",
+  "strongestAlignment": "one sentence tied to explicit JD + resume overlap",
+  "biggestRisk": "one sentence: concrete risk for this interview based on the materials",
+  "limitations": "honest paragraph per rules above",
+  "evidenceSummary": "1-3 short clauses on what you grounded the brief in",
   "strengths": [
-    { "title": "strength title", "desc": "2 sentences with specific coaching" },
+    { "title": "short label", "desc": "2 sentences; cite themes from resume that map to JD requirements" },
     { "title": "...", "desc": "..." }
   ],
   "gaps": [
-    { "title": "gap title", "mitigation": "specific mitigation strategy" },
+    { "title": "gap label", "mitigation": "actionable prep step" },
     { "title": "...", "mitigation": "..." }
   ],
   "questions": [
-    { "type": "BEHAVIORAL", "q": "question text", "insight": "why this matters" },
+    { "type": "BEHAVIORAL", "q": "question text grounded in JD themes", "insight": "what interviewers are probing" },
     { "type": "PRODUCT SENSE", "q": "...", "insight": "..." },
     { "type": "SYSTEM DESIGN", "q": "...", "insight": "..." }
   ]
 }
 
-JD:
-${jd.substring(0, 4000)}
+JOB DESCRIPTION (JD):
+${jdChunk}
 
 RESUME:
-${rv.substring(0, 4000)}`.trim();
+${rvChunk}`.trim();
 
     const gemini = await callGeminiWithFallback(apiKey, prompt);
+    const usedFallbackAnalysis = !gemini.ok;
     let parsed: GeminiResult;
     if (!gemini.ok) {
       parsed = buildHeuristicFallback(jd, rv, company);
@@ -282,6 +307,21 @@ ${rv.substring(0, 4000)}`.trim();
       }
     }
 
+    const score = Math.min(100, Math.max(0, Math.round(Number(parsed.matchScore) || 0)));
+    const rawPersist = {
+      ...parsed,
+      matchScore: score,
+      usedFallbackAnalysis,
+      limitations:
+        parsed.limitations?.trim() ||
+        (usedFallbackAnalysis
+          ? "Heuristic fallback was used."
+          : "AI-generated from your pasted or extracted text; verify against the original JD and resume."),
+      evidenceSummary:
+        parsed.evidenceSummary?.trim() ||
+        "Compare this brief side-by-side with your source documents to catch mistakes.",
+    };
+
     const created = await prisma.prepSession.create({
     data: {
       userId: session.user.id,
@@ -289,7 +329,7 @@ ${rv.substring(0, 4000)}`.trim();
       company: company || null,
       jdText: jd,
       resumeText: rv,
-      matchScore: parsed.matchScore ?? null,
+      matchScore: score,
       roleSummary: parsed.summary ?? null,
       status: "ANALYZED",
       analysis: {
@@ -298,7 +338,7 @@ ${rv.substring(0, 4000)}`.trim();
           biggestRisk: parsed.biggestRisk ?? null,
           strengthsJson: parsed.strengths ?? [],
           gapsJson: parsed.gaps ?? [],
-          rawResponseJson: parsed as object,
+          rawResponseJson: rawPersist as object,
         },
       },
       questions: {
@@ -327,7 +367,7 @@ ${rv.substring(0, 4000)}`.trim();
     return NextResponse.json({
       id: created.id,
       role: parsed.role || "Role Analysis",
-      matchScore: parsed.matchScore ?? 0,
+      matchScore: score,
       summary: parsed.summary || "",
       strongestAlignment: parsed.strongestAlignment || "",
       biggestRisk: parsed.biggestRisk || "",

@@ -1,9 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { DragEvent, FormEvent, useMemo, useRef, useState } from "react";
+import { DragEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+
+const ANALYSIS_PIPELINE = [
+  { id: "send", label: "Sending your documents" },
+  { id: "jd", label: "Extracting job description text" },
+  { id: "resume", label: "Extracting resume text" },
+  { id: "ai", label: "Running AI fit analysis" },
+  { id: "save", label: "Saving your role brief" },
+] as const;
 
 function FileDropZone({
   filled,
@@ -70,10 +78,23 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
   const [jdDrag, setJdDrag] = useState(false);
   const [rvDrag, setRvDrag] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadStep, setLoadStep] = useState(0);
   const [error, setError] = useState("");
   const router = useRouter();
   const jdRef = useRef<HTMLInputElement>(null);
   const rvRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!loading) {
+      setLoadStep(0);
+      return;
+    }
+    setLoadStep(0);
+    const id = window.setInterval(() => {
+      setLoadStep((s) => Math.min(s + 1, ANALYSIS_PIPELINE.length - 1));
+    }, 2200);
+    return () => window.clearInterval(id);
+  }, [loading]);
 
   const hasJd = useMemo(() => jd.trim().length > 0 || !!jdFile, [jd, jdFile]);
   const hasRv = useMemo(() => rv.trim().length > 0 || !!rvFile, [rv, rvFile]);
@@ -99,28 +120,38 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!ready) {
-      setError("Please paste both Job Description and Resume text to run analysis.");
+      setError("Add a job description and resume—paste text, upload files, or both for each.");
       return;
     }
     setLoading(true);
+    setLoadStep(0);
     setError("");
 
-    const normalizedJd =
-      jd.trim() || (jdFileName ? `Uploaded Job Description file: ${jdFileName}` : "");
-    const normalizedRv =
-      rv.trim() || (rvFileName ? `Uploaded Resume file: ${rvFileName}` : "");
-
     try {
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company,
-          stage,
-          jd: normalizedJd,
-          rv: normalizedRv,
-        }),
-      });
+      let res: Response;
+      if (jdFile || rvFile) {
+        const fd = new FormData();
+        fd.append("company", company);
+        fd.append("stage", stage);
+        fd.append("jd", jd.trim());
+        fd.append("rv", rv.trim());
+        if (jdFile) fd.append("jdFile", jdFile);
+        if (rvFile) fd.append("rvFile", rvFile);
+        res = await fetch("/api/analyze", { method: "POST", body: fd });
+      } else {
+        const normalizedJd = jd.trim();
+        const normalizedRv = rv.trim();
+        res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company,
+            stage,
+            jd: normalizedJd,
+            rv: normalizedRv,
+          }),
+        });
+      }
 
       let data: { id?: string; error?: string } = {};
       let rawText = "";
@@ -131,6 +162,7 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
         /* keep defaults */
       }
 
+      setLoadStep(ANALYSIS_PIPELINE.length - 1);
       setLoading(false);
       if (!res.ok) {
         const explicit =
@@ -173,11 +205,12 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
         <div className="setup-hero">
           <div className="setup-title">Consult with inro</div>
           <div className="setup-sub">
-            Upload your documents or paste the text directly to generate a personalized interview brief.
+            Upload your documents or paste the text directly. Analysis uses AI (Gemini)—it can misread files or miss
+            nuance. You will be able to edit the brief after it is generated.
           </div>
         </div>
 
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} aria-busy={loading}>
           <div className="upload-grid">
             <div className="upload-panel">
               <div className="upload-label">Target Job Description</div>
@@ -284,9 +317,39 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
 
           {error ? <div className="error-msg">{error}</div> : null}
 
-          <button className="btn-primary" id="analyze-btn" type="submit" disabled={!ready || loading}>
-            {loading ? "Consulting inro…" : ready ? "Begin Analysis →" : "Awaiting Data…"}
-          </button>
+          <div className="analyze-actions">
+            <button className="btn-primary" id="analyze-btn" type="submit" disabled={!ready || loading}>
+              {loading ? "Analyzing…" : ready ? "Begin Analysis →" : "Awaiting Data…"}
+            </button>
+            {loading ? (
+              <span className="analyze-spinner" aria-hidden>
+                <span className="analyze-spinner-dot" />
+              </span>
+            ) : null}
+          </div>
+
+          {loading ? (
+            <div className="analysis-progress" role="status" aria-live="polite" aria-label="Analysis progress">
+              <p className="analysis-progress-note">
+                Typical steps inro runs (timing is approximate while the server works):
+              </p>
+              <div className="analysis-pills">
+                {ANALYSIS_PIPELINE.map((step, i) => (
+                  <button
+                    key={step.id}
+                    type="button"
+                    className={`analysis-pill${i < loadStep ? " done" : ""}${i === loadStep ? " active" : ""}`}
+                    tabIndex={-1}
+                  >
+                    <span className="analysis-pill-index" aria-hidden>
+                      {i < loadStep ? "✓" : i + 1}
+                    </span>
+                    {step.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </form>
       </div>
     </AppShell>
