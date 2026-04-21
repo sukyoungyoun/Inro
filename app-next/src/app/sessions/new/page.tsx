@@ -90,7 +90,10 @@ export default function NewSessionPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!ready) return;
+    if (!ready) {
+      setError("Please paste both Job Description and Resume text to run analysis.");
+      return;
+    }
     setLoading(true);
     setError("");
 
@@ -262,8 +265,8 @@ export default function NewSessionPage() {
 
           {error ? <div className="error-msg">{error}</div> : null}
 
-          <button className="btn-primary" id="analyze-btn" type="submit" disabled={!ready || loading}>
-            {loading ? "Consulting inro…" : ready ? "Begin Analysis →" : "Awaiting Data…"}
+          <button className="btn-primary" id="analyze-btn" type="submit" disabled={loading}>
+            {loading ? "Consulting inro…" : "Begin Analysis →"}
           </button>
         </form>
       </div>
