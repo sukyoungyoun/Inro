@@ -77,47 +77,6 @@ export default function NewSessionPage() {
   const hasRv = useMemo(() => rv.trim().length > 0, [rv]);
   const ready = hasJd && hasRv;
 
-  async function extractPdfText(arrayBuffer: ArrayBuffer): Promise<string> {
-    const pdfjsModule = await import("pdfjs-dist");
-    const pdfjs = (pdfjsModule as unknown as { default?: unknown }).default
-      ? (pdfjsModule as unknown as { default: typeof pdfjsModule }).default
-      : pdfjsModule;
-    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-      "pdfjs-dist/build/pdf.worker.min.mjs",
-      import.meta.url
-    ).toString();
-
-    const pdf = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
-    const pages: string[] = [];
-    for (let p = 1; p <= pdf.numPages; p += 1) {
-      const page = await pdf.getPage(p);
-      const content = await page.getTextContent();
-      const items: Array<{ str?: string }> = Array.isArray(content.items)
-        ? (content.items as Array<{ str?: string }>)
-        : (Array.from(content.items || []) as Array<{ str?: string }>);
-      const text = items
-        .map((item) => item.str || "")
-        .join(" ")
-        .trim();
-      if (text) pages.push(text);
-    }
-    return pages.join("\n\n");
-  }
-
-  async function extractDocxText(arrayBuffer: ArrayBuffer): Promise<string> {
-    const mammothModule = await import("mammoth/mammoth.browser");
-    const extractRawText =
-      (mammothModule as unknown as { extractRawText?: (input: { arrayBuffer: ArrayBuffer }) => Promise<{ value: string }> })
-        .extractRawText ||
-      (mammothModule as unknown as { default?: { extractRawText?: (input: { arrayBuffer: ArrayBuffer }) => Promise<{ value: string }> } })
-        .default?.extractRawText;
-    if (!extractRawText) {
-      throw new Error("DOCX parser unavailable in this build. Please paste text manually.");
-    }
-    const result = await extractRawText({ arrayBuffer });
-    return (result.value || "").trim();
-  }
-
   async function ingestFile(
     file: File,
     setText: (s: string) => void,
@@ -128,24 +87,14 @@ export default function NewSessionPage() {
     setError("");
 
     try {
-      const lower = file.name.toLowerCase();
-      let text = "";
-
-      if (file.type === "text/plain" || lower.endsWith(".txt")) {
-        text = (await file.text()).trim();
-      } else if (file.type === "application/pdf" || lower.endsWith(".pdf")) {
-        text = await extractPdfText(await file.arrayBuffer());
-      } else if (
-        file.type ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-        lower.endsWith(".docx")
-      ) {
-        text = await extractDocxText(await file.arrayBuffer());
-      } else {
-        throw new Error("Unsupported file format. Please upload PDF, DOCX, or TXT.");
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/extract-text", { method: "POST", body: form });
+      const payload = (await res.json()) as { text?: string; error?: string };
+      if (!res.ok) {
+        throw new Error(payload.error || "Could not process file.");
       }
-
-      const cleaned = text.trim();
+      const cleaned = (payload.text || "").trim();
       if (!cleaned) {
         throw new Error(`Could not extract text from ${label} file. Please paste text manually.`);
       }

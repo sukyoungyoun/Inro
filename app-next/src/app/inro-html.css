@@ -185,7 +185,9 @@ a.role-switcher {
 }
 .upload-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); margin-bottom: 12px; }
 .drop-zone {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1.5px dashed var(--border2);
   border-radius: var(--r);
   padding: 22px 16px;
@@ -196,6 +198,10 @@ a.role-switcher {
   transition: all 0.2s;
   box-sizing: border-box;
   width: 100%;
+}
+.drop-zone > div {
+  width: 100%;
+  text-align: center;
 }
 label.drop-zone {
   display: block;
