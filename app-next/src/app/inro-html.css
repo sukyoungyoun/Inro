@@ -793,3 +793,122 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* ===== inro DS FINAL (requested) ===== */
+:root {
+  --bg-base: #F7F4F3;
+  --bg-panel: #F6EAE3;
+  --bg-surface: #FFFFFF;
+  --border-soft: #E4DAD4;
+  --border-mid: #D0C4BC;
+  --ink-primary: #1C1917;
+  --ink-secondary: #6B6058;
+  --ink-muted: #A8998F;
+  --accent-terra: #8B5E52;
+  --accent-terra-bg: #F6EAE3;
+  --accent-green: #4D7358;
+  --accent-green-bg: #EBF2ED;
+  --bg: var(--bg-base);
+  --panel: var(--bg-panel);
+  --surface: var(--bg-surface);
+  --border: var(--border-soft);
+  --border2: var(--border-mid);
+  --ink: var(--ink-primary);
+  --ink2: var(--ink-secondary);
+  --ink3: var(--ink-muted);
+  --terra: var(--accent-terra);
+  --terra-bg: var(--accent-terra-bg);
+  --green: var(--accent-green);
+  --green-bg: var(--accent-green-bg);
+  --r: 10px;
+  --r-lg: 12px;
+  --sh: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+html, body { background: var(--bg-base); color: var(--ink-primary); }
+#sidebar { width: 220px; min-width: 220px; background: var(--bg-panel); border-right: 1px solid var(--border-soft); }
+.nav-btn.active { background: var(--accent-terra-bg); color: var(--accent-terra); border-left: 0; }
+.nav-label { font-size: 9px; letter-spacing: 1.2px; color: var(--ink-muted); }
+#topbar { height: 48px; background: var(--bg-surface); border-bottom: 1px solid var(--border-soft); font-family: var(--mono); font-size: 11px; color: var(--ink-muted); }
+
+h1, .overview-header h1, .setup-title, .brief-role-name, .rl-header h1, .prefs-title {
+  font-family: var(--serif);
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: var(--ink-primary);
+}
+h2 { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--ink-primary); }
+h3 { font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--ink-primary); }
+body, p { font-size: 14px; color: var(--ink-secondary); }
+.stat-label, .section-label, .upload-label, .eval-label, .coaching-label, .rl-section-label, .q-mini-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+.btn-primary, .btn-new, .btn-upload, .footer-submit, .q-mini-btn.primary, .mock-btn {
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--accent-terra);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled), .btn-new:hover, .btn-upload:hover, .footer-submit:hover, .q-mini-btn.primary:hover, .mock-btn:hover {
+  filter: brightness(0.92);
+}
+.btn-ghost, .q-mini-btn.ghost, .rec-btn, .btn-preview {
+  border: 1px solid var(--border-soft);
+  color: var(--ink-primary);
+}
+.stat-card, .session-card, .upload-panel, .brief-card, .recording-card, .coaching-card, .prefs-card, .tailored-card, .playback-card, .eval-card {
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--sh);
+}
+#view-overview, #view-setup { padding: 40px; }
+.stats-grid, .sessions-grid, .upload-grid, .tailored-grid, .practice-body, .eval-body { gap: 24px; }
+.tailored-tag, .status-tag, .tag { border-radius: 6px; }
+.match-badge, .role-chip, .toggle, .rec-status { border-radius: 999px; }
+
+/* Responsive layout */
+@media (max-width: 1200px) {
+  #view-overview, #view-setup, #view-resume { padding: 32px; }
+  .practice-body, .eval-body { grid-template-columns: 1fr; }
+  .practice-right { order: 2; }
+}
+
+@media (max-width: 960px) {
+  #app { flex-direction: column; height: auto; min-height: 100vh; max-height: none; }
+  body:has(#app) { overflow: auto; }
+  #sidebar {
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 8px;
+  }
+  .sidebar-footer { display: none; }
+  #main { min-height: 0; }
+  #view-brief { grid-template-columns: 1fr; }
+  .brief-main { border-right: none; border-bottom: 1px solid var(--border-soft); }
+  .upload-grid, .context-grid, .prep-style-grid, .name-grid, .tailored-grid, .stats-grid, .sessions-grid { grid-template-columns: 1fr; }
+  .segmented { grid-template-columns: 1fr 1fr; }
+  .overview-header, .rl-header { flex-direction: column; gap: 16px; }
+}
+
+@media (max-width: 640px) {
+  #topbar { padding: 0 16px; }
+  #view-overview, #view-setup, #view-resume, .prefs-scroll, .practice-body, .eval-body, .brief-main, .brief-sidebar {
+    padding: 20px 16px;
+  }
+  .prefs-footer, .practice-footer, .eval-footer {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .footer-submit { width: 100%; justify-content: center; }
+  .btn-new, .btn-upload, .btn-primary { width: 100%; justify-content: center; }
+  .q-mini-actions, .resume-actions, .tailored-actions, .rec-controls { flex-direction: column; }
+}
