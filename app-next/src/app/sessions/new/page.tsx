@@ -123,15 +123,22 @@ export default function NewSessionPage() {
       });
 
       let data: { id?: string; error?: string } = {};
+      let rawText = "";
       try {
-        data = await res.json();
+        rawText = await res.text();
+        data = rawText ? (JSON.parse(rawText) as { id?: string; error?: string }) : {};
       } catch {
-        /* keep default */
+        /* keep defaults */
       }
 
       setLoading(false);
       if (!res.ok) {
-        setError(data.error || "Could not analyze this session.");
+        const explicit =
+          data.error ||
+          rawText ||
+          `${res.status} ${res.statusText}`.trim() ||
+          "Could not analyze this session.";
+        setError(explicit);
         return;
       }
       if (!data.id) {
