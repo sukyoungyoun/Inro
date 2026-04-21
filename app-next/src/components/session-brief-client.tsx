@@ -39,14 +39,9 @@ export function SessionBriefClient({
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<"prep" | "questions">("prep");
-  const [title, setTitle] = useState(sessionTitle);
-  const [companyField, setCompanyField] = useState(company);
-  const [matchScore, setMatchScore] = useState(String(score));
   const [summary, setSummary] = useState(roleSummary);
   const [align, setAlign] = useState(strongest);
   const [riskField, setRiskField] = useState(risk);
-  const [strengthRows, setStrengthRows] = useState<S[]>(strengths.length ? strengths : [{ title: "", desc: "" }]);
-  const [gapRows, setGapRows] = useState<G[]>(gaps.length ? gaps : [{ title: "", mitigation: "" }]);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<"idle" | "ok" | "err">("idle");
 
@@ -64,20 +59,14 @@ export function SessionBriefClient({
   const saveBrief = useCallback(async () => {
     setSaving(true);
     setSaveMsg("idle");
-    const ms = Math.min(100, Math.max(0, Math.round(Number(matchScore) || 0)));
     try {
       const res = await fetch(`/api/sessions/${id}/brief`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: title.trim(),
-          company: companyField.trim() || null,
-          matchScore: ms,
           roleSummary: summary.trim(),
           strongestAlignment: align.trim() || null,
           biggestRisk: riskField.trim() || null,
-          strengths: strengthRows.filter((s) => s.title.trim() || s.desc.trim()),
-          gaps: gapRows.filter((g) => g.title.trim() || g.mitigation.trim()),
         }),
       });
       if (!res.ok) {
@@ -91,18 +80,7 @@ export function SessionBriefClient({
     } finally {
       setSaving(false);
     }
-  }, [
-    id,
-    title,
-    companyField,
-    matchScore,
-    summary,
-    align,
-    riskField,
-    strengthRows,
-    gapRows,
-    router,
-  ]);
+  }, [id, summary, align, riskField, router]);
 
   return (
     <div id="view-brief" className="view">
@@ -125,7 +103,8 @@ export function SessionBriefClient({
         <div className="mobile-prep-card ai-transparency-card">
           <div className="mobile-card-label">AI-GENERATED BRIEF</div>
           <p className="mobile-card-copy" style={{ fontSize: 12, color: "var(--ink2)", marginBottom: 10 }}>
-            Built from your JD and resume. It can be wrong—edit the full brief on desktop or after we add a mobile editor.
+            Built from your JD and resume. On desktop you can edit the role summary and alignment notes if anything looks
+            off.
             {usedFallback ? " This session used a fallback estimate (model unavailable or invalid response)." : ""}
           </p>
           {limitations ? (
@@ -171,13 +150,14 @@ export function SessionBriefClient({
           <div className="ai-transparency-title">AI-generated from your documents</div>
           <p className="ai-transparency-body">
             inro uses Google Gemini to read your job description and resume. It can misread files, miss nuance, or
-            overstate fit. The match score is a <strong>prep heuristic</strong>, not a hiring verdict. Edit anything
-            below so the brief matches what <em>you</em> believe is true.
+            overstate fit. The match score is a <strong>prep heuristic</strong>, not a hiring verdict. You can adjust the{" "}
+            <strong>role summary</strong> and the <strong>strongest alignment / biggest risk</strong> notes below if
+            they do not match your understanding.
           </p>
           {usedFallback ? (
             <p className="ai-transparency-warn">
-              This brief used an automatic fallback (AI unavailable or unreadable response). Treat scores and bullets
-              as rough guesses until you revise them.
+              This brief used an automatic fallback (AI unavailable or unreadable response). Treat scores and bullets as
+              rough guesses until you revise the editable sections.
             </p>
           ) : null}
           {limitations ? (
@@ -193,41 +173,17 @@ export function SessionBriefClient({
         </div>
 
         <div className="brief-eyebrow">Role Overview</div>
-        <div className="brief-role-row brief-role-row--edit">
-          <div className="brief-role-edit">
-            <label className="brief-field-label" htmlFor="brief-title">
-              Role title
-            </label>
-            <input id="brief-title" className="brief-field-input brief-field-input--title" value={title} onChange={(e) => setTitle(e.target.value)} />
-            <label className="brief-field-label" htmlFor="brief-company">
-              Company
-            </label>
-            <input
-              id="brief-company"
-              className="brief-field-input"
-              value={companyField}
-              onChange={(e) => setCompanyField(e.target.value)}
-              placeholder="Company (optional)"
-            />
+        <div className="brief-role-row">
+          <div>
+            <div className="brief-role-name">{sessionTitle || "Role Brief"}</div>
+            {company ? <div className="brief-meta">{company}</div> : null}
           </div>
-          <div className="score-box score-box--edit">
-            <label className="brief-field-label" htmlFor="brief-score">
-              Match (0–100)
-            </label>
+          <div className="score-box">
             <div className="score-num" style={{ display: "inline-flex", alignItems: "baseline", gap: 6 }}>
-              <input
-                id="brief-score"
-                className="brief-score-input"
-                type="number"
-                min={0}
-                max={100}
-                value={matchScore}
-                onChange={(e) => setMatchScore(e.target.value)}
-                aria-label="Role match score 0 to 100"
-              />
+              {score}
               <span className="score-unit">%</span>
             </div>
-            <div className="score-label">ROLE MATCH (EDITABLE)</div>
+            <div className="score-label">ROLE MATCH SCORE</div>
           </div>
         </div>
 
@@ -254,29 +210,12 @@ export function SessionBriefClient({
         </div>
 
         <div className="section-label">Top Strengths</div>
-        {strengthRows.map((s, i) => (
-          <div key={i} className="strength-item strength-item--edit">
+        {strengths.map((s, i) => (
+          <div key={i} className="strength-item">
             <div className="strength-icon">✓</div>
-            <div className="brief-strength-grid">
-              <input
-                className="brief-field-input"
-                value={s.title}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setStrengthRows((rows) => rows.map((row, j) => (j === i ? { ...row, title: v } : row)));
-                }}
-                placeholder="Strength title"
-              />
-              <textarea
-                className="brief-field-textarea brief-field-textarea--sm"
-                value={s.desc}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setStrengthRows((rows) => rows.map((row, j) => (j === i ? { ...row, desc: v } : row)));
-                }}
-                placeholder="Description"
-                rows={3}
-              />
+            <div>
+              <div className="strength-title">{s.title}</div>
+              <div className="strength-desc">{s.desc}</div>
             </div>
           </div>
         ))}
@@ -284,38 +223,15 @@ export function SessionBriefClient({
         <div className="section-label" style={{ marginTop: 20 }}>
           Critical Gaps &amp; Mitigations
         </div>
-        {gapRows.map((g, i) => (
-          <div key={i} className="gap-item gap-item--edit">
+        {gaps.map((g, i) => (
+          <div key={i} className="gap-item">
             <div className="gap-icon">⚠</div>
-            <div className="brief-gap-grid">
-              <input
-                className="brief-field-input"
-                value={g.title}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setGapRows((rows) => rows.map((row, j) => (j === i ? { ...row, title: v } : row)));
-                }}
-                placeholder="Gap title"
-              />
-              <textarea
-                className="brief-field-textarea brief-field-textarea--sm"
-                value={g.mitigation}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setGapRows((rows) => rows.map((row, j) => (j === i ? { ...row, mitigation: v } : row)));
-                }}
-                placeholder="Mitigation"
-                rows={3}
-              />
+            <div>
+              <div className="gap-title">{g.title}</div>
+              <div className="gap-strategy">{g.mitigation}</div>
             </div>
           </div>
         ))}
-
-        <div className="brief-bottom-save">
-          <button type="button" className="btn-primary" onClick={() => void saveBrief()} disabled={saving}>
-            {saving ? "Saving…" : "Save all edits"}
-          </button>
-        </div>
       </div>
       <div className="brief-sidebar">
         <div className="brief-tabs">

@@ -418,15 +418,6 @@ label.drop-zone {
   color: var(--terra);
 }
 
-.brief-role-row--edit {
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.brief-role-edit {
-  flex: 1;
-  min-width: 0;
-}
 .brief-field-label {
   display: block;
   font-family: var(--mono);
@@ -435,23 +426,6 @@ label.drop-zone {
   text-transform: uppercase;
   color: var(--ink3);
   margin-bottom: 6px;
-}
-.brief-field-input {
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-family: var(--ui);
-  font-size: 14px;
-  color: var(--ink);
-  background: var(--surface);
-  margin-bottom: 12px;
-}
-.brief-field-input--title {
-  font-family: var(--serif);
-  font-size: 22px;
-  font-weight: 500;
 }
 .brief-field-textarea {
   width: 100%;
@@ -470,28 +444,10 @@ label.drop-zone {
   font-size: 13px;
   min-height: 72px;
 }
-.brief-field-input:focus,
 .brief-field-textarea:focus {
   outline: none;
   border-color: var(--terra);
   box-shadow: 0 0 0 3px rgba(139, 94, 82, 0.12);
-}
-.score-box--edit {
-  min-width: 140px;
-}
-.brief-score-input {
-  width: 72px;
-  border: none;
-  background: transparent;
-  font-family: var(--serif);
-  font-size: 28px;
-  font-weight: 500;
-  color: var(--green);
-  text-align: right;
-  padding: 0 4px 0 0;
-}
-.brief-score-input:focus {
-  outline: none;
 }
 .brief-card--editable .brief-card-toolbar {
   display: flex;
@@ -523,19 +479,6 @@ label.drop-zone {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-.strength-item--edit .brief-strength-grid,
-.gap-item--edit .brief-gap-grid {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.brief-bottom-save {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
 }
 .btn-ghost { background: white; color: var(--ink2); border: 1px solid var(--border); padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--ui); transition: all 0.15s; }
 .btn-ghost:hover { background: var(--bg); border-color: var(--border2); }
