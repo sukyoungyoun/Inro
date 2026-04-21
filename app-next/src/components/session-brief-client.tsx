@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 type Q = { id: string; category: string; question: string; insight: string | null };
 type S = { title: string; desc: string };
@@ -29,12 +29,6 @@ export function SessionBriefClient({
   const [tab, setTab] = useState<"prep" | "questions">("prep");
   const [showNotice, setShowNotice] = useState(roleSummary.toLowerCase().includes("fallback"));
   const cleanedSummary = roleSummary.replace(/generated in fallback mode[\s\S]*/gi, "").trim() || "No summary yet.";
-  const arc = useMemo(() => {
-    const pct = Math.max(0, Math.min(100, score));
-    const c = 2 * Math.PI * 34;
-    return { c, offset: c * (1 - pct / 100) };
-  }, [score]);
-
   return (
     <div id="view-brief" className="view">
       <div className="mobile-prep-view">
@@ -73,26 +67,12 @@ export function SessionBriefClient({
         <div className="brief-eyebrow">Role Overview</div>
         <div className="brief-role-row">
           <div className="brief-role-name">Role Brief</div>
-          <div className="gauge-wrap">
-            <svg width="92" height="92" viewBox="0 0 92 92" aria-hidden preserveAspectRatio="xMidYMid meet" style={{ display: "block" }}>
-              <circle cx="46" cy="46" r="34" fill="none" stroke="var(--border)" strokeWidth="7" />
-              <circle
-                cx="46"
-                cy="46"
-                r="34"
-                fill="none"
-                stroke="var(--accent)"
-                strokeWidth="7"
-                strokeLinecap="round"
-                strokeDasharray={arc.c}
-                strokeDashoffset={arc.offset}
-                transform="rotate(-90 46 46)"
-              />
-              <text x="46" y="52" textAnchor="middle" style={{ fontFamily: "var(--serif)", fontSize: 36, fill: "var(--text-primary)" }}>
-                {score}
-              </text>
-            </svg>
-            <div className="gauge-label">ROLE MATCH SCORE</div>
+          <div className="score-box">
+            <div className="score-num" style={{ display: "inline-flex", alignItems: "baseline", gap: 6 }}>
+              {score}
+              <span className="score-unit">%</span>
+            </div>
+            <div className="score-label">ROLE MATCH SCORE</div>
           </div>
         </div>
         {showNotice ? (

@@ -66,8 +66,7 @@ export default async function DashboardPage() {
       crumb="OVERVIEW"
       active="overview"
       userName={profile.fullName || session.user.email || "User"}
-      roleTitle="All Roles"
-      roleCompany="No specific role selected"
+      showRoleSwitcher={false}
       prepHref={prepHref}
       briefHref={prepHref}
       mockInterviewHref={mockInterviewHref}

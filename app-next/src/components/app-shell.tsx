@@ -22,6 +22,7 @@ export function AppShell({
   mockInterviewHref = "/sessions/new",
   briefHref = "/sessions/new",
   mobileTab = "home",
+  showRoleSwitcher = true,
   contentFill = false,
 }: {
   children: ReactNode;
@@ -38,6 +39,8 @@ export function AppShell({
   briefHref?: string;
   /** Mobile active tab */
   mobileTab?: MobileTabKey;
+  /** Hide role selector card when not needed */
+  showRoleSwitcher?: boolean;
   /** Brief / practice / eval: #content gets height chain for full views */
   contentFill?: boolean;
 }) {
@@ -54,15 +57,19 @@ export function AppShell({
     <div id="app">
       <aside id="sidebar">
         <div className="logo">inro</div>
-        <Link href="/dashboard" className="role-switcher">
-          <div className="role-switcher-info">
-            <div className="role-switcher-title">{roleTitle}</div>
-            <div className="role-switcher-company">{roleCompany}</div>
-          </div>
-          <div className="role-switcher-arrow" aria-hidden>
-            ⌄
-          </div>
-        </Link>
+        {showRoleSwitcher ? (
+          <Link href="/dashboard" className="role-switcher">
+            <div className="role-switcher-info">
+              <div className="role-switcher-title">{roleTitle}</div>
+              <div className="role-switcher-company">{roleCompany}</div>
+            </div>
+            <div className="role-switcher-arrow" aria-hidden>
+              ⌄
+            </div>
+          </Link>
+        ) : (
+          <div style={{ height: 10 }} />
+        )}
 
         <div className="nav-section">
           <NavBtn href="/dashboard" active={active === "overview"} label="Overview">
