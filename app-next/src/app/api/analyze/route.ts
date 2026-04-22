@@ -163,12 +163,43 @@ async function extractTextFromFile(file: File): Promise<string> {
     return buffer.toString("utf-8").trim();
   }
   if (file.type === "application/pdf" || lower.endsWith(".pdf")) {
-    const pdfParseModule = await import("pdf-parse");
-    const pdfParse =
-      (pdfParseModule as unknown as { default?: (b: Buffer) => Promise<{ text?: string }> }).default ||
-      (pdfParseModule as unknown as (b: Buffer) => Promise<{ text?: string }>);
-    const parsed = await pdfParse(buffer);
-    return (parsed?.text || "").trim();
+    try {
+      const pdfParseModule = await import("pdf-parse");
+      const pdfParse =
+        (pdfParseModule as unknown as { default?: (b: Buffer) => Promise<{ text?: string }> }).default ||
+        (pdfParseModule as unknown as (b: Buffer) => Promise<{ text?: string }>);
+      const parsed = await pdfParse(buffer);
+      const text = (parsed?.text || "").trim();
+      if (text) return text;
+    } catch {
+      // Fallback below
+    }
+
+    try {
+      const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+      const loadingTask = pdfjs.getDocument({
+        data: new Uint8Array(buffer),
+        useWorkerFetch: false,
+        isEvalSupported: false,
+      });
+      const doc = await loadingTask.promise;
+      const chunks: string[] = [];
+      for (let p = 1; p <= doc.numPages; p += 1) {
+        const page = await doc.getPage(p);
+        const content = await page.getTextContent();
+        const pageText = (content.items as Array<{ str?: string }>)
+          .map((i) => i.str || "")
+          .join(" ")
+          .trim();
+        if (pageText) chunks.push(pageText);
+      }
+      const merged = chunks.join("\n").trim();
+      if (merged) return merged;
+    } catch {
+      // handled by error below
+    }
+
+    throw new Error("PdfExtractionFailed");
   }
   if (
     file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
@@ -187,7 +218,7 @@ function extractedTextLooksUsable(text: string) {
   const words = cleaned.split(" ").filter(Boolean);
   const alphaChars = cleaned.replace(/[^A-Za-z]/g, "").length;
   const ratio = alphaChars / Math.max(1, cleaned.length);
-  return cleaned.length >= 220 && words.length >= 35 && ratio >= 0.45;
+  return cleaned.length >= 120 && words.length >= 18 && ratio >= 0.35;
 }
 
 export async function POST(req: Request) {
@@ -226,6 +257,8 @@ export async function POST(req: Request) {
               error:
                 msg === "Unsupported format"
                   ? "Job description upload must be PDF, DOCX, or TXT."
+                  : msg === "PdfExtractionFailed"
+                    ? "We couldn't reliably read that JD PDF. Try re-exporting as text-based PDF, or upload DOCX/TXT."
                   : "Could not read the uploaded job description file. Try DOCX/TXT, or paste text directly.",
             },
             { status: 400 }
@@ -251,6 +284,8 @@ export async function POST(req: Request) {
               error:
                 msg === "Unsupported format"
                   ? "Resume upload must be PDF, DOCX, or TXT."
+                  : msg === "PdfExtractionFailed"
+                    ? "We couldn't reliably read that resume PDF. Try re-exporting as text-based PDF, or upload DOCX/TXT."
                   : "Could not read the uploaded resume file. Try DOCX/TXT, or paste text directly.",
             },
             { status: 400 }
