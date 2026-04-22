@@ -37,7 +37,7 @@ async function sleep(ms: number) {
 }
 
 async function callGeminiWithFallback(apiKey: string, prompt: string) {
-  const models = ["gemini-2.5-flash", "gemini-2.0-flash"];
+  const models = ["gemini-2.5-flash-preview-05-20", "gemini-2.0-flash-001"];
   let lastStatus = 500;
   let lastMessage = "Gemini API error";
 
