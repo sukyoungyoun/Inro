@@ -158,29 +158,30 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
 
       let normalizedJd = jd.trim();
       let normalizedRv = rv.trim();
+      const warnings: string[] = [];
 
       if (!normalizedJd && jdFile) {
         const parsed = await extractViaApi(jdFile, "job description");
         normalizedJd = parsed.text;
         if (parsed.warning) {
-          setError(
+          warnings.push(
             normalizeErrorMessage(
-              `We couldn't read your uploaded job description (${jdFile.name}). ${parsed.warning} Please paste the JD text or upload a readable PDF/DOCX/TXT.`
+              `We couldn't read your uploaded job description (${jdFile.name}). ${parsed.warning} Analysis will proceed with low-confidence file context.`
             )
           );
-          return;
+          normalizedJd = `Uploaded JD filename: ${jdFile.name}. Full text extraction failed; infer role context conservatively and highlight uncertainty.`;
         }
       }
       if (!normalizedRv && rvFile) {
         const parsed = await extractViaApi(rvFile, "resume");
         normalizedRv = parsed.text;
         if (parsed.warning) {
-          setError(
+          warnings.push(
             normalizeErrorMessage(
-              `We couldn't read your uploaded resume (${rvFile.name}). ${parsed.warning} Please paste resume text or upload a readable PDF/DOCX/TXT.`
+              `We couldn't read your uploaded resume (${rvFile.name}). ${parsed.warning} Analysis will proceed with low-confidence file context.`
             )
           );
-          return;
+          normalizedRv = `Uploaded resume filename: ${rvFile.name}. Full text extraction failed; analysis should proceed conservatively and call out uncertainty.`;
         }
       }
 
@@ -189,6 +190,10 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
           "We still need both JD and resume text. Paste missing text manually, or upload a more readable file."
         );
         return;
+      }
+
+      if (warnings.length > 0) {
+        setError(normalizeErrorMessage(warnings.join(" ")));
       }
 
       setLoading(true);
