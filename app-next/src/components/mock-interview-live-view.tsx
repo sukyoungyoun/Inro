@@ -29,7 +29,7 @@ export function MockInterviewLiveView({
   const [paused, setPaused] = useState(false);
   const [finished, setFinished] = useState(false);
   const [permissionsReady, setPermissionsReady] = useState(initialTextMode);
-  const [micDenied, setMicDenied] = useState(false);
+  const [micErrorMessage, setMicErrorMessage] = useState<string | null>(null);
   const [isRequestingMic, setIsRequestingMic] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
@@ -159,6 +159,9 @@ export function MockInterviewLiveView({
   async function attachAudioGraph(stream: MediaStream) {
     cleanupAudioGraph(false);
     const audioCtx = new AudioContext();
+    if (audioCtx.state === "suspended") {
+      await audioCtx.resume().catch(() => undefined);
+    }
     const source = audioCtx.createMediaStreamSource(stream);
     const analyser = audioCtx.createAnalyser();
     analyser.fftSize = 512;
@@ -183,9 +186,13 @@ export function MockInterviewLiveView({
     await attachAudioGraph(stream);
 
     if (typeof MediaRecorder !== "undefined") {
-      const recorder = new MediaRecorder(stream);
-      recorder.start(300);
-      mediaRecorderRef.current = recorder;
+      try {
+        const recorder = new MediaRecorder(stream);
+        recorder.start(300);
+        mediaRecorderRef.current = recorder;
+      } catch {
+        mediaRecorderRef.current = null;
+      }
     }
 
     startRecognition();
@@ -268,16 +275,48 @@ export function MockInterviewLiveView({
     setFinished(true);
   }
 
+  function formatMicError(err: unknown): string {
+    if (err instanceof Error) {
+      if (err.message === "INSECURE") {
+        return "Microphone needs a secure (HTTPS) connection. Open this app over HTTPS or use localhost.";
+      }
+      if (err.message === "UNSUPPORTED") {
+        return "This browser does not support microphone access from this page.";
+      }
+    }
+    const name = err && typeof err === "object" && "name" in err ? String((err as DOMException).name) : "";
+    if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+      return "Microphone access was blocked. Allow the mic for this site in your browser settings, then tap Try again.";
+    }
+    if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+      return "No microphone was found. Plug in a mic or pick a default input device, then try again.";
+    }
+    if (name === "NotReadableError" || name === "TrackStartError") {
+      return "Your microphone is in use by another app or could not be started. Close other apps using the mic and try again.";
+    }
+    return "Could not start the microphone. Check browser permissions and try again.";
+  }
+
   async function onEnableMicrophone() {
     setIsRequestingMic(true);
-    setMicDenied(false);
+    setMicErrorMessage(null);
     try {
+      if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+        const insecure = typeof window !== "undefined" && !window.isSecureContext;
+        throw new Error(insecure ? "INSECURE" : "UNSUPPORTED");
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      try {
+        await startLiveSession(stream, true);
+      } catch (sessionErr) {
+        for (const track of stream.getTracks()) track.stop();
+        throw sessionErr;
+      }
       localStorage.setItem("inro-mic-permission-granted", "1");
       setPermissionsReady(true);
-      await startLiveSession(stream, true);
-    } catch {
-      setMicDenied(true);
+    } catch (err) {
+      localStorage.removeItem("inro-mic-permission-granted");
+      setMicErrorMessage(formatMicError(err));
     } finally {
       setIsRequestingMic(false);
     }
@@ -287,14 +326,38 @@ export function MockInterviewLiveView({
     if (textOnlyMode) return;
     const saved = localStorage.getItem("inro-mic-permission-granted") === "1";
     if (!saved) return;
-    setPermissionsReady(true);
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      localStorage.removeItem("inro-mic-permission-granted");
+      return;
+    }
+    let cancelled = false;
     navigator.mediaDevices
       .getUserMedia({ audio: true })
-      .then((stream) => startLiveSession(stream, true))
-      .catch(() => {
-        setPermissionsReady(false);
-        setMicDenied(true);
+      .then(async (stream) => {
+        if (cancelled) {
+          for (const track of stream.getTracks()) track.stop();
+          return;
+        }
+        try {
+          await startLiveSession(stream, true);
+          if (!cancelled) setPermissionsReady(true);
+        } catch {
+          for (const track of stream.getTracks()) track.stop();
+          if (!cancelled) {
+            localStorage.removeItem("inro-mic-permission-granted");
+            setMicErrorMessage("Could not start audio preview. Use Enable Microphone or continue without mic.");
+          }
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          localStorage.removeItem("inro-mic-permission-granted");
+          setMicErrorMessage(formatMicError(err));
+        }
       });
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -334,7 +397,7 @@ export function MockInterviewLiveView({
                 type="button"
                 className="practice-enable-mic-btn"
                 onClick={() => void onEnableMicrophone()}
-                disabled={isRequestingMic || micDenied}
+                disabled={isRequestingMic}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
                   <rect x="5" y="1.5" width="4" height="7" rx="2" />
@@ -343,9 +406,9 @@ export function MockInterviewLiveView({
                 {isRequestingMic ? "Checking..." : "Enable Microphone"}
               </button>
             </div>
-            {micDenied ? (
-              <div className="practice-permissions-denied">
-                Microphone access was denied. Check your browser settings to continue.
+            {micErrorMessage ? (
+              <div className="practice-permissions-denied" role="alert">
+                {micErrorMessage}
               </div>
             ) : null}
             <Link

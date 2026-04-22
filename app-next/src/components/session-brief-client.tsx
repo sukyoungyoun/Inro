@@ -71,6 +71,7 @@ export function SessionBriefClient({
   const [briefEditMode, setBriefEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<"idle" | "ok" | "err">("idle");
+  const [aiDisclosureOpen, setAiDisclosureOpen] = useState(false);
 
   useEffect(() => {
     if (briefEditMode) return;
@@ -215,110 +216,142 @@ export function SessionBriefClient({
               Based on resume vs. JD alignment.
             </span>
           </div>
+
+          <div className="brief-ai-disclosure">
+            <button
+              type="button"
+              className="brief-ai-disclosure-toggle"
+              onClick={() => setAiDisclosureOpen((o) => !o)}
+              aria-expanded={aiDisclosureOpen}
+            >
+              ⓘ How this was generated
+            </button>
+            {aiDisclosureOpen ? (
+              <div className="brief-ai-disclosure-panel" role="region">
+                <p className="brief-ai-disclosure-lead">
+                  Gemini read your JD and resume—mistakes happen. Match % is a prep heuristic, not hiring advice. Edit the
+                  summary and alignment notes if they look off.
+                </p>
+                {usedFallback ? <p className="brief-ai-disclosure-warn">Fallback analysis—treat scores as rough.</p> : null}
+                {limitations ? (
+                  <p className="brief-ai-disclosure-meta" title={limitations}>
+                    <strong>Caveats:</strong> {limitations}
+                  </p>
+                ) : null}
+                {evidenceSummary ? (
+                  <p className="brief-ai-disclosure-meta" title={evidenceSummary}>
+                    <strong>Grounding:</strong> {evidenceSummary}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
 
-        <div className="brief-card brief-card--editable">
-          <div className="brief-card-toolbar">
-            <h3>Role Summary</h3>
-            <div className="brief-card-toolbar-actions">
-              {!briefEditMode ? (
-                <button type="button" className="btn-ghost brief-edit-btn" onClick={() => setBriefEditMode(true)}>
-                  Edit
+        <section className="brief-summary-plain" aria-labelledby="brief-summary-heading">
+          <div className="brief-summary-plain-head">
+            <h3 id="brief-summary-heading" className="brief-summary-plain-label">
+              Role summary
+            </h3>
+            {!briefEditMode ? (
+              <button type="button" className="brief-summary-plain-edit" onClick={() => setBriefEditMode(true)}>
+                Edit
+              </button>
+            ) : (
+              <div className="brief-summary-plain-edit-row">
+                <button type="button" className="brief-summary-plain-edit" onClick={cancelBriefEdit} disabled={saving}>
+                  Cancel
                 </button>
-              ) : (
-                <>
-                  <button type="button" className="btn-ghost brief-edit-btn" onClick={cancelBriefEdit} disabled={saving}>
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-terra brief-save-btn"
-                    onClick={() => void saveBrief()}
-                    disabled={saving || !briefDirty}
-                  >
-                    {saving ? "Saving…" : "Save changes"}
-                  </button>
-                </>
-              )}
-            </div>
+                <button
+                  type="button"
+                  className="brief-summary-plain-save"
+                  onClick={() => void saveBrief()}
+                  disabled={saving || !briefDirty}
+                >
+                  {saving ? "Saving…" : "Save changes"}
+                </button>
+              </div>
+            )}
           </div>
           {saveMsg === "ok" ? <p className="brief-save-hint ok">Saved — your brief is updated.</p> : null}
           {saveMsg === "err" ? <p className="brief-save-hint err">Could not save. Try again.</p> : null}
           {!briefEditMode ? (
-            <>
-              <div className="brief-summary-readonly">{cleanedSummary}</div>
-              <div className="callout-grid" style={{ marginTop: 16 }}>
-                <div className="callout-box callout-box--stack">
-                  <div className="callout-label">↗ Strongest Alignment</div>
-                  <div className="brief-callout-readonly">{align.trim() ? align : "—"}</div>
-                </div>
-                <div className="callout-box callout-box--stack">
-                  <div className="callout-label">⚠ Biggest Risk Area</div>
-                  <div className="brief-callout-readonly">{riskField.trim() ? riskField : "—"}</div>
-                </div>
-              </div>
-            </>
+            <div className="brief-summary-plain-body">{cleanedSummary}</div>
           ) : (
-            <>
-              <textarea className="brief-field-textarea" value={summary} onChange={(e) => setSummary(e.target.value)} rows={6} spellCheck />
-              <div className="callout-grid" style={{ marginTop: 16 }}>
-                <div className="callout-box callout-box--stack">
-                  <div className="callout-label">↗ Strongest Alignment</div>
+            <textarea className="brief-summary-plain-textarea" value={summary} onChange={(e) => setSummary(e.target.value)} rows={6} spellCheck />
+          )}
+        </section>
+
+        <section className="brief-insights" aria-labelledby="brief-insights-heading">
+          <h3 id="brief-insights-heading" className="brief-insights-label">
+            Insights
+          </h3>
+          <div className="brief-insights-grid">
+            {!briefEditMode ? (
+              <>
+                <div className="brief-insight-tile brief-insight-tile--align">
+                  <div className="brief-insight-tile-label">↗ Strongest alignment</div>
+                  <div className="brief-insight-tile-body">{align.trim() ? align : "—"}</div>
+                </div>
+                <div className="brief-insight-tile brief-insight-tile--risk">
+                  <div className="brief-insight-tile-label">⚠ Biggest risk area</div>
+                  <div className="brief-insight-tile-body">{riskField.trim() ? riskField : "—"}</div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="brief-insight-tile brief-insight-tile--align">
+                  <div className="brief-insight-tile-label">↗ Strongest alignment</div>
                   <textarea className="brief-field-textarea brief-field-textarea--sm" value={align} onChange={(e) => setAlign(e.target.value)} rows={3} />
                 </div>
-                <div className="callout-box callout-box--stack">
-                  <div className="callout-label">⚠ Biggest Risk Area</div>
+                <div className="brief-insight-tile brief-insight-tile--risk">
+                  <div className="brief-insight-tile-label">⚠ Biggest risk area</div>
                   <textarea className="brief-field-textarea brief-field-textarea--sm" value={riskField} onChange={(e) => setRiskField(e.target.value)} rows={3} />
                 </div>
+              </>
+            )}
+          </div>
+        </section>
+
+        <h3 className="brief-list-section-label">Top strengths</h3>
+        <ul className="brief-strength-list">
+          {strengths.map((s, i) => (
+            <li key={i} className="brief-strength-row">
+              <div className="brief-strength-ico" aria-hidden>
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                  <path
+                    d="M1 4.2 3.5 6.5 9 1.2"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </div>
-            </>
-          )}
-        </div>
+              <div className="brief-strength-copy">
+                <div className="brief-strength-title">{s.title}</div>
+                <div className="brief-strength-body">{s.desc}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
 
-        <div className="section-label">Top Strengths</div>
-        {strengths.map((s, i) => (
-          <div key={i} className="strength-item">
-            <div className="strength-icon">✓</div>
-            <div>
-              <div className="strength-title">{s.title}</div>
-              <div className="strength-desc">{s.desc}</div>
-            </div>
-          </div>
-        ))}
-
-        <div className="section-label" style={{ marginTop: 20 }}>
-          Critical Gaps &amp; Mitigations
-        </div>
-        {gaps.map((g, i) => (
-          <div key={i} className="gap-item">
-            <div className="gap-icon">⚠</div>
-            <div>
-              <div className="gap-title">{g.title}</div>
-              <div className="gap-strategy">{g.mitigation}</div>
-            </div>
-          </div>
-        ))}
-
-        <div className="ai-transparency-banner ai-transparency-banner--footer" role="note" aria-label="AI disclaimer">
-          <div className="ai-transparency-title ai-transparency-title--compact">AI-generated from your documents</div>
-          <p className="ai-transparency-body ai-transparency-body--compact">
-            Gemini read your JD and resume—mistakes happen. Match % is a prep heuristic, not hiring advice. Edit the
-            summary and alignment notes above if they look off.
-          </p>
-          {usedFallback ? (
-            <p className="ai-transparency-warn ai-transparency-warn--compact">Fallback analysis—treat scores as rough.</p>
-          ) : null}
-          {limitations ? (
-            <p className="ai-transparency-meta ai-transparency-meta--clamp" title={limitations}>
-              <strong>Caveats:</strong> {limitations}
-            </p>
-          ) : null}
-          {evidenceSummary ? (
-            <p className="ai-transparency-meta ai-transparency-meta--clamp" title={evidenceSummary}>
-              <strong>Grounding:</strong> {evidenceSummary}
-            </p>
-          ) : null}
-        </div>
+        <h3 className="brief-list-section-label brief-list-section-label--gaps">Critical gaps &amp; mitigations</h3>
+        <ul className="brief-gap-list">
+          {gaps.map((g, i) => (
+            <li key={i} className="brief-gap-row">
+              <div className="brief-gap-ico" aria-hidden>
+                <svg width="10" height="9" viewBox="0 0 10 9" fill="none">
+                  <path d="M5 1.2 8.8 7.5H1.2L5 1.2Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="brief-gap-copy">
+                <div className="brief-gap-title">{g.title}</div>
+                <div className="brief-gap-body">{g.mitigation}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <PrepLabMockInterviews

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { shouldShowDifficultyTags } from "@/lib/prep-question-display";
 import {
   groupQuestionsByCategory,
   mapDbQuestionsToMock,
@@ -28,10 +29,7 @@ function WhyThisQuestionHub({ insight }: { insight: string }) {
   return (
     <div className="mock-hub-why">
       <button type="button" className="mock-hub-why-link" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-        <span className="mock-hub-why-arrow" aria-hidden>
-          {open ? "▾" : "▸"}
-        </span>
-        Why this question
+        <span className="mock-hub-why-text">{open ? "▾ Why this question" : "▸ Why this question"}</span>
       </button>
       {open ? <div className="mock-hub-why-body">{insight}</div> : null}
     </div>
@@ -86,6 +84,7 @@ export function MockInterviewHub({ sessionId, roleTitle, roleCompany, questions 
   const total = mockRows.length;
   const doneCount = mockRows.filter((q) => q.status === "done").length;
   const globalPct = total ? Math.round((doneCount / total) * 100) : 0;
+  const showDifficultyTags = useMemo(() => shouldShowDifficultyTags(mockRows), [mockRows]);
 
   const globalIndexById = useMemo(() => {
     const m = new Map<string, number>();
@@ -114,7 +113,7 @@ export function MockInterviewHub({ sessionId, roleTitle, roleCompany, questions 
     return (
       <li key={q.id} className="mock-hub-card">
         <div className="mock-hub-card-meta">
-          <span className="mock-hub-diff">{formatDifficultyLabel(q.difficulty)}</span>
+          {showDifficultyTags ? <span className="mock-hub-diff">{formatDifficultyLabel(q.difficulty)}</span> : null}
           <span className="mock-hub-duration">{q.duration}</span>
         </div>
         <p className="mock-hub-q-text">{q.text}</p>
@@ -152,9 +151,9 @@ export function MockInterviewHub({ sessionId, roleTitle, roleCompany, questions 
       <header className="mock-hub-cat-header">
         <div className="mock-hub-cat-header-main">
           <h2 className="mock-hub-cat-title">
-            {formatCategoryLabel(category)}{" "}
+            <span className="mock-hub-cat-label">{formatCategoryLabel(category)}</span>{" "}
             <span className="mock-hub-cat-count">
-              ({catTotal}) · {catDone} / {catTotal} done
+              ({catTotal}) · {catDone} / {catTotal} DONE
             </span>
           </h2>
           <div className="mock-hub-cat-track" aria-hidden>
