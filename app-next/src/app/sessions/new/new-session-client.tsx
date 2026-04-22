@@ -133,82 +133,42 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
       setError("Add a job description and resume—paste text, upload files, or both for each.");
       return;
     }
+    setLoading(true);
+    setLoadStep(0);
     setError("");
 
     try {
-      async function extractViaApi(file: File, label: "job description" | "resume") {
+      const normalizedJd = jd.trim();
+      const normalizedRv = rv.trim();
+
+      let res: Response;
+      if (jdFile || rvFile) {
         const fd = new FormData();
-        fd.append("file", file);
-        const res = await fetch("/api/extract-text", { method: "POST", body: fd });
-        let payload: { text?: string; error?: string } = {};
-        try {
-          payload = (await res.json()) as { text?: string; error?: string };
-        } catch {
-          /* noop */
-        }
-        if (!res.ok || !payload.text?.trim()) {
-          const reason = normalizeErrorMessage(payload.error || `${res.status} ${res.statusText}`.trim());
-          return {
-            text: "",
-            warning: reason || `Could not read the uploaded ${label}.`,
-          };
-        }
-        return { text: payload.text.trim(), warning: "" };
-      }
-
-      let normalizedJd = jd.trim();
-      let normalizedRv = rv.trim();
-      const warnings: string[] = [];
-
-      if (!normalizedJd && jdFile) {
-        const parsed = await extractViaApi(jdFile, "job description");
-        normalizedJd = parsed.text;
-        if (parsed.warning) {
-          warnings.push(
-            normalizeErrorMessage(
-              `We couldn't read your uploaded job description (${jdFile.name}). ${parsed.warning} Analysis will proceed with low-confidence file context.`
-            )
+        fd.append("company", company);
+        fd.append("stage", stage);
+        fd.append("jd", normalizedJd);
+        fd.append("rv", normalizedRv);
+        if (jdFile) fd.append("jdFile", jdFile);
+        if (rvFile) fd.append("rvFile", rvFile);
+        res = await fetch("/api/analyze", { method: "POST", body: fd });
+      } else {
+        if (!normalizedJd || !normalizedRv) {
+          setError(
+            "We still need both JD and resume text. Paste missing text manually, or upload a readable file."
           );
-          normalizedJd = `Uploaded JD filename: ${jdFile.name}. Full text extraction failed; infer role context conservatively and highlight uncertainty.`;
+          return;
         }
+        res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company,
+            stage,
+            jd: normalizedJd,
+            rv: normalizedRv,
+          }),
+        });
       }
-      if (!normalizedRv && rvFile) {
-        const parsed = await extractViaApi(rvFile, "resume");
-        normalizedRv = parsed.text;
-        if (parsed.warning) {
-          warnings.push(
-            normalizeErrorMessage(
-              `We couldn't read your uploaded resume (${rvFile.name}). ${parsed.warning} Analysis will proceed with low-confidence file context.`
-            )
-          );
-          normalizedRv = `Uploaded resume filename: ${rvFile.name}. Full text extraction failed; analysis should proceed conservatively and call out uncertainty.`;
-        }
-      }
-
-      if (!normalizedJd || !normalizedRv) {
-        setError(
-          "We still need both JD and resume text. Paste missing text manually, or upload a more readable file."
-        );
-        return;
-      }
-
-      if (warnings.length > 0) {
-        setError(normalizeErrorMessage(warnings.join(" ")));
-      }
-
-      setLoading(true);
-      setLoadStep(0);
-
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company,
-          stage,
-          jd: normalizedJd,
-          rv: normalizedRv,
-        }),
-      });
 
       let data: { id?: string; error?: string } = {};
       let rawText = "";
