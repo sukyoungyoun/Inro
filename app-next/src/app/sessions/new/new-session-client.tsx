@@ -140,22 +140,37 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
         }
         if (!res.ok || !payload.text?.trim()) {
           const reason = payload.error || `${res.status} ${res.statusText}`.trim();
-          throw new Error(
-            reason || `Could not read the uploaded ${label}. Paste text directly or upload DOCX/TXT.`
-          );
+          return {
+            text: "",
+            warning:
+              reason ||
+              `Could not read the uploaded ${label}. Proceeding with low-confidence filename fallback.`,
+          };
         }
-        return payload.text.trim();
+        return { text: payload.text.trim(), warning: "" };
       }
 
       let res: Response;
       let normalizedJd = jd.trim();
       let normalizedRv = rv.trim();
 
+      const warnings: string[] = [];
+
       if (!normalizedJd && jdFile) {
-        normalizedJd = await extractViaApi(jdFile, "job description");
+        const parsed = await extractViaApi(jdFile, "job description");
+        normalizedJd = parsed.text;
+        if (parsed.warning) warnings.push(parsed.warning);
+        if (!normalizedJd) {
+          normalizedJd = `Uploaded JD filename: ${jdFile.name}. Full text extraction failed; infer role context conservatively and highlight uncertainty.`;
+        }
       }
       if (!normalizedRv && rvFile) {
-        normalizedRv = await extractViaApi(rvFile, "resume");
+        const parsed = await extractViaApi(rvFile, "resume");
+        normalizedRv = parsed.text;
+        if (parsed.warning) warnings.push(parsed.warning);
+        if (!normalizedRv) {
+          normalizedRv = `Uploaded resume filename: ${rvFile.name}. Full text extraction failed; analysis should proceed conservatively and call out uncertainty.`;
+        }
       }
 
       if (!normalizedJd || !normalizedRv) {
@@ -164,6 +179,11 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
           "We still need both JD and resume text. Paste missing text manually, or upload a more readable file."
         );
         return;
+      }
+
+      if (warnings.length > 0) {
+        // Non-blocking warning: analysis can still proceed with filename fallback.
+        setError(warnings.join(" "));
       }
 
       if (jdFile || rvFile) {
