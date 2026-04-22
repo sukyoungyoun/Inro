@@ -12,10 +12,12 @@ export async function extractTextFromUploadedFile(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
+  // ── TXT ──────────────────────────────────────────────────────────────────
   if (file.type === "text/plain" || lower.endsWith(".txt")) {
     return buffer.toString("utf-8").trim();
   }
 
+  // ── DOCX ─────────────────────────────────────────────────────────────────
   if (
     file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
     lower.endsWith(".docx")
@@ -25,41 +27,40 @@ export async function extractTextFromUploadedFile(file: File): Promise<string> {
     return (parsed.value || "").trim();
   }
 
+  // ── PDF ───────────────────────────────────────────────────────────────────
   if (file.type === "application/pdf" || lower.endsWith(".pdf")) {
     try {
-      const pdfParseModule = await import("pdf-parse");
-      const pdfParse =
-        (pdfParseModule as unknown as { default?: (b: Buffer) => Promise<{ text?: string }> }).default ||
-        (pdfParseModule as unknown as (b: Buffer) => Promise<{ text?: string }>);
-      const parsed = await pdfParse(buffer);
-      const text = (parsed?.text || "").trim();
-      if (text) return text;
-    } catch {
-      // fallback parser below
-    }
+      // Use pdfjs-dist legacy build — works reliably in Next.js serverless.
+      // We must set the worker src to a no-op because there is no DOM/worker in Node.
+      const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
-    try {
-      const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-      const loadingTask = pdfjs.getDocument({
+      // Disable the worker entirely for server-side use
+      (pdfjsLib as { GlobalWorkerOptions?: { workerSrc: string } }).GlobalWorkerOptions!.workerSrc = "";
+
+      const loadingTask = pdfjsLib.getDocument({
         data: new Uint8Array(buffer),
         useWorkerFetch: false,
         isEvalSupported: false,
-      });
+        disableWorker: true,       // ← key flag: run in-thread, no worker
+      } as unknown as Parameters<typeof pdfjsLib.getDocument>[0]);
+
       const doc = await loadingTask.promise;
       const chunks: string[] = [];
-      for (let p = 1; p <= doc.numPages; p += 1) {
+
+      for (let p = 1; p <= doc.numPages; p++) {
         const page = await doc.getPage(p);
         const content = await page.getTextContent();
         const pageText = (content.items as Array<{ str?: string }>)
-          .map((i) => i.str || "")
+          .map((i) => i.str ?? "")
           .join(" ")
           .trim();
         if (pageText) chunks.push(pageText);
       }
+
       const merged = chunks.join("\n").trim();
       if (merged) return merged;
-    } catch {
-      // handled below
+    } catch (err) {
+      console.error("[text-extraction] pdfjs failed:", err);
     }
 
     throw new Error("PdfExtractionFailed");
@@ -67,4 +68,3 @@ export async function extractTextFromUploadedFile(file: File): Promise<string> {
 
   throw new Error("Unsupported format");
 }
-
