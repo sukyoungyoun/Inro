@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/app-shell";
 import { PreferencesForm } from "@/components/preferences-form";
+import { SignOutButton } from "@/components/sign-out-button";
 
 export default async function PreferencesPage() {
   const session = await auth();
@@ -35,6 +36,7 @@ export default async function PreferencesPage() {
       mobileTab="role"
       showRoleSwitcher={false}
       contentFill
+      topbarActions={<SignOutButton />}
     >
       <div
         id="view-preferences"

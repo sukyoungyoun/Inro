@@ -3,18 +3,17 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/app-shell";
-import { SignOutButton } from "@/components/sign-out-button";
 import { toFirstNameForSidebar } from "@/lib/user-display-name";
 import { DashboardSessionCard } from "@/components/dashboard-session-card";
 
 function formatSessionTime(d: Date) {
   const diff = Date.now() - d.getTime();
   const h = Math.floor(diff / 3600000);
-  if (h < 1) return `${Math.max(1, Math.floor(diff / 60000))}M AGO`;
-  if (h < 24) return `${h}H AGO`;
+  if (h < 1) return `${Math.max(1, Math.floor(diff / 60000))}m ago`;
+  if (h < 24) return `${h}h ago`;
   const days = Math.floor(h / 24);
   if (days === 1) return "Yesterday";
-  return `${days}D AGO`;
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
 function cleanRoleTitle(raw: string) {
@@ -164,6 +163,16 @@ export default async function DashboardPage({
       briefHref={prepHref}
       mockInterviewHref={mockInterviewHref}
       mobileTab="home"
+      topbarActions={
+        <>
+          <Link href="/sessions/new" className="topbar-new-btn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <path d="M7 2v10M2 7h10" />
+            </svg>
+            New Prep Session
+          </Link>
+        </>
+      }
     >
       <div id="view-overview" className="view">
         <div className="overview-header">
@@ -175,15 +184,7 @@ export default async function DashboardPage({
               brief.
             </p>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <SignOutButton />
-            <Link href="/sessions/new" className="btn-new">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                <path d="M7 2v10M2 7h10" />
-              </svg>
-              New Prep Session
-            </Link>
-          </div>
+          <div />
         </div>
 
         <div className="stats-grid">

@@ -6,11 +6,50 @@ import { useEffect, useRef, useState } from "react";
 
 function cleanRoleTitle(raw: string) {
   const trimmed = (raw || "").trim();
-  if (!trimmed) return "Untitled role";
+  if (!trimmed) return "Role unknown";
   return trimmed
     .replace(/\.(pdf|docx|txt)$/i, "")
     .replace(/\s+copy$/i, "")
+    .replace(/full text extraction failed[\s\S]*/i, "")
+    .replace(/could not parse[\s\S]*/i, "")
+    .replace(/\s{2,}/g, " ")
     .trim();
+}
+
+const MODULE_NAMES = [
+  "Behavioral storytelling",
+  "Role fit evidence",
+  "Product sense",
+  "System design",
+  "Execution depth",
+  "Communication clarity",
+];
+
+function looksLikeBadOrMissingJdTitle(raw: string) {
+  const t = (raw || "").trim().toLowerCase();
+  if (!t) return true;
+  return (
+    /pdf extraction failed|could not parse|unsupported format|resource_exhausted|quota exceeded|gemini/i.test(t) ||
+    t === "untitled role" ||
+    t === "role analysis"
+  );
+}
+
+function buildSessionHeading(rawTitle: string, company: string | null) {
+  const role = cleanRoleTitle(rawTitle);
+  const hasCompany = Boolean((company || "").trim()) && (company || "").trim().toLowerCase() !== "not set";
+  const missingJd = looksLikeBadOrMissingJdTitle(rawTitle);
+
+  if (missingJd) {
+    return {
+      heading: "Untitled Session",
+      roleLine: "Role unknown",
+      missingJd,
+    };
+  }
+
+  const heading = hasCompany ? `${role} at ${company!.trim()}` : role;
+  return { heading, roleLine: role, missingJd };
 }
 
 export function DashboardSessionCard({
@@ -64,10 +103,15 @@ export function DashboardSessionCard({
     setNextSteps(initialNext || "");
   }, [initialPrepFeedback, initialOutcome, initialNext]);
 
-  const score = matchScore ?? 0;
-  const badgeLabel = `${score}% match`;
+  const hasParsedScore = matchScore !== null && matchScore !== undefined && matchScore > 0;
+  const score = hasParsedScore ? matchScore : 0;
+  const badgeLabel = hasParsedScore ? `${score}% match` : "–";
+  const { heading, roleLine, missingJd } = buildSessionHeading(title, company);
+  const hasCompany = Boolean((company || "").trim()) && (company || "").trim().toLowerCase() !== "not set";
   const status =
-    score >= 78
+    !hasParsedScore
+      ? { cls: "pending", label: "Pending score" }
+      : score >= 78
       ? { cls: "strong", label: "Strong Fit" }
       : score >= 65
         ? { cls: "review", label: "Needs Review" }
@@ -106,11 +150,7 @@ export function DashboardSessionCard({
   }
 
   async function deleteSession() {
-    if (
-      !window.confirm(
-        "Permanently delete this prep session? Your brief, analysis, and practice data for this role will be removed. This cannot be undone."
-      )
-    ) {
+    if (!window.confirm("Delete this session? This cannot be undone.")) {
       return;
     }
     setDeleting(true);
@@ -168,7 +208,12 @@ export function DashboardSessionCard({
   return (
     <div className={`session-card session-card--dashboard${archivedAt ? " archived" : ""}`}>
       <div className="session-card-top">
-        <div className="session-role">{cleanRoleTitle(sessionEditOpen ? titleEdit : title)}</div>
+        <div className="session-role-wrap">
+          <div className="session-role">{sessionEditOpen ? cleanRoleTitle(titleEdit) : heading}</div>
+          {missingJd ? (
+            <span className="session-warning-tag">⚠ Could not parse job description</span>
+          ) : null}
+        </div>
         <div className="session-card-top-actions">
           <div className="session-time">{timeLabel}</div>
           {!archivedAt ? (
@@ -209,6 +254,18 @@ export function DashboardSessionCard({
                   Open full brief
                 </Link>
                 <div className="session-menu-sep" role="separator" />
+                <button
+                  type="button"
+                  className="session-menu-item"
+                  role="menuitem"
+                  onClick={() => {
+                    setSessionEditOpen(true);
+                    setMenuOpen(false);
+                  }}
+                >
+                  Rename
+                </button>
+                <div className="session-menu-sep" role="separator" />
                 <div className="session-menu-section-label">Add update</div>
                 <button
                   type="button"
@@ -238,6 +295,15 @@ export function DashboardSessionCard({
                     Archive session
                   </button>
                 )}
+                <button
+                  type="button"
+                  className="session-menu-item"
+                  role="menuitem"
+                  disabled={deleting}
+                  onClick={() => void deleteSession()}
+                >
+                  {deleting ? "Deleting…" : "Delete"}
+                </button>
               </div>
             ) : null}
           </div>
@@ -281,30 +347,33 @@ export function DashboardSessionCard({
       ) : (
         <>
           <div className="session-company">
-            <strong>Role:</strong> {cleanRoleTitle(title)}
+            <strong>Role:</strong> {roleLine}
           </div>
-          <div className="session-company" style={{ marginTop: -6 }}>
-            <strong>Company:</strong> {company || "Not set"}
-          </div>
+          {hasCompany ? (
+            <div className="session-company" style={{ marginTop: -6 }}>
+              <strong>Company:</strong> {company}
+            </div>
+          ) : null}
         </>
       )}
 
       <div className="match-row">
-        <div className="match-badge accent">{badgeLabel}</div>
-        <div className="match-bar">
-          <div className={`match-fill${score < 78 ? " mid" : ""}`} style={{ width: `${Math.min(100, Math.max(8, score))}%` }} />
-        </div>
+        <div className={`match-badge${hasParsedScore ? "" : " neutral"} accent`}>{badgeLabel}</div>
+        {hasParsedScore ? (
+          <div className="match-bar">
+            <div className={`match-fill${score < 78 ? " mid" : ""}`} style={{ width: `${Math.min(100, Math.max(8, score))}%` }} />
+          </div>
+        ) : null}
       </div>
-      <div className="session-modules">3/6 modules</div>
-      <div className="module-segments" aria-label="module completion segments">
+      <div className="session-modules" title={MODULE_NAMES.join("\n")}>
+        3 of 6 modules
+      </div>
+      <div className="module-segments" aria-label={`module completion segments: ${MODULE_NAMES.join(", ")}`} title={MODULE_NAMES.join("\n")}>
         {[0, 1, 2, 3, 4, 5].map((idx) => (
           <span key={idx} className={`module-segment${idx < 3 ? " done" : ""}`} />
         ))}
       </div>
       <div className={`status-tag ${status.cls}`}>{status.label}</div>
-      <div className="session-next">
-        Best next step: open your brief and run a targeted practice block on your highest-impact gap.
-      </div>
 
       <div className="session-manage-row" aria-label="Session actions">
         {!archivedAt ? (
@@ -369,9 +438,11 @@ export function DashboardSessionCard({
         ) : null}
       </div>
 
-      <Link href={`/sessions/${id}`} className="session-action">
-        {score >= 70 ? "→ Continue Prep" : "⟳ Review Insights"}
-      </Link>
+      <div className="session-cta-footer">
+        <Link href={`/sessions/${id}`} className="session-action">
+          Continue practice →
+        </Link>
+      </div>
     </div>
   );
 }

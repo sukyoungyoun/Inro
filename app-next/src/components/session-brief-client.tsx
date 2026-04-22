@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { PrepLabMockInterviews } from "@/components/prep-lab-mock-interviews";
 
 type Q = { id: string; category: string; question: string; insight: string | null };
 type S = { title: string; desc: string };
@@ -63,18 +64,13 @@ export function SessionBriefClient({
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<"prep" | "questions">("prep");
-  const [focusMode, setFocusMode] = useState(false);
-  const [analysisOpen, setAnalysisOpen] = useState(false);
+  const [questionsExpanded, setQuestionsExpanded] = useState(false);
   const [summary, setSummary] = useState(roleSummary);
   const [align, setAlign] = useState(strongest);
   const [riskField, setRiskField] = useState(risk);
   const [briefEditMode, setBriefEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<"idle" | "ok" | "err">("idle");
-
-  useEffect(() => {
-    if (!analysisOpen) setBriefEditMode(false);
-  }, [analysisOpen]);
 
   useEffect(() => {
     if (briefEditMode) return;
@@ -145,8 +141,8 @@ export function SessionBriefClient({
   }, [id, summary, align, riskField, router]);
 
   return (
-    <div id="view-brief" className={`view${focusMode ? " brief--focus-mode" : ""}`}>
-      <div className="mobile-prep-view">
+    <div id="view-brief" className="view">
+      <div className="mobile-prep-view" aria-label="Mobile prep overview">
         <div className="mobile-prep-eyebrow">PRACTICE LAB</div>
         <h2 className="mobile-prep-title">Tailored Questions</h2>
         <p className="mobile-prep-sub">Review the most relevant prompts for this role and choose how you want to practice.</p>
@@ -177,15 +173,19 @@ export function SessionBriefClient({
           <p className="mobile-card-copy">{cleanedSummary}</p>
         </div>
 
-        {questions.map((q) => (
+        {questions.map((q, qi) => (
           <div key={`mobile-${q.id}`} className="mobile-prep-card">
             <div className="mobile-prep-cat">{formatCategoryLabel(q.category)}</div>
             <div className="mobile-q-text">{q.question}</div>
             <div className="mobile-q-actions mobile-q-actions--stack">
-              <Link href={`/sessions/${id}/practice`} className="mobile-btn-primary mobile-btn-practice">
+              <Link
+                href={`/sessions/${id}/practice?q=${qi}`}
+                className="mobile-btn-primary mobile-btn-practice"
+                title="Practice this question only"
+              >
                 Practice
               </Link>
-              <Link href={`/sessions/${id}/evaluation`} className="mobile-btn-ghost">
+              <Link href={`/sessions/${id}/evaluation?q=${qi}&qid=${encodeURIComponent(q.id)}`} className="mobile-btn-ghost">
                 Evaluate
               </Link>
             </div>
@@ -202,7 +202,7 @@ export function SessionBriefClient({
         </div>
       </div>
 
-      <div className="brief-main">
+      <div className="brief-main" role="region" aria-label="Role overview and coaching notes">
         <div className="brief-eyebrow">Role Overview</div>
         <div className="brief-role-head">
           <h2 className="brief-role-name">{sessionTitle || "Role Brief"}</h2>
@@ -217,194 +217,119 @@ export function SessionBriefClient({
           </div>
         </div>
 
-        <button
-          type="button"
-          className="brief-analysis-toggle"
-          aria-expanded={analysisOpen}
-          onClick={() => setAnalysisOpen((o) => !o)}
-        >
-          <span className="brief-analysis-toggle-label">{analysisOpen ? "Hide analysis" : "View analysis"}</span>
-          <span className="brief-analysis-toggle-chevron" aria-hidden>
-            {analysisOpen ? "▼" : "▶"}
-          </span>
-        </button>
-
-        {analysisOpen ? (
-          <>
-            <div className="brief-card brief-card--editable">
-              <div className="brief-card-toolbar">
-                <h3>Role Summary</h3>
-                <div className="brief-card-toolbar-actions">
-                  {!briefEditMode ? (
-                    <button type="button" className="btn-ghost brief-edit-btn" onClick={() => setBriefEditMode(true)}>
-                      Edit
-                    </button>
-                  ) : (
-                    <>
-                      <button type="button" className="btn-ghost brief-edit-btn" onClick={cancelBriefEdit} disabled={saving}>
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-terra brief-save-btn"
-                        onClick={() => void saveBrief()}
-                        disabled={saving || !briefDirty}
-                      >
-                        {saving ? "Saving…" : "Save changes"}
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-              {saveMsg === "ok" ? <p className="brief-save-hint ok">Saved — your brief is updated.</p> : null}
-              {saveMsg === "err" ? <p className="brief-save-hint err">Could not save. Try again.</p> : null}
+        <div className="brief-card brief-card--editable">
+          <div className="brief-card-toolbar">
+            <h3>Role Summary</h3>
+            <div className="brief-card-toolbar-actions">
               {!briefEditMode ? (
-                <>
-                  <div className="brief-summary-readonly">{cleanedSummary}</div>
-                  <div className="callout-grid" style={{ marginTop: 16 }}>
-                    <div className="callout-box callout-box--stack">
-                      <div className="callout-label">↗ Strongest Alignment</div>
-                      <div className="brief-callout-readonly">{align.trim() ? align : "—"}</div>
-                    </div>
-                    <div className="callout-box callout-box--stack">
-                      <div className="callout-label">⚠ Biggest Risk Area</div>
-                      <div className="brief-callout-readonly">{riskField.trim() ? riskField : "—"}</div>
-                    </div>
-                  </div>
-                </>
+                <button type="button" className="btn-ghost brief-edit-btn" onClick={() => setBriefEditMode(true)}>
+                  Edit
+                </button>
               ) : (
                 <>
-                  <textarea className="brief-field-textarea" value={summary} onChange={(e) => setSummary(e.target.value)} rows={6} spellCheck />
-                  <div className="callout-grid" style={{ marginTop: 16 }}>
-                    <div className="callout-box callout-box--stack">
-                      <div className="callout-label">↗ Strongest Alignment</div>
-                      <textarea className="brief-field-textarea brief-field-textarea--sm" value={align} onChange={(e) => setAlign(e.target.value)} rows={3} />
-                    </div>
-                    <div className="callout-box callout-box--stack">
-                      <div className="callout-label">⚠ Biggest Risk Area</div>
-                      <textarea className="brief-field-textarea brief-field-textarea--sm" value={riskField} onChange={(e) => setRiskField(e.target.value)} rows={3} />
-                    </div>
-                  </div>
+                  <button type="button" className="btn-ghost brief-edit-btn" onClick={cancelBriefEdit} disabled={saving}>
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-terra brief-save-btn"
+                    onClick={() => void saveBrief()}
+                    disabled={saving || !briefDirty}
+                  >
+                    {saving ? "Saving…" : "Save changes"}
+                  </button>
                 </>
               )}
             </div>
-
-            <div className="section-label">Top Strengths</div>
-            {strengths.map((s, i) => (
-              <div key={i} className="strength-item">
-                <div className="strength-icon">✓</div>
-                <div>
-                  <div className="strength-title">{s.title}</div>
-                  <div className="strength-desc">{s.desc}</div>
+          </div>
+          {saveMsg === "ok" ? <p className="brief-save-hint ok">Saved — your brief is updated.</p> : null}
+          {saveMsg === "err" ? <p className="brief-save-hint err">Could not save. Try again.</p> : null}
+          {!briefEditMode ? (
+            <>
+              <div className="brief-summary-readonly">{cleanedSummary}</div>
+              <div className="callout-grid" style={{ marginTop: 16 }}>
+                <div className="callout-box callout-box--stack">
+                  <div className="callout-label">↗ Strongest Alignment</div>
+                  <div className="brief-callout-readonly">{align.trim() ? align : "—"}</div>
+                </div>
+                <div className="callout-box callout-box--stack">
+                  <div className="callout-label">⚠ Biggest Risk Area</div>
+                  <div className="brief-callout-readonly">{riskField.trim() ? riskField : "—"}</div>
                 </div>
               </div>
-            ))}
-
-            <div className="section-label" style={{ marginTop: 20 }}>
-              Critical Gaps &amp; Mitigations
-            </div>
-            {gaps.map((g, i) => (
-              <div key={i} className="gap-item">
-                <div className="gap-icon">⚠</div>
-                <div>
-                  <div className="gap-title">{g.title}</div>
-                  <div className="gap-strategy">{g.mitigation}</div>
+            </>
+          ) : (
+            <>
+              <textarea className="brief-field-textarea" value={summary} onChange={(e) => setSummary(e.target.value)} rows={6} spellCheck />
+              <div className="callout-grid" style={{ marginTop: 16 }}>
+                <div className="callout-box callout-box--stack">
+                  <div className="callout-label">↗ Strongest Alignment</div>
+                  <textarea className="brief-field-textarea brief-field-textarea--sm" value={align} onChange={(e) => setAlign(e.target.value)} rows={3} />
+                </div>
+                <div className="callout-box callout-box--stack">
+                  <div className="callout-label">⚠ Biggest Risk Area</div>
+                  <textarea className="brief-field-textarea brief-field-textarea--sm" value={riskField} onChange={(e) => setRiskField(e.target.value)} rows={3} />
                 </div>
               </div>
-            ))}
+            </>
+          )}
+        </div>
 
-            <div className="ai-transparency-banner ai-transparency-banner--footer" role="note" aria-label="AI disclaimer">
-              <div className="ai-transparency-title ai-transparency-title--compact">AI-generated from your documents</div>
-              <p className="ai-transparency-body ai-transparency-body--compact">
-                Gemini read your JD and resume—mistakes happen. Match % is a prep heuristic, not hiring advice. Edit the
-                summary and alignment notes above if they look off.
-              </p>
-              {usedFallback ? (
-                <p className="ai-transparency-warn ai-transparency-warn--compact">Fallback analysis—treat scores as rough.</p>
-              ) : null}
-              {limitations ? (
-                <p className="ai-transparency-meta ai-transparency-meta--clamp" title={limitations}>
-                  <strong>Caveats:</strong> {limitations}
-                </p>
-              ) : null}
-              {evidenceSummary ? (
-                <p className="ai-transparency-meta ai-transparency-meta--clamp" title={evidenceSummary}>
-                  <strong>Grounding:</strong> {evidenceSummary}
-                </p>
-              ) : null}
+        <div className="section-label">Top Strengths</div>
+        {strengths.map((s, i) => (
+          <div key={i} className="strength-item">
+            <div className="strength-icon">✓</div>
+            <div>
+              <div className="strength-title">{s.title}</div>
+              <div className="strength-desc">{s.desc}</div>
             </div>
-          </>
-        ) : null}
-      </div>
+          </div>
+        ))}
 
-      <div className="brief-sidebar">
-        {!focusMode ? (
-          <div className="brief-sidebar-head">
-            <div className="brief-tabs" role="tablist" aria-label="Prep session workspace">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={tab === "prep"}
-                className={`brief-tab${tab === "prep" ? " active" : ""}`}
-                onClick={() => setTab("prep")}
-              >
-                Prep Lab
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={tab === "questions"}
-                className={`brief-tab${tab === "questions" ? " active" : ""}`}
-                onClick={() => setTab("questions")}
-              >
-                Recommended Questions
-              </button>
+        <div className="section-label" style={{ marginTop: 20 }}>
+          Critical Gaps &amp; Mitigations
+        </div>
+        {gaps.map((g, i) => (
+          <div key={i} className="gap-item">
+            <div className="gap-icon">⚠</div>
+            <div>
+              <div className="gap-title">{g.title}</div>
+              <div className="gap-strategy">{g.mitigation}</div>
             </div>
-            <button
-              type="button"
-              className="btn-focus-mode"
-              aria-pressed={focusMode}
-              onClick={() => setFocusMode(true)}
-            >
-              Focus mode
-            </button>
           </div>
-        ) : (
-          <div className="brief-focus-toolbar">
-            <button type="button" className="btn-focus-exit" onClick={() => setFocusMode(false)}>
-              ← Exit focus mode
-            </button>
-          </div>
-        )}
+        ))}
 
-        <div className="brief-prep-lab-body">
-          {visibleQuestions.map((q, i, arr) => {
-            const prev = arr[i - 1];
-            const showCategory = !prev || prev.category !== q.category;
-            return (
-              <Fragment key={q.id}>
-                {showCategory ? (
-                  <div className="prep-category-block">
-                    <h4 className="prep-category-heading">{formatCategoryLabel(q.category)}</h4>
-                  </div>
-                ) : null}
-                <div className={`q-mini${focusMode ? " q-mini--focus" : ""}`}>
-                  <div className="q-mini-text">{q.question}</div>
-                  <div className="q-mini-actions q-mini-actions--stack">
-                    <Link href={`/sessions/${id}/practice`} className="q-mini-btn primary q-mini-btn--practice">
-                      Practice
-                    </Link>
-                    <Link href={`/sessions/${id}/evaluation`} className="q-mini-btn ghost q-mini-btn--evaluate">
-                      Evaluate
-                    </Link>
-                  </div>
-                  {q.insight ? <WhyThisQuestion insight={q.insight} /> : null}
-                </div>
-              </Fragment>
-            );
-          })}
+        <div className="ai-transparency-banner ai-transparency-banner--footer" role="note" aria-label="AI disclaimer">
+          <div className="ai-transparency-title ai-transparency-title--compact">AI-generated from your documents</div>
+          <p className="ai-transparency-body ai-transparency-body--compact">
+            Gemini read your JD and resume—mistakes happen. Match % is a prep heuristic, not hiring advice. Edit the
+            summary and alignment notes above if they look off.
+          </p>
+          {usedFallback ? (
+            <p className="ai-transparency-warn ai-transparency-warn--compact">Fallback analysis—treat scores as rough.</p>
+          ) : null}
+          {limitations ? (
+            <p className="ai-transparency-meta ai-transparency-meta--clamp" title={limitations}>
+              <strong>Caveats:</strong> {limitations}
+            </p>
+          ) : null}
+          {evidenceSummary ? (
+            <p className="ai-transparency-meta ai-transparency-meta--clamp" title={evidenceSummary}>
+              <strong>Grounding:</strong> {evidenceSummary}
+            </p>
+          ) : null}
         </div>
       </div>
+
+      <PrepLabMockInterviews
+        sessionId={id}
+        questions={questions}
+        tab={tab}
+        setTab={setTab}
+        questionsExpanded={questionsExpanded}
+        setQuestionsExpanded={setQuestionsExpanded}
+        visibleQuestions={visibleQuestions}
+      />
     </div>
   );
 }

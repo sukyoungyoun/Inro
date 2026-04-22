@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function OnboardingPage() {
@@ -11,6 +11,9 @@ export default function OnboardingPage() {
   const [industry, setIndustry] = useState("");
   const [level, setLevel] = useState("");
   const [targetStage, setTargetStage] = useState("");
+  const [micGranted, setMicGranted] = useState(false);
+  const [micDenied, setMicDenied] = useState(false);
+  const [requestingMic, setRequestingMic] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -46,6 +49,27 @@ export default function OnboardingPage() {
   function go(nextStep: number) {
     setDir(nextStep > step ? "forward" : "back");
     setStep(nextStep);
+  }
+
+  useEffect(() => {
+    if (localStorage.getItem("inro-mic-permission-granted") === "1") {
+      setMicGranted(true);
+    }
+  }, []);
+
+  async function enableMicOnboarding() {
+    setRequestingMic(true);
+    setMicDenied(false);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      for (const track of stream.getTracks()) track.stop();
+      localStorage.setItem("inro-mic-permission-granted", "1");
+      setMicGranted(true);
+    } catch {
+      setMicDenied(true);
+    } finally {
+      setRequestingMic(false);
+    }
   }
 
   return (
@@ -178,7 +202,7 @@ export default function OnboardingPage() {
                       justifyContent: "flex-start",
                       padding: "12px 14px",
                       borderColor: level === lvl ? "var(--terra)" : "var(--border)",
-                      background: level === lvl ? "var(--terra-bg)" : "white",
+                  background: level === lvl ? "var(--terra-bg)" : "var(--bg-card)",
                       color: level === lvl ? "var(--terra)" : "var(--ink)",
                     }}
                   >
@@ -210,10 +234,40 @@ export default function OnboardingPage() {
                 <option value="HIRING_MANAGER">Technical</option>
                 <option value="FINAL_LOOP">Final Round</option>
               </select>
+              <div
+                style={{
+                  marginTop: 16,
+                  border: "1px solid var(--border)",
+                  borderRadius: 12,
+                  padding: 14,
+                  background: "var(--bg-card)",
+                }}
+              >
+                <div className="section-label" style={{ marginBottom: 8 }}>
+                  Permissions
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                  <span style={{ fontSize: 13, color: "var(--ink2)" }}>Enable microphone once for live mock interviews.</span>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={() => void enableMicOnboarding()}
+                    disabled={requestingMic || micGranted}
+                    style={{ padding: "8px 12px", fontSize: 13 }}
+                  >
+                    {micGranted ? "Microphone enabled" : requestingMic ? "Checking..." : "Enable Microphone"}
+                  </button>
+                </div>
+                {micDenied ? (
+                  <p style={{ marginTop: 8, fontSize: 12, color: "var(--ink3)" }}>
+                    Microphone access was denied. You can still continue and enable it later from practice.
+                  </p>
+                ) : null}
+              </div>
             </div>
           )}
 
-          {error ? <p style={{ color: "#b85450", marginTop: 12, fontSize: 13 }}>{error}</p> : null}
+          {error ? <p style={{ color: "var(--text-secondary)", marginTop: 12, fontSize: 13 }}>{error}</p> : null}
 
           <div style={{ marginTop: 28, display: "flex", justifyContent: "space-between", gap: 10 }}>
             <button type="button" className="btn-ghost" onClick={() => go(Math.max(0, step - 1))} disabled={step === 0 || loading}>

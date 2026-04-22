@@ -42,3 +42,12 @@ export function IconPrefs() {
     </svg>
   );
 }
+
+export function IconPlaybook() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+      <rect x="2" y="2" width="10" height="10" rx="2" />
+      <path d="M6 5.5v3l2.5-1.5L6 5.5Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}

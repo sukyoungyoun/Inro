@@ -40,12 +40,12 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F2EDE8] flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-[10px] bg-white border border-[#E0D8D0] p-8 shadow-[var(--sh)]">
+    <main className="min-h-screen bg-[var(--bg-page)] flex items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-[10px] bg-[var(--bg-card)] border border-[var(--border-default)] p-8 shadow-[var(--sh)]">
         <p className="inro-serif text-[22px] leading-none mb-6">inro</p>
-        <p className="inro-mono text-[10px] tracking-[1.2px] uppercase text-[#9C8E84] mb-3">Account Access</p>
-        <h1 className="text-3xl inro-serif text-[#1C1917] mb-2">Welcome back</h1>
-        <p className="text-sm text-[#5C5248] mb-6">Sign in to continue your prep cycle.</p>
+        <p className="inro-mono text-[10px] tracking-[1.2px] uppercase text-[var(--text-tertiary)] mb-3">Account Access</p>
+        <h1 className="text-3xl inro-serif text-[var(--text-primary)] mb-2">Welcome back</h1>
+        <p className="text-sm text-[var(--text-secondary)] mb-6">Sign in to continue your prep cycle.</p>
 
         <form className="space-y-4" onSubmit={onSubmit}>
           <input
@@ -74,7 +74,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-sm text-[#5C5248] mt-4">
+        <p className="text-sm text-[var(--text-secondary)] mt-4">
           New here?{" "}
           <Link href="/signup" className="underline">
             Create account

@@ -42,12 +42,15 @@ export default async function SessionBriefLoading() {
           <div className="inro-skel brief-skel-line" />
           <div className="inro-skel brief-skel-line short" />
         </div>
-        <div className="brief-sidebar">
+        <aside className="brief-sidebar" aria-label="Loading prep lab" aria-busy="true">
           <div className="inro-skel" style={{ width: 100, height: 10, marginBottom: 16 }} />
           <div className="inro-skel brief-skel-line" />
           <div className="inro-skel brief-skel-line short" style={{ marginBottom: 20 }} />
-          <div className="inro-skel" style={{ height: 88, width: "100%" }} />
-        </div>
+          <div className="mock-q-row-skel" />
+          <div className="mock-q-row-skel" />
+          <div className="mock-q-row-skel" />
+          <div className="mock-q-row-skel" />
+        </aside>
       </div>
     </AppShell>
   );

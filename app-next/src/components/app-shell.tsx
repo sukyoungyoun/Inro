@@ -3,13 +3,16 @@ import { ReactNode } from "react";
 import {
   IconMock,
   IconOverview,
+  IconPlaybook,
   IconPrefs,
   IconPrep,
   IconResume,
 } from "@/components/inro-nav-icons";
+import { SidebarUserBadge } from "@/components/sidebar-user-badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { toFirstNameForSidebar } from "@/lib/user-display-name";
 
-export type AppShellNavKey = "overview" | "prep" | "mock" | "resume" | "prefs";
+export type AppShellNavKey = "overview" | "prep" | "mock" | "resume" | "playbook" | "prefs";
 type MobileTabKey = "home" | "role" | "brief" | "prep";
 
 export function AppShell({
@@ -25,6 +28,7 @@ export function AppShell({
   mobileTab = "home",
   showRoleSwitcher = true,
   contentFill = false,
+  topbarActions,
 }: {
   children: ReactNode;
   crumb: string;
@@ -44,13 +48,15 @@ export function AppShell({
   showRoleSwitcher?: boolean;
   /** Brief / practice / eval: #content gets height chain for full views */
   contentFill?: boolean;
+  /** Optional topbar actions shown before theme toggle */
+  topbarActions?: ReactNode;
 }) {
   const firstName = toFirstNameForSidebar(userName);
   const initial = firstName.charAt(0).toUpperCase() || "U";
 
   return (
     <div id="app">
-      <aside id="sidebar">
+      <aside id="sidebar" aria-label="Application sidebar">
         <div className="logo">inro</div>
         {showRoleSwitcher ? (
           <details className="role-switcher">
@@ -76,7 +82,7 @@ export function AppShell({
           <div style={{ height: 10 }} />
         )}
 
-        <div className="nav-section">
+        <nav className="nav-section" aria-label="Main navigation">
           <NavBtn href="/dashboard" active={active === "overview"} label="Overview">
             <IconOverview />
           </NavBtn>
@@ -86,36 +92,42 @@ export function AppShell({
           <NavBtn href={mockInterviewHref} active={active === "mock"} label="Mock Interviews">
             <IconMock />
           </NavBtn>
-        </div>
+        </nav>
 
-        <div className="nav-section" style={{ marginTop: 0 }}>
+        <nav className="nav-section nav-section--workspace" aria-label="Workspace" style={{ marginTop: 0 }}>
           <div className="nav-label">Workspace</div>
           <NavBtn href="/resume" active={active === "resume"} label="Resume Library">
             <IconResume />
           </NavBtn>
+          <NavBtn href="/playbook" active={active === "playbook"} label="Playbook">
+            <IconPlaybook />
+          </NavBtn>
           <NavBtn href="/preferences" active={active === "prefs"} label="Preferences">
             <IconPrefs />
           </NavBtn>
-        </div>
+        </nav>
 
         <div className="sidebar-footer">
-          <div className="avatar">{initial}</div>
-          <div className="avatar-name">{firstName}</div>
+          <SidebarUserBadge firstName={firstName} initial={initial} />
         </div>
       </aside>
 
       <div id="main">
-        <div id="topbar">
+        <header id="topbar" role="banner">
           <div className="mobile-wordmark" aria-hidden>
             inro
           </div>
-          <div className="breadcrumb">
+          <nav className="breadcrumb" aria-label="Breadcrumb">
             <span>INRO</span> <span aria-hidden>&gt;</span> <span className="breadcrumb-current">{crumb}</span>
+          </nav>
+          <div className="topbar-actions">
+            {topbarActions}
+            <ThemeToggle />
           </div>
-        </div>
-        <div id="content" className={contentFill ? "inro-content-fill" : undefined}>
+        </header>
+        <main id="content" role="main" className={contentFill ? "inro-content-fill" : undefined}>
           {children}
-        </div>
+        </main>
       </div>
       <nav className="mobile-tabbar" aria-label="Mobile navigation">
         <MobileTab href="/dashboard" label="Home" active={mobileTab === "home"}>

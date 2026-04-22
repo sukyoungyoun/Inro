@@ -5,8 +5,15 @@ import { getDisplayNameSourceForUser } from "@/lib/user-display-name";
 import { AppShell } from "@/components/app-shell";
 import { MockInterviewLiveView } from "@/components/mock-interview-live-view";
 
-export default async function PracticePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PracticePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ mode?: string; q?: string }>;
+}) {
   const { id } = await params;
+  const sp = await searchParams;
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
@@ -23,7 +30,9 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
     getDisplayNameSourceForUser(session.user.id, session.user.email),
   ]);
   if (!data) notFound();
-  const q = data.questions[0];
+  const requestedIndex = Math.max(0, Number(sp.q || 0) || 0);
+  const safeIndex = Math.min(requestedIndex, Math.max(0, data.questions.length - 1));
+  const q = data.questions[safeIndex];
   const qCategory = q?.category || "Priority Question";
   const qQuestion = q?.question || "No question found.";
   const qInsight =
@@ -42,7 +51,16 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
       mobileTab="prep"
       contentFill
     >
-      <MockInterviewLiveView sessionId={id} category={qCategory} question={qQuestion} insight={qInsight} />
+      <MockInterviewLiveView
+        sessionId={id}
+        category={qCategory}
+        question={qQuestion}
+        insight={qInsight}
+        initialTextMode={sp.mode === "text"}
+        questionIndex={safeIndex}
+        totalQuestions={data.questions.length}
+        questionId={q?.id ?? ""}
+      />
     </AppShell>
   );
 }

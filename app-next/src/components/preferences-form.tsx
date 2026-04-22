@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 type ProfileData = {
   fullName: string;
@@ -35,6 +35,8 @@ export function PreferencesForm({
   const [n3, setN3] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const initials = useMemo(
     () =>
@@ -47,6 +49,11 @@ export function PreferencesForm({
         .join("") || "U",
     [firstName, lastName]
   );
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("inro-avatar-preview");
+    if (saved) setAvatarPreview(saved);
+  }, []);
 
   function addRole(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key !== "Enter") return;
@@ -80,6 +87,18 @@ export function PreferencesForm({
     setMessage(res.ok ? "Preferences saved." : "Could not save preferences.");
   }
 
+  function onAvatarSelect(file: File | null) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : null;
+      if (!result) return;
+      setAvatarPreview(result);
+      window.localStorage.setItem("inro-avatar-preview", result);
+    };
+    reader.readAsDataURL(file);
+  }
+
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
       <div style={{ flex: 1, overflowY: "auto" }}>
@@ -94,9 +113,29 @@ export function PreferencesForm({
         <div className="prefs-card-sub">Manage your personal details and how you appear on the platform.</div>
 
         <div className="avatar-row">
-          <div className="avatar-lg">{initials}</div>
+          <button
+            type="button"
+            className="avatar-upload-btn"
+            onClick={() => fileInputRef.current?.click()}
+            aria-label="Change profile photo"
+          >
+            <div className="avatar-lg">
+              {avatarPreview ? <img src={avatarPreview} alt="Profile preview" /> : initials}
+              <div className="avatar-overlay" aria-hidden>
+                <span className="avatar-overlay-icon">📷</span>
+                <span className="avatar-overlay-label">Change photo</span>
+              </div>
+            </div>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => onAvatarSelect(e.target.files?.[0] || null)}
+          />
           <div>
-            <button type="button" className="change-img-btn">
+            <button type="button" className="change-img-btn" onClick={() => fileInputRef.current?.click()}>
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
                 <path d="M6.5 9V4M4 6.5l2.5-2.5 2.5 2.5" />
                 <path d="M1 10.5h11" />
@@ -215,14 +254,14 @@ export function PreferencesForm({
         />
 
         <div className="pref-label" style={{ marginTop: 16, marginBottom: 8 }}>
-          Preferred stage
+          Interview focus
         </div>
         <div className="segmented" style={{ marginBottom: 16 }}>
           {[
-            ["PORTFOLIO_REVIEW", "Portfolio Review"],
-            ["RECRUITER_SCREEN", "Initial Screen"],
-            ["HIRING_MANAGER", "Technical"],
-            ["FINAL_LOOP", "Final Round"],
+            ["PORTFOLIO_REVIEW", "Portfolio & case review"],
+            ["RECRUITER_SCREEN", "Recruiter screen"],
+            ["HIRING_MANAGER", "Technical interview"],
+            ["FINAL_LOOP", "Final round & offer"],
           ].map(([value, label]) => (
             <button
               key={value}
