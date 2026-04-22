@@ -85,11 +85,7 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
   const rvRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!loading) {
-      setLoadStep(0);
-      return;
-    }
-    setLoadStep(0);
+    if (!loading) return;
     const id = window.setInterval(() => {
       setLoadStep((s) => Math.min(s + 1, ANALYSIS_PIPELINE.length - 1));
     }, 2200);
@@ -144,32 +140,35 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
             text: "",
             warning:
               reason ||
-              `Could not read the uploaded ${label}. Proceeding with low-confidence filename fallback.`,
+              `Could not read the uploaded ${label}.`,
           };
         }
         return { text: payload.text.trim(), warning: "" };
       }
 
-      let res: Response;
       let normalizedJd = jd.trim();
       let normalizedRv = rv.trim();
-
-      const warnings: string[] = [];
 
       if (!normalizedJd && jdFile) {
         const parsed = await extractViaApi(jdFile, "job description");
         normalizedJd = parsed.text;
-        if (parsed.warning) warnings.push(parsed.warning);
-        if (!normalizedJd) {
-          normalizedJd = `Uploaded JD filename: ${jdFile.name}. Full text extraction failed; infer role context conservatively and highlight uncertainty.`;
+        if (parsed.warning) {
+          setLoading(false);
+          setError(
+            `We couldn't read your uploaded job description (${jdFile.name}). ${parsed.warning} Please paste the JD text or upload a readable PDF/DOCX/TXT.`
+          );
+          return;
         }
       }
       if (!normalizedRv && rvFile) {
         const parsed = await extractViaApi(rvFile, "resume");
         normalizedRv = parsed.text;
-        if (parsed.warning) warnings.push(parsed.warning);
-        if (!normalizedRv) {
-          normalizedRv = `Uploaded resume filename: ${rvFile.name}. Full text extraction failed; analysis should proceed conservatively and call out uncertainty.`;
+        if (parsed.warning) {
+          setLoading(false);
+          setError(
+            `We couldn't read your uploaded resume (${rvFile.name}). ${parsed.warning} Please paste resume text or upload a readable PDF/DOCX/TXT.`
+          );
+          return;
         }
       }
 
@@ -181,35 +180,16 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
         return;
       }
 
-      if (warnings.length > 0) {
-        // Non-blocking warning: analysis can still proceed with filename fallback.
-        setError(warnings.join(" "));
-      }
-
-      if (jdFile || rvFile) {
-        // Always send normalized extracted text so analysis is based on actual readable content.
-        res = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            company,
-            stage,
-            jd: normalizedJd,
-            rv: normalizedRv,
-          }),
-        });
-      } else {
-        res = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            company,
-            stage,
-            jd: normalizedJd,
-            rv: normalizedRv,
-          }),
-        });
-      }
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company,
+          stage,
+          jd: normalizedJd,
+          rv: normalizedRv,
+        }),
+      });
 
       let data: { id?: string; error?: string } = {};
       let rawText = "";
