@@ -7,6 +7,53 @@ export function extractedTextLooksUsable(text: string) {
   return cleaned.length >= 120 && words.length >= 18 && ratio >= 0.35;
 }
 
+async function extractPdfViaGemini(buffer: Buffer): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY not set");
+
+  const base64Data = buffer.toString("base64");
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                inline_data: {
+                  mime_type: "application/pdf",
+                  data: base64Data,
+                },
+              },
+              {
+                text: "Extract all text from this document. Return only the raw extracted text with no commentary, formatting, or markdown. Preserve paragraph breaks with newlines.",
+              },
+            ],
+          },
+        ],
+        generationConfig: { temperature: 0 },
+      }),
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Gemini PDF extraction failed: ${res.status} ${err}`);
+  }
+
+  const data = (await res.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "";
+  if (!text) throw new Error("PdfExtractionFailed");
+  return text;
+}
+
 export async function extractTextFromUploadedFile(file: File): Promise<string> {
   const lower = file.name.toLowerCase();
   const arrayBuffer = await file.arrayBuffer();
@@ -27,43 +74,9 @@ export async function extractTextFromUploadedFile(file: File): Promise<string> {
     return (parsed.value || "").trim();
   }
 
-  // ── PDF ───────────────────────────────────────────────────────────────────
+  // ── PDF → Gemini ──────────────────────────────────────────────────────────
   if (file.type === "application/pdf" || lower.endsWith(".pdf")) {
-    try {
-      // Use pdfjs-dist legacy build — works reliably in Next.js serverless.
-      // We must set the worker src to a no-op because there is no DOM/worker in Node.
-      const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
-
-      // Disable the worker entirely for server-side use
-      (pdfjsLib as { GlobalWorkerOptions?: { workerSrc: string } }).GlobalWorkerOptions!.workerSrc = "";
-
-      const loadingTask = pdfjsLib.getDocument({
-        data: new Uint8Array(buffer),
-        useWorkerFetch: false,
-        isEvalSupported: false,
-        disableWorker: true,       // ← key flag: run in-thread, no worker
-      } as unknown as Parameters<typeof pdfjsLib.getDocument>[0]);
-
-      const doc = await loadingTask.promise;
-      const chunks: string[] = [];
-
-      for (let p = 1; p <= doc.numPages; p++) {
-        const page = await doc.getPage(p);
-        const content = await page.getTextContent();
-        const pageText = (content.items as Array<{ str?: string }>)
-          .map((i) => i.str ?? "")
-          .join(" ")
-          .trim();
-        if (pageText) chunks.push(pageText);
-      }
-
-      const merged = chunks.join("\n").trim();
-      if (merged) return merged;
-    } catch (err) {
-      console.error("[text-extraction] pdfjs failed:", err);
-    }
-
-    throw new Error("PdfExtractionFailed");
+    return await extractPdfViaGemini(buffer);
   }
 
   throw new Error("Unsupported format");
