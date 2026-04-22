@@ -59,12 +59,10 @@ export async function extractTextFromUploadedFile(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  // ── TXT ──────────────────────────────────────────────────────────────────
   if (file.type === "text/plain" || lower.endsWith(".txt")) {
     return buffer.toString("utf-8").trim();
   }
 
-  // ── DOCX ─────────────────────────────────────────────────────────────────
   if (
     file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
     lower.endsWith(".docx")
@@ -74,7 +72,6 @@ export async function extractTextFromUploadedFile(file: File): Promise<string> {
     return (parsed.value || "").trim();
   }
 
-  // ── PDF → Gemini ──────────────────────────────────────────────────────────
   if (file.type === "application/pdf" || lower.endsWith(".pdf")) {
     return await extractPdfViaGemini(buffer);
   }
