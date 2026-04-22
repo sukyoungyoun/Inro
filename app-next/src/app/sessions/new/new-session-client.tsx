@@ -216,9 +216,10 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
         return;
       }
       router.push(`/sessions/${data.id}`);
-    } catch {
+    } catch (err) {
       setLoading(false);
-      setError("Network error while contacting analysis API. Please try again.");
+      const message = err instanceof Error ? err.message.trim() : "";
+      setError(message || "Network error while contacting analysis API. Please try again.");
     }
   }
 
