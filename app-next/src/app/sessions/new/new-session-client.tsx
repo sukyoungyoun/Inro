@@ -128,19 +128,57 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
     setError("");
 
     try {
-      let res: Response;
-      if (jdFile || rvFile) {
+      async function extractViaApi(file: File, label: "job description" | "resume") {
         const fd = new FormData();
-        fd.append("company", company);
-        fd.append("stage", stage);
-        fd.append("jd", jd.trim());
-        fd.append("rv", rv.trim());
-        if (jdFile) fd.append("jdFile", jdFile);
-        if (rvFile) fd.append("rvFile", rvFile);
-        res = await fetch("/api/analyze", { method: "POST", body: fd });
+        fd.append("file", file);
+        const res = await fetch("/api/extract-text", { method: "POST", body: fd });
+        let payload: { text?: string; error?: string } = {};
+        try {
+          payload = (await res.json()) as { text?: string; error?: string };
+        } catch {
+          /* noop */
+        }
+        if (!res.ok || !payload.text?.trim()) {
+          const reason = payload.error || `${res.status} ${res.statusText}`.trim();
+          throw new Error(
+            reason || `Could not read the uploaded ${label}. Paste text directly or upload DOCX/TXT.`
+          );
+        }
+        return payload.text.trim();
+      }
+
+      let res: Response;
+      let normalizedJd = jd.trim();
+      let normalizedRv = rv.trim();
+
+      if (!normalizedJd && jdFile) {
+        normalizedJd = await extractViaApi(jdFile, "job description");
+      }
+      if (!normalizedRv && rvFile) {
+        normalizedRv = await extractViaApi(rvFile, "resume");
+      }
+
+      if (!normalizedJd || !normalizedRv) {
+        setLoading(false);
+        setError(
+          "We still need both JD and resume text. Paste missing text manually, or upload a more readable file."
+        );
+        return;
+      }
+
+      if (jdFile || rvFile) {
+        // Always send normalized extracted text so analysis is based on actual readable content.
+        res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company,
+            stage,
+            jd: normalizedJd,
+            rv: normalizedRv,
+          }),
+        });
       } else {
-        const normalizedJd = jd.trim();
-        const normalizedRv = rv.trim();
         res = await fetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

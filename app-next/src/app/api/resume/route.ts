@@ -1,33 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-
-async function extractTextFromFile(file: File): Promise<string> {
-  const lower = file.name.toLowerCase();
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-
-  if (file.type === "text/plain" || lower.endsWith(".txt")) {
-    return buffer.toString("utf-8").trim();
-  }
-  if (file.type === "application/pdf" || lower.endsWith(".pdf")) {
-    const pdfParseModule = await import("pdf-parse");
-    const pdfParse =
-      (pdfParseModule as unknown as { default?: (b: Buffer) => Promise<{ text?: string }> }).default ||
-      (pdfParseModule as unknown as (b: Buffer) => Promise<{ text?: string }>);
-    const parsed = await pdfParse(buffer);
-    return (parsed?.text || "").trim();
-  }
-  if (
-    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-    lower.endsWith(".docx")
-  ) {
-    const mammoth = await import("mammoth");
-    const parsed = await mammoth.extractRawText({ buffer });
-    return (parsed.value || "").trim();
-  }
-  return "";
-}
+import { extractTextFromUploadedFile } from "@/lib/text-extraction";
 
 export async function PATCH(req: Request) {
   const session = await auth();
@@ -69,7 +43,7 @@ export async function POST(req: Request) {
 
   let resumeText = "";
   try {
-    resumeText = await extractTextFromFile(file);
+    resumeText = await extractTextFromUploadedFile(file);
   } catch {
     resumeText = "";
   }
