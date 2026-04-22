@@ -50,6 +50,7 @@ export function DashboardSessionCard({
   const [savingDetails, setSavingDetails] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [quickSaving, setQuickSaving] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -133,6 +134,18 @@ export function DashboardSessionCard({
     }
   }
 
+  async function quickSetRecruitingOutcome(value: string) {
+    setQuickSaving(true);
+    setMenuOpen(false);
+    try {
+      await patchSession({ recruitingOutcome: value });
+      setOutcome(value);
+      setNotesOpen(true);
+    } finally {
+      setQuickSaving(false);
+    }
+  }
+
   function cancelSessionEdit() {
     setTitleEdit(title);
     setCompanyEdit(company || "");
@@ -177,19 +190,54 @@ export function DashboardSessionCard({
               className="session-menu-trigger"
               aria-expanded={menuOpen}
               aria-haspopup="menu"
-              aria-label="More session actions"
+              aria-label="Session menu: updates and archive"
+              disabled={quickSaving || archiving}
               onClick={(e) => {
                 e.stopPropagation();
                 setMenuOpen((o) => !o);
               }}
             >
-              ⋯
+              <svg className="session-menu-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <circle cx="12" cy="5" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="12" cy="19" r="2" />
+              </svg>
             </button>
             {menuOpen ? (
               <div className="session-menu-dropdown" role="menu">
                 <Link href={`/sessions/${id}`} className="session-menu-item" role="menuitem" onClick={() => setMenuOpen(false)}>
                   Open full brief
                 </Link>
+                <div className="session-menu-sep" role="separator" />
+                <div className="session-menu-section-label">Add update</div>
+                <button
+                  type="button"
+                  className="session-menu-item"
+                  role="menuitem"
+                  disabled={quickSaving}
+                  onClick={() => void quickSetRecruitingOutcome("Offered a job")}
+                >
+                  Offered a job
+                </button>
+                <button
+                  type="button"
+                  className="session-menu-item"
+                  role="menuitem"
+                  disabled={quickSaving}
+                  onClick={() => void quickSetRecruitingOutcome("Rejected")}
+                >
+                  Rejected
+                </button>
+                <div className="session-menu-sep" role="separator" />
+                {archivedAt ? (
+                  <button type="button" className="session-menu-item" role="menuitem" disabled={archiving || quickSaving} onClick={() => void setArchived(false)}>
+                    Unarchive
+                  </button>
+                ) : (
+                  <button type="button" className="session-menu-item" role="menuitem" disabled={archiving || quickSaving} onClick={() => void setArchived(true)}>
+                    Archive session
+                  </button>
+                )}
               </div>
             ) : null}
           </div>
@@ -304,7 +352,7 @@ export function DashboardSessionCard({
               placeholder="e.g. offer, rejected, withdrew, still interviewing"
             />
             <label className="session-outcome-label" htmlFor={`next-${id}`}>
-              Follow-ups &amp; learnings
+              Follow-ups & learnings
             </label>
             <textarea
               id={`next-${id}`}
