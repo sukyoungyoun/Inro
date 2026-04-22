@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getDisplayNameSourceForUser } from "@/lib/user-display-name";
 import { AppShell } from "@/components/app-shell";
+import { MockInterviewHub } from "@/components/mock-interview-hub";
 import { MockInterviewLiveView } from "@/components/mock-interview-live-view";
 
 export default async function PracticePage({
@@ -10,7 +11,7 @@ export default async function PracticePage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ mode?: string; q?: string }>;
+  searchParams: Promise<{ mode?: string; q?: string | string[] }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -30,13 +31,17 @@ export default async function PracticePage({
     getDisplayNameSourceForUser(session.user.id, session.user.email),
   ]);
   if (!data) notFound();
-  const requestedIndex = Math.max(0, Number(sp.q || 0) || 0);
-  const safeIndex = Math.min(requestedIndex, Math.max(0, data.questions.length - 1));
-  const q = data.questions[safeIndex];
-  const qCategory = q?.category || "Priority Question";
-  const qQuestion = q?.question || "No question found.";
-  const qInsight =
-    q?.insight || "Assesses how you structure examples and connect them to the role brief.";
+
+  const qRaw = sp.q;
+  const qParam = Array.isArray(qRaw) ? qRaw[0] : qRaw;
+  const liveMode = qParam !== undefined && qParam !== "";
+
+  const hubQuestions = data.questions.map((row) => ({
+    id: row.id,
+    category: row.category,
+    question: row.question,
+    insight: row.insight ?? null,
+  }));
 
   return (
     <AppShell
@@ -51,16 +56,59 @@ export default async function PracticePage({
       mobileTab="prep"
       contentFill
     >
-      <MockInterviewLiveView
-        sessionId={id}
-        category={qCategory}
-        question={qQuestion}
-        insight={qInsight}
-        initialTextMode={sp.mode === "text"}
-        questionIndex={safeIndex}
-        totalQuestions={data.questions.length}
-        questionId={q?.id ?? ""}
-      />
+      {liveMode ? (
+        <PracticeLive
+          sessionId={id}
+          questions={data.questions}
+          qParam={qParam!}
+          modeText={sp.mode === "text"}
+        />
+      ) : (
+        <MockInterviewHub
+          sessionId={id}
+          roleTitle={data.title}
+          roleCompany={data.company || "Company"}
+          questions={hubQuestions}
+        />
+      )}
     </AppShell>
+  );
+}
+
+function PracticeLive({
+  sessionId,
+  questions,
+  qParam,
+  modeText,
+}: {
+  sessionId: string;
+  questions: {
+    id: string;
+    category: string;
+    question: string;
+    insight: string | null;
+  }[];
+  qParam: string;
+  modeText: boolean;
+}) {
+  const requestedIndex = Math.max(0, Number(qParam) || 0);
+  const safeIndex = Math.min(requestedIndex, Math.max(0, questions.length - 1));
+  const q = questions[safeIndex];
+  const qCategory = q?.category || "Priority Question";
+  const qQuestion = q?.question || "No question found.";
+  const qInsight =
+    q?.insight || "Assesses how you structure examples and connect them to the role brief.";
+
+  return (
+    <MockInterviewLiveView
+      sessionId={sessionId}
+      category={qCategory}
+      question={qQuestion}
+      insight={qInsight}
+      initialTextMode={modeText}
+      questionIndex={safeIndex}
+      totalQuestions={questions.length}
+      questionId={q?.id ?? ""}
+    />
   );
 }

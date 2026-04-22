@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
-  consumeBriefToast,
   groupQuestionsByCategory,
   mapDbQuestionsToMock,
   readMockProgress,
@@ -66,26 +65,15 @@ function QuestionStatusIcon({ status }: { status: MockInterviewQuestion["status"
 
 type Props = {
   sessionId: string;
+  roleTitle: string;
+  roleCompany: string;
   questions: DbQuestionShape[];
-  tab: "prep" | "questions";
-  setTab: (t: "prep" | "questions") => void;
-  questionsExpanded: boolean;
-  setQuestionsExpanded: (v: boolean) => void;
-  visibleQuestions: DbQuestionShape[];
 };
 
-export function PrepLabMockInterviews({
-  sessionId,
-  questions,
-  tab,
-  setTab,
-  questionsExpanded,
-  setQuestionsExpanded,
-  visibleQuestions,
-}: Props) {
+export function MockInterviewHub({ sessionId, roleTitle, roleCompany, questions }: Props) {
   const [progress, setProgress] = useState<Record<string, "pending" | "done" | "skipped">>({});
-  const [toast, setToast] = useState<string | null>(null);
   const [regenBusy, setRegenBusy] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const refreshProgress = useCallback(() => {
     setProgress(readMockProgress(sessionId));
@@ -108,17 +96,7 @@ export function PrepLabMockInterviews({
     };
   }, [refreshProgress]);
 
-  useEffect(() => {
-    if (!consumeBriefToast(sessionId)) return;
-    setToast("Answer saved");
-    refreshProgress();
-    const t = window.setTimeout(() => setToast(null), 2500);
-    return () => window.clearTimeout(t);
-  }, [sessionId, refreshProgress]);
-
   const mockRows = useMemo(() => mapDbQuestionsToMock(questions, progress), [questions, progress]);
-  const visibleMock = useMemo(() => mapDbQuestionsToMock(visibleQuestions, progress), [visibleQuestions, progress]);
-  const groupedVisible = useMemo(() => groupQuestionsByCategory(visibleMock), [visibleMock]);
   const groupedAll = useMemo(() => groupQuestionsByCategory(mockRows), [mockRows]);
 
   const fullByCat = useMemo(() => {
@@ -179,7 +157,7 @@ export function PrepLabMockInterviews({
           <Link
             href={`/sessions/${sessionId}/practice?q=${qIndex}`}
             className="q-mini-btn primary q-mini-btn--practice"
-            title="Practice this question only"
+            title="Practice this question"
           >
             Practice
           </Link>
@@ -229,122 +207,67 @@ export function PrepLabMockInterviews({
   const showEmpty = questions.length === 0;
 
   return (
-    <>
+    <div id="view-mock-hub" className="view mock-interview-hub">
       {toast ? (
         <div className="inro-toast" role="status">
           {toast}
         </div>
       ) : null}
 
-      <aside
-        className="brief-sidebar inro_mock_interviews"
-        role="complementary"
-        aria-label="Mock interviews and prep lab"
-      >
-        <div className="brief-sidebar-head">
-          <div className="brief-tabs" role="tablist" aria-label="Prep session workspace">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === "prep"}
-              className={`brief-tab${tab === "prep" ? " active" : ""}`}
-              onClick={() => setTab("prep")}
-            >
-              Prep Lab
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === "questions"}
-              className={`brief-tab${tab === "questions" ? " active" : ""}`}
-              onClick={() => setTab("questions")}
-            >
-              Recommended Questions
-            </button>
-          </div>
-          <button
-            type="button"
-            className="btn-open-mock"
-            aria-label="Expand prep questions"
-            onClick={() => setQuestionsExpanded(true)}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path d="M4 9V4h5" />
-              <path d="M20 15v5h-5" />
-              <path d="M9 4 4 9" />
-              <path d="M15 20 20 15" />
-              <path d="M15 4h5v5" />
-              <path d="M20 9 15 4" />
-              <path d="M4 15v5h5" />
-              <path d="M9 20 4 15" />
-            </svg>
-          </button>
-        </div>
+      <div className="mock-interview-hub-top">
+        <Link href={`/sessions/${sessionId}`} className="back-btn">
+          ← Back to role brief
+        </Link>
+      </div>
 
-        <div className="prep-lab-start-block">
-          <Link href={`/sessions/${sessionId}/practice`} className="mock-btn prep-start-full-btn">
-            Open mock interview hub →
-          </Link>
-          <p className="prep-start-full-hint">
-            {total > 0
-              ? `See all ${total} tailored questions and pick where to practice`
-              : "Open the hub once questions are generated"}
+      <div className="mock-interview-hub-header">
+        <p className="mock-interview-hub-eyebrow">Tailored to your resume and job description</p>
+        <h1 className="mock-interview-hub-title">Mock interview questions</h1>
+        <p className="mock-interview-hub-role">
+          {roleTitle}
+          {roleCompany ? ` · ${roleCompany}` : ""}
+        </p>
+      </div>
+
+      {showEmpty ? (
+        <div className="prep-empty-state" role="status">
+          <div className="prep-empty-illustration" aria-hidden />
+          <p className="prep-empty-title">No questions yet</p>
+          <p className="prep-empty-copy">
+            Open your role brief and finish analysis so we can generate questions for this prep session.
           </p>
-          <div className="prep-global-progress" aria-label="Overall mock interview progress">
-            <div className="prep-progress-meta">
-              {doneCount} / {total || 0} done
-            </div>
-            <div className="prep-progress-track">
-              <div className="prep-progress-fill" style={{ width: `${globalPct}%` }} />
+          <Link href={`/sessions/${sessionId}`} className="btn-primary prep-empty-cta">
+            Go to role brief
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div className="prep-lab-start-block mock-interview-hub-progress">
+            <p className="prep-start-full-hint">
+              Pick any question to practice with the live recorder, or evaluate a written answer.
+            </p>
+            <div className="prep-global-progress" aria-label="Overall mock interview progress">
+              <div className="prep-progress-meta">
+                {doneCount} / {total} done
+              </div>
+              <div className="prep-progress-track">
+                <div className="prep-progress-fill" style={{ width: `${globalPct}%` }} />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="brief-prep-lab-body">
-          {showEmpty ? (
-            <div className="prep-empty-state" role="status">
-              <div className="prep-empty-illustration" aria-hidden />
-              <p className="prep-empty-title">No questions generated yet</p>
-              <p className="prep-empty-copy">
-                Go to Prep Sessions to analyze your resume and JD — we&apos;ll build tailored questions here.
-              </p>
-              <Link href="/sessions/new" className="btn-primary prep-empty-cta">
-                New prep session
-              </Link>
-            </div>
-          ) : (
-            groupedVisible.map(([category, catQuestions]) => (
+          <div className="brief-prep-lab-body mock-interview-hub-list">
+            {groupedAll.map(([category, catQuestions]) => (
               <Fragment key={category}>
                 {renderCategoryHeader(category)}
                 <ol className="prep-mock-question-list">
                   {catQuestions.map((q) => renderQuestionRow(q))}
                 </ol>
               </Fragment>
-            ))
-          )}
-        </div>
-      </aside>
-
-      {questionsExpanded ? (
-        <div className="prep-questions-overlay" role="dialog" aria-modal="true" aria-label="All recommended prep questions">
-          <div className="prep-questions-overlay-shell">
-            <button type="button" className="prep-questions-close" onClick={() => setQuestionsExpanded(false)}>
-              ← Back to session
-            </button>
-            <h2 className="prep-questions-title">All Recommended Questions</h2>
-            <div className="prep-questions-list">
-              {groupedAll.map(([category, catQuestions]) => (
-                <Fragment key={`overlay-${category}`}>
-                  {renderCategoryHeader(category)}
-                  <ol className="prep-mock-question-list">
-                    {catQuestions.map((q) => renderQuestionRow(q))}
-                  </ol>
-                </Fragment>
-              ))}
-            </div>
+            ))}
           </div>
-        </div>
-      ) : null}
-    </>
+        </>
+      )}
+    </div>
   );
 }

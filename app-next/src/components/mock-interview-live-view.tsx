@@ -315,8 +315,8 @@ export function MockInterviewLiveView({
   return (
     <div id="view-practice" className="view">
       <div className="practice-topbar">
-        <Link href={`/sessions/${sessionId}`} className="back-btn">
-          ← Back to Prep Sessions
+        <Link href={`/sessions/${sessionId}/practice`} className="back-btn">
+          ← All mock questions
         </Link>
       </div>
       {!permissionsReady ? (
@@ -348,7 +348,10 @@ export function MockInterviewLiveView({
                 Microphone access was denied. Check your browser settings to continue.
               </div>
             ) : null}
-            <Link href={`/sessions/${sessionId}/practice?mode=text`} className="practice-without-mic-link">
+            <Link
+              href={`/sessions/${sessionId}/practice?q=${questionIndex}&mode=text`}
+              className="practice-without-mic-link"
+            >
               Continue without mic
             </Link>
           </div>
@@ -467,7 +470,7 @@ export function MockInterviewLiveView({
       </div>
 
       <div className="practice-footer">
-        <Link href={`/sessions/${sessionId}`} className="practice-skip-link">
+        <Link href={`/sessions/${sessionId}/practice`} className="practice-skip-link">
           Skip for Now
         </Link>
         <div className="practice-footer-actions">

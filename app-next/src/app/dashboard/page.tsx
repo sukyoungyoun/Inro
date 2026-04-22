@@ -202,12 +202,17 @@ export default async function DashboardPage({
             <div className="stat-sub">Good volume to compare your role fit across options.</div>
             <div className="metric-delta good">↑ Keep weekly cadence at 2 sessions</div>
           </div>
-          <div className="stat-card">
+          <Link
+            href="/mock-interviews"
+            className="stat-card stat-card--link"
+            aria-label="Open mock interviews"
+          >
             <div className="stat-label">Mock Interviews</div>
             <div className="stat-num">{Math.max(0, activeSessions.length * 3)}</div>
             <div className="stat-sub">Strong practice volume. Focus on specific weak spots next.</div>
             <div className="metric-delta gap">↑ Weak area: quantified outcomes</div>
-          </div>
+            <div className="stat-card-cta">Open practice</div>
+          </Link>
         </div>
 
         <div className="sessions-header">

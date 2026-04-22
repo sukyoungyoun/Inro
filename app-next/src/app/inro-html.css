@@ -159,6 +159,8 @@ body:has(#app) {
 
 /* ─── SIDEBAR ─── */
 #sidebar {
+  position: relative;
+  z-index: 2;
   width: 200px; min-width: 200px;
   background: var(--panel);
   border-right: 1px solid var(--border);
@@ -302,6 +304,31 @@ body:has(#app) {
 
 .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
 .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px; box-shadow: var(--sh); }
+.stat-card--link {
+  display: block;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card--link:hover {
+  border-color: var(--border2);
+  background: var(--bg-elevated);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+.stat-card--link:focus-visible {
+  outline: 2px solid var(--terra);
+  outline-offset: 2px;
+}
+.stat-card-cta {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--terra);
+}
 .stat-num { font-family: var(--serif); font-size: 36px; font-weight: 400; color: var(--green); margin-bottom: 4px; }
 .stat-label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink3); margin-bottom: 8px; }
 .stat-sub { font-size: 12px; color: var(--ink2); line-height: 1.4; }
@@ -1480,6 +1507,50 @@ label.drop-zone {
 }
 .brief-prep-lab-body {
   padding-top: 8px;
+}
+
+/* Full-page mock hub: all tailored questions before picking one to practice */
+.mock-interview-hub {
+  padding: 24px 28px 32px;
+  max-width: 920px;
+}
+.mock-interview-hub-top {
+  margin-bottom: 20px;
+}
+.mock-interview-hub-header {
+  margin-bottom: 24px;
+}
+.mock-interview-hub-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+.mock-interview-hub-title {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+  line-height: 1.15;
+}
+.mock-interview-hub-role {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.mock-interview-hub-progress {
+  margin-bottom: 8px;
+}
+.mock-interview-hub-progress.prep-lab-start-block {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+}
+.mock-interview-hub-list {
+  padding-top: 4px;
 }
 
 /* Mock interview prep lab — question list, progress, a11y-friendly rows */
