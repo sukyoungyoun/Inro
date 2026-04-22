@@ -68,8 +68,20 @@ export function SessionBriefClient({
   const [summary, setSummary] = useState(roleSummary);
   const [align, setAlign] = useState(strongest);
   const [riskField, setRiskField] = useState(risk);
+  const [briefEditMode, setBriefEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<"idle" | "ok" | "err">("idle");
+
+  useEffect(() => {
+    if (!analysisOpen) setBriefEditMode(false);
+  }, [analysisOpen]);
+
+  useEffect(() => {
+    if (briefEditMode) return;
+    setSummary(roleSummary);
+    setAlign(strongest);
+    setRiskField(risk);
+  }, [roleSummary, strongest, risk, briefEditMode]);
 
   useEffect(() => {
     if (saveMsg !== "ok") return;
@@ -86,6 +98,24 @@ export function SessionBriefClient({
     if (tab === "questions") return questions;
     return questions.slice(0, 3);
   }, [tab, questions]);
+
+  const briefDirty = useMemo(() => {
+    const s = summary.trim();
+    const a = align.trim();
+    const r = riskField.trim();
+    const s0 = (roleSummary || "").trim();
+    const a0 = (strongest || "").trim();
+    const r0 = (risk || "").trim();
+    return s !== s0 || a !== a0 || r !== r0;
+  }, [summary, align, riskField, roleSummary, strongest, risk]);
+
+  const cancelBriefEdit = useCallback(() => {
+    setSummary(roleSummary);
+    setAlign(strongest);
+    setRiskField(risk);
+    setBriefEditMode(false);
+    setSaveMsg("idle");
+  }, [roleSummary, strongest, risk]);
 
   const saveBrief = useCallback(async () => {
     setSaving(true);
@@ -105,6 +135,7 @@ export function SessionBriefClient({
         return;
       }
       setSaveMsg("ok");
+      setBriefEditMode(false);
       router.refresh();
     } catch {
       setSaveMsg("err");
@@ -203,23 +234,59 @@ export function SessionBriefClient({
             <div className="brief-card brief-card--editable">
               <div className="brief-card-toolbar">
                 <h3>Role Summary</h3>
-                <button type="button" className="btn-terra brief-save-btn" onClick={() => void saveBrief()} disabled={saving}>
-                  {saving ? "Saving…" : "Save changes"}
-                </button>
+                <div className="brief-card-toolbar-actions">
+                  {!briefEditMode ? (
+                    <button type="button" className="btn-ghost brief-edit-btn" onClick={() => setBriefEditMode(true)}>
+                      Edit
+                    </button>
+                  ) : (
+                    <>
+                      <button type="button" className="btn-ghost brief-edit-btn" onClick={cancelBriefEdit} disabled={saving}>
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-terra brief-save-btn"
+                        onClick={() => void saveBrief()}
+                        disabled={saving || !briefDirty}
+                      >
+                        {saving ? "Saving…" : "Save changes"}
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
               {saveMsg === "ok" ? <p className="brief-save-hint ok">Saved — your brief is updated.</p> : null}
               {saveMsg === "err" ? <p className="brief-save-hint err">Could not save. Try again.</p> : null}
-              <textarea className="brief-field-textarea" value={summary} onChange={(e) => setSummary(e.target.value)} rows={6} spellCheck />
-              <div className="callout-grid" style={{ marginTop: 16 }}>
-                <div className="callout-box callout-box--stack">
-                  <div className="callout-label">↗ Strongest Alignment</div>
-                  <textarea className="brief-field-textarea brief-field-textarea--sm" value={align} onChange={(e) => setAlign(e.target.value)} rows={3} />
-                </div>
-                <div className="callout-box callout-box--stack">
-                  <div className="callout-label">⚠ Biggest Risk Area</div>
-                  <textarea className="brief-field-textarea brief-field-textarea--sm" value={riskField} onChange={(e) => setRiskField(e.target.value)} rows={3} />
-                </div>
-              </div>
+              {!briefEditMode ? (
+                <>
+                  <div className="brief-summary-readonly">{cleanedSummary}</div>
+                  <div className="callout-grid" style={{ marginTop: 16 }}>
+                    <div className="callout-box callout-box--stack">
+                      <div className="callout-label">↗ Strongest Alignment</div>
+                      <div className="brief-callout-readonly">{align.trim() ? align : "—"}</div>
+                    </div>
+                    <div className="callout-box callout-box--stack">
+                      <div className="callout-label">⚠ Biggest Risk Area</div>
+                      <div className="brief-callout-readonly">{riskField.trim() ? riskField : "—"}</div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <textarea className="brief-field-textarea" value={summary} onChange={(e) => setSummary(e.target.value)} rows={6} spellCheck />
+                  <div className="callout-grid" style={{ marginTop: 16 }}>
+                    <div className="callout-box callout-box--stack">
+                      <div className="callout-label">↗ Strongest Alignment</div>
+                      <textarea className="brief-field-textarea brief-field-textarea--sm" value={align} onChange={(e) => setAlign(e.target.value)} rows={3} />
+                    </div>
+                    <div className="callout-box callout-box--stack">
+                      <div className="callout-label">⚠ Biggest Risk Area</div>
+                      <textarea className="brief-field-textarea brief-field-textarea--sm" value={riskField} onChange={(e) => setRiskField(e.target.value)} rows={3} />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="section-label">Top Strengths</div>

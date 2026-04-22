@@ -804,13 +804,51 @@ label.drop-zone {
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
+.brief-card-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
 .brief-card--editable h3 {
   margin: 0;
+}
+.brief-edit-btn {
+  padding: 8px 16px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
 }
 .brief-save-btn {
   flex-shrink: 0;
   padding: 8px 16px !important;
   font-size: 12px !important;
+}
+.brief-save-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.brief-summary-readonly {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink2);
+  white-space: pre-wrap;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  min-height: 120px;
+}
+.brief-callout-readonly {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink2);
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  min-height: 72px;
+  white-space: pre-wrap;
 }
 .brief-save-hint {
   font-size: 12px;
