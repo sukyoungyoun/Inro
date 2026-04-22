@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   groupQuestionsByCategory,
   mapDbQuestionsToMock,
@@ -18,48 +18,23 @@ function formatCategoryLabel(cat: MockInterviewCategory) {
 }
 
 function formatDifficultyLabel(d: MockInterviewQuestion["difficulty"]) {
-  if (d === "hard") return "Hard";
-  if (d === "easy") return "Easy";
-  return "Medium";
+  if (d === "hard") return "HARD";
+  if (d === "easy") return "EASY";
+  return "MEDIUM";
 }
 
-function WhyThisQuestion({ insight }: { insight: string }) {
+function WhyThisQuestionHub({ insight }: { insight: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="q-why-accordion">
-      <button type="button" className="q-why-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-        <span className="q-why-chevron" aria-hidden>
-          {open ? "▼" : "▶"}
+    <div className="mock-hub-why">
+      <button type="button" className="mock-hub-why-link" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        <span className="mock-hub-why-arrow" aria-hidden>
+          {open ? "▾" : "▸"}
         </span>
         Why this question
       </button>
-      {open ? <div className="q-why-body">{insight}</div> : null}
+      {open ? <div className="mock-hub-why-body">{insight}</div> : null}
     </div>
-  );
-}
-
-function QuestionStatusIcon({ status }: { status: MockInterviewQuestion["status"] }) {
-  if (status === "done") {
-    return (
-      <span className="q-status-wrap q-status-wrap--done" aria-label="Completed">
-        <svg className="q-status-svg" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-          <path
-            d="M2.5 7.2 5.2 10 11.5 3.8"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
-    );
-  }
-  return (
-    <span className="q-status-wrap q-status-wrap--pending" aria-label="Not completed">
-      <svg className="q-status-svg" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-        <circle cx="7" cy="7" r="5.25" stroke="currentColor" strokeWidth="1.4" />
-      </svg>
-    </span>
   );
 }
 
@@ -137,38 +112,33 @@ export function MockInterviewHub({ sessionId, roleTitle, roleCompany, questions 
   function renderQuestionRow(q: MockInterviewQuestion) {
     const qIndex = globalIndexById.get(q.id) ?? 0;
     return (
-      <li key={q.id} className="q-mini prep-mock-row">
-        <div className="prep-mock-row-head">
-          <QuestionStatusIcon status={q.status} />
-          <div className="q-difficulty" aria-hidden>
-            {formatDifficultyLabel(q.difficulty)}
+      <li key={q.id} className="mock-hub-card">
+        <div className="mock-hub-card-meta">
+          <span className="mock-hub-diff">{formatDifficultyLabel(q.difficulty)}</span>
+          <span className="mock-hub-duration">{q.duration}</span>
+        </div>
+        <p className="mock-hub-q-text">{q.text}</p>
+        {q.tags.length > 0 ? (
+          <div className="mock-hub-tag-row">
+            {q.tags.map((tag) => (
+              <span key={tag} className="mock-hub-meta-tag">
+                {tag}
+              </span>
+            ))}
           </div>
-          <span className="q-duration">{q.duration}</span>
-        </div>
-        <div className="q-mini-text">{q.text}</div>
-        <div className="q-tag-row">
-          {q.tags.map((tag) => (
-            <span key={tag} className="q-meta-tag">
-              {tag}
-            </span>
-          ))}
-        </div>
-        <div className="q-mini-actions q-mini-actions--stack">
-          <Link
-            href={`/sessions/${sessionId}/practice?q=${qIndex}`}
-            className="q-mini-btn primary q-mini-btn--practice"
-            title="Practice this question"
-          >
+        ) : null}
+        <div className="mock-hub-actions">
+          <Link href={`/sessions/${sessionId}/practice?q=${qIndex}`} className="mock-hub-btn-practice">
             Practice
           </Link>
           <Link
             href={`/sessions/${sessionId}/evaluation?q=${qIndex}&qid=${encodeURIComponent(q.id)}`}
-            className="q-mini-btn ghost q-mini-btn--evaluate"
+            className="mock-hub-btn-evaluate"
           >
             Evaluate
           </Link>
         </div>
-        {q.insight ? <WhyThisQuestion insight={q.insight} /> : null}
+        {q.insight ? <WhyThisQuestionHub insight={q.insight} /> : null}
       </li>
     );
   }
@@ -179,28 +149,28 @@ export function MockInterviewHub({ sessionId, roleTitle, roleCompany, questions 
     const catTotal = catFull.length;
     const catPct = catTotal ? Math.round((catDone / catTotal) * 100) : 0;
     return (
-      <div className="prep-category-block">
-        <div className="prep-category-header-row">
-          <h4 className="prep-category-heading">
+      <header className="mock-hub-cat-header">
+        <div className="mock-hub-cat-header-main">
+          <h2 className="mock-hub-cat-title">
             {formatCategoryLabel(category)}{" "}
-            <span className="prep-category-count">
+            <span className="mock-hub-cat-count">
               ({catTotal}) · {catDone} / {catTotal} done
             </span>
-          </h4>
-          <button
-            type="button"
-            className="prep-category-overflow"
-            aria-label={`More actions for ${formatCategoryLabel(category)}`}
-            disabled={Boolean(regenBusy)}
-            onClick={() => void onRegenerateCategory(category)}
-          >
-            {regenBusy === category ? "…" : "⋯"}
-          </button>
+          </h2>
+          <div className="mock-hub-cat-track" aria-hidden>
+            <div className="mock-hub-cat-fill" style={{ width: `${catPct}%` }} />
+          </div>
         </div>
-        <div className="prep-cat-progress-track" aria-hidden>
-          <div className="prep-cat-progress-fill" style={{ width: `${catPct}%` }} />
-        </div>
-      </div>
+        <button
+          type="button"
+          className="mock-hub-cat-overflow"
+          aria-label={`More actions for ${formatCategoryLabel(category)}`}
+          disabled={Boolean(regenBusy)}
+          onClick={() => void onRegenerateCategory(category)}
+        >
+          {regenBusy === category ? "…" : "⋯"}
+        </button>
+      </header>
     );
   }
 
@@ -220,13 +190,20 @@ export function MockInterviewHub({ sessionId, roleTitle, roleCompany, questions 
         </Link>
       </div>
 
-      <div className="mock-interview-hub-header">
-        <p className="mock-interview-hub-eyebrow">Tailored to your resume and job description</p>
-        <h1 className="mock-interview-hub-title">Mock interview questions</h1>
-        <p className="mock-interview-hub-role">
-          {roleTitle}
-          {roleCompany ? ` · ${roleCompany}` : ""}
-        </p>
+      <div className="mock-interview-hub-header-row">
+        <div className="mock-interview-hub-header-main">
+          <p className="mock-interview-hub-eyebrow">Tailored to your resume and job description</p>
+          <h1 className="mock-interview-hub-title">Mock interview questions</h1>
+          <p className="mock-interview-hub-role">
+            {roleTitle}
+            {roleCompany ? ` · ${roleCompany}` : ""}
+          </p>
+        </div>
+        {!showEmpty ? (
+          <Link href={`/sessions/${sessionId}/practice?q=0`} className="mock-hub-btn-practice mock-hub-start-full">
+            Start full session
+          </Link>
+        ) : null}
       </div>
 
       {showEmpty ? (
@@ -242,28 +219,26 @@ export function MockInterviewHub({ sessionId, roleTitle, roleCompany, questions 
         </div>
       ) : (
         <>
-          <div className="prep-lab-start-block mock-interview-hub-progress">
-            <p className="prep-start-full-hint">
+          <div className="mock-hub-progress-block">
+            <p className="mock-hub-hint">
               Pick any question to practice with the live recorder, or evaluate a written answer.
             </p>
-            <div className="prep-global-progress" aria-label="Overall mock interview progress">
-              <div className="prep-progress-meta">
+            <div className="mock-hub-progress-meta-row">
+              <span className="mock-hub-progress-count">
                 {doneCount} / {total} done
-              </div>
-              <div className="prep-progress-track">
-                <div className="prep-progress-fill" style={{ width: `${globalPct}%` }} />
+              </span>
+              <div className="mock-hub-global-track" aria-hidden>
+                <div className="mock-hub-global-fill" style={{ width: `${globalPct}%` }} />
               </div>
             </div>
           </div>
 
-          <div className="brief-prep-lab-body mock-interview-hub-list">
+          <div className="mock-interview-hub-list">
             {groupedAll.map(([category, catQuestions]) => (
-              <Fragment key={category}>
+              <section className="mock-hub-cat-section" key={category}>
                 {renderCategoryHeader(category)}
-                <ol className="prep-mock-question-list">
-                  {catQuestions.map((q) => renderQuestionRow(q))}
-                </ol>
-              </Fragment>
+                <ol className="mock-hub-q-list">{catQuestions.map((q) => renderQuestionRow(q))}</ol>
+              </section>
             ))}
           </div>
         </>
