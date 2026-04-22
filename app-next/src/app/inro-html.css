@@ -1417,6 +1417,65 @@ label.drop-zone {
 .brief-ai-disclosure-toggle:hover {
   color: var(--text-secondary);
 }
+.brief-skip-to-prep {
+  display: none;
+  margin: 0 0 18px;
+  font-family: var(--ui);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink2);
+}
+.brief-skip-to-prep-link {
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.brief-skip-to-prep-link:hover {
+  color: var(--ink2);
+}
+.brief-skip-to-prep-hint {
+  font-weight: 400;
+  color: var(--ink3);
+}
+#prep-lab-panel {
+  scroll-margin-top: 88px;
+}
+@media (max-width: 900px) {
+  #view-brief {
+    grid-template-columns: 1fr;
+  }
+  .brief-main {
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .brief-skip-to-prep {
+    display: block;
+  }
+  .prep-lab-sidebar {
+    position: relative;
+    padding-top: 28px;
+    margin-top: 4px;
+    border-top: 2px solid var(--border);
+    border-radius: 14px 14px 0 0;
+    background: linear-gradient(180deg, rgba(246, 234, 227, 0.45) 0%, transparent 72px);
+  }
+  :is([data-theme="dark"], .dark) .prep-lab-sidebar {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 72px);
+    border-top-color: var(--border2);
+  }
+  .prep-lab-sidebar::before {
+    content: "Practice workspace";
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin: 0 0 14px;
+  }
+}
 .brief-ai-disclosure-panel {
   margin-top: 8px;
   padding: 10px 0 2px;
@@ -3613,8 +3672,6 @@ body, p { font-size: 14px; color: var(--ink-secondary); }
   }
   .sidebar-footer { display: none; }
   #main { min-height: 0; }
-  #view-brief { grid-template-columns: 1fr; }
-  .brief-main { border-right: none; border-bottom: 1px solid var(--border-soft); }
   .upload-grid, .context-grid, .prep-style-grid, .name-grid, .tailored-grid, .stats-grid, .sessions-grid { grid-template-columns: 1fr; }
   .segmented { grid-template-columns: 1fr 1fr; }
   .overview-header, .rl-header { flex-direction: column; gap: 16px; }
@@ -3879,8 +3936,16 @@ html, body {
     padding: 28px !important;
   }
   .overview-header h1, .setup-title { font-size: 34px !important; }
-  #view-brief { grid-template-columns: 1fr !important; }
-  .brief-main { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+}
+
+@media (max-width: 900px) {
+  #view-brief {
+    grid-template-columns: 1fr !important;
+  }
+  .brief-main {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
 }
 
 @media (max-width: 820px) {

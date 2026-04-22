@@ -248,6 +248,13 @@ export function SessionBriefClient({
           </div>
         </div>
 
+        <p className="brief-skip-to-prep">
+          <a href="#prep-lab-panel" className="brief-skip-to-prep-link">
+            Skip to Prep Lab
+          </a>
+          <span className="brief-skip-to-prep-hint"> — tailored questions &amp; practice</span>
+        </p>
+
         <section className="brief-summary-plain" aria-labelledby="brief-summary-heading">
           <div className="brief-summary-plain-head">
             <h3 id="brief-summary-heading" className="brief-summary-plain-label">

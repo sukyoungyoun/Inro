@@ -204,6 +204,7 @@ export function PrepLabMockInterviews({
       ) : null}
 
       <aside
+        id="prep-lab-panel"
         className="brief-sidebar inro_mock_interviews prep-lab-sidebar"
         role="complementary"
         aria-label="Mock interviews and prep lab"
