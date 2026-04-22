@@ -13,7 +13,7 @@ This is the production scaffold for your end-to-end AI interview prep app:
 - Next.js (App Router, TypeScript)
 - NextAuth (credentials auth)
 - Prisma + Postgres
-- Gemini API (`gemini-2.5-flash`)
+- Gemini API (`gemini-2.5-flash-lite`)
 
 ## 1) Environment variables
 
