@@ -2,11 +2,35 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 
 type Q = { id: string; category: string; question: string; insight: string | null };
 type S = { title: string; desc: string };
 type G = { title: string; mitigation: string };
+
+const MATCH_SCORE_HELP =
+  "Match % compares your resume to the job description (skills, scope, and language). It is a practice hint only—not hiring advice or a prediction of outcomes.";
+
+function formatCategoryLabel(raw: string) {
+  const t = (raw || "").trim();
+  if (!t) return "QUESTIONS";
+  return t.toUpperCase();
+}
+
+function WhyThisQuestion({ insight }: { insight: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="q-why-accordion">
+      <button type="button" className="q-why-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        <span className="q-why-chevron" aria-hidden>
+          {open ? "▼" : "▶"}
+        </span>
+        Why this question
+      </button>
+      {open ? <div className="q-why-body">{insight}</div> : null}
+    </div>
+  );
+}
 
 export function SessionBriefClient({
   id,
@@ -39,6 +63,8 @@ export function SessionBriefClient({
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<"prep" | "questions">("prep");
+  const [focusMode, setFocusMode] = useState(false);
+  const [analysisOpen, setAnalysisOpen] = useState(false);
   const [summary, setSummary] = useState(roleSummary);
   const [align, setAlign] = useState(strongest);
   const [riskField, setRiskField] = useState(risk);
@@ -55,6 +81,11 @@ export function SessionBriefClient({
     () => summary.replace(/generated in fallback mode[\s\S]*/gi, "").trim() || "No summary yet.",
     [summary]
   );
+
+  const visibleQuestions = useMemo(() => {
+    if (tab === "questions") return questions;
+    return questions.slice(0, 3);
+  }, [tab, questions]);
 
   const saveBrief = useCallback(async () => {
     setSaving(true);
@@ -83,7 +114,7 @@ export function SessionBriefClient({
   }, [id, summary, align, riskField, router]);
 
   return (
-    <div id="view-brief" className="view">
+    <div id="view-brief" className={`view${focusMode ? " brief--focus-mode" : ""}`}>
       <div className="mobile-prep-view">
         <div className="mobile-prep-eyebrow">PRACTICE LAB</div>
         <h2 className="mobile-prep-title">Tailored Questions</h2>
@@ -101,29 +132,33 @@ export function SessionBriefClient({
         </div>
 
         <div className="mobile-prep-card">
+          <div className="mobile-card-label">ROLE</div>
+          <p className="mobile-prep-role-title">{sessionTitle || "Role Brief"}</p>
+          {company ? <p className="mobile-prep-role-co">{company}</p> : null}
+          <p className="mobile-match-pill" title={MATCH_SCORE_HELP}>
+            {score}% match
+          </p>
+          <p className="mobile-match-hint">Based on resume vs. JD alignment.</p>
+        </div>
+
+        <div className="mobile-prep-card">
           <div className="mobile-card-label">ROLE SUMMARY</div>
           <p className="mobile-card-copy">{cleanedSummary}</p>
         </div>
 
-        {questions.map((q, idx) => (
+        {questions.map((q) => (
           <div key={`mobile-${q.id}`} className="mobile-prep-card">
-            <div className="mobile-card-label">PRIORITY QUESTION</div>
+            <div className="mobile-prep-cat">{formatCategoryLabel(q.category)}</div>
             <div className="mobile-q-text">{q.question}</div>
-            {q.insight ? (
-              <div className="mobile-q-insight">
-                <strong>Insight:</strong> {q.insight}
-              </div>
-            ) : null}
-            {idx === 0 ? (
-              <div className="mobile-q-actions">
-                <Link href={`/sessions/${id}/practice`} className="mobile-btn-primary">
-                  Practice
-                </Link>
-                <button type="button" className="mobile-btn-ghost">
-                  Write draft
-                </button>
-              </div>
-            ) : null}
+            <div className="mobile-q-actions mobile-q-actions--stack">
+              <Link href={`/sessions/${id}/practice`} className="mobile-btn-primary mobile-btn-practice">
+                Practice
+              </Link>
+              <Link href={`/sessions/${id}/evaluation`} className="mobile-btn-ghost">
+                Evaluate
+              </Link>
+            </div>
+            {q.insight ? <WhyThisQuestion insight={q.insight} /> : null}
           </div>
         ))}
 
@@ -138,111 +173,170 @@ export function SessionBriefClient({
 
       <div className="brief-main">
         <div className="brief-eyebrow">Role Overview</div>
-        <div className="brief-role-row">
-          <div>
-            <div className="brief-role-name">{sessionTitle || "Role Brief"}</div>
-            {company ? <div className="brief-meta">{company}</div> : null}
-          </div>
-          <div className="score-box">
-            <div className="score-num" style={{ display: "inline-flex", alignItems: "baseline", gap: 6 }}>
-              {score}
-              <span className="score-unit">%</span>
-            </div>
-            <div className="score-label">ROLE MATCH SCORE</div>
+        <div className="brief-role-head">
+          <h2 className="brief-role-name">{sessionTitle || "Role Brief"}</h2>
+          {company ? <div className="brief-meta brief-meta--tight">{company}</div> : null}
+          <div className="brief-match-row">
+            <span className="brief-match-pill" title={MATCH_SCORE_HELP}>
+              {score}% match
+            </span>
+            <span className="brief-match-hint" role="note">
+              Based on resume vs. JD alignment.
+            </span>
           </div>
         </div>
 
-        <div className="brief-card brief-card--editable">
-          <div className="brief-card-toolbar">
-            <h3>Role Summary</h3>
-            <button type="button" className="btn-terra brief-save-btn" onClick={() => void saveBrief()} disabled={saving}>
-              {saving ? "Saving…" : "Save changes"}
+        <button
+          type="button"
+          className="brief-analysis-toggle"
+          aria-expanded={analysisOpen}
+          onClick={() => setAnalysisOpen((o) => !o)}
+        >
+          <span className="brief-analysis-toggle-label">{analysisOpen ? "Hide analysis" : "View analysis"}</span>
+          <span className="brief-analysis-toggle-chevron" aria-hidden>
+            {analysisOpen ? "▼" : "▶"}
+          </span>
+        </button>
+
+        {analysisOpen ? (
+          <>
+            <div className="brief-card brief-card--editable">
+              <div className="brief-card-toolbar">
+                <h3>Role Summary</h3>
+                <button type="button" className="btn-terra brief-save-btn" onClick={() => void saveBrief()} disabled={saving}>
+                  {saving ? "Saving…" : "Save changes"}
+                </button>
+              </div>
+              {saveMsg === "ok" ? <p className="brief-save-hint ok">Saved — your brief is updated.</p> : null}
+              {saveMsg === "err" ? <p className="brief-save-hint err">Could not save. Try again.</p> : null}
+              <textarea className="brief-field-textarea" value={summary} onChange={(e) => setSummary(e.target.value)} rows={6} spellCheck />
+              <div className="callout-grid" style={{ marginTop: 16 }}>
+                <div className="callout-box callout-box--stack">
+                  <div className="callout-label">↗ Strongest Alignment</div>
+                  <textarea className="brief-field-textarea brief-field-textarea--sm" value={align} onChange={(e) => setAlign(e.target.value)} rows={3} />
+                </div>
+                <div className="callout-box callout-box--stack">
+                  <div className="callout-label">⚠ Biggest Risk Area</div>
+                  <textarea className="brief-field-textarea brief-field-textarea--sm" value={riskField} onChange={(e) => setRiskField(e.target.value)} rows={3} />
+                </div>
+              </div>
+            </div>
+
+            <div className="section-label">Top Strengths</div>
+            {strengths.map((s, i) => (
+              <div key={i} className="strength-item">
+                <div className="strength-icon">✓</div>
+                <div>
+                  <div className="strength-title">{s.title}</div>
+                  <div className="strength-desc">{s.desc}</div>
+                </div>
+              </div>
+            ))}
+
+            <div className="section-label" style={{ marginTop: 20 }}>
+              Critical Gaps &amp; Mitigations
+            </div>
+            {gaps.map((g, i) => (
+              <div key={i} className="gap-item">
+                <div className="gap-icon">⚠</div>
+                <div>
+                  <div className="gap-title">{g.title}</div>
+                  <div className="gap-strategy">{g.mitigation}</div>
+                </div>
+              </div>
+            ))}
+
+            <div className="ai-transparency-banner ai-transparency-banner--footer" role="note" aria-label="AI disclaimer">
+              <div className="ai-transparency-title ai-transparency-title--compact">AI-generated from your documents</div>
+              <p className="ai-transparency-body ai-transparency-body--compact">
+                Gemini read your JD and resume—mistakes happen. Match % is a prep heuristic, not hiring advice. Edit the
+                summary and alignment notes above if they look off.
+              </p>
+              {usedFallback ? (
+                <p className="ai-transparency-warn ai-transparency-warn--compact">Fallback analysis—treat scores as rough.</p>
+              ) : null}
+              {limitations ? (
+                <p className="ai-transparency-meta ai-transparency-meta--clamp" title={limitations}>
+                  <strong>Caveats:</strong> {limitations}
+                </p>
+              ) : null}
+              {evidenceSummary ? (
+                <p className="ai-transparency-meta ai-transparency-meta--clamp" title={evidenceSummary}>
+                  <strong>Grounding:</strong> {evidenceSummary}
+                </p>
+              ) : null}
+            </div>
+          </>
+        ) : null}
+      </div>
+
+      <div className="brief-sidebar">
+        {!focusMode ? (
+          <div className="brief-sidebar-head">
+            <div className="brief-tabs" role="tablist" aria-label="Prep session workspace">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={tab === "prep"}
+                className={`brief-tab${tab === "prep" ? " active" : ""}`}
+                onClick={() => setTab("prep")}
+              >
+                Prep Lab
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={tab === "questions"}
+                className={`brief-tab${tab === "questions" ? " active" : ""}`}
+                onClick={() => setTab("questions")}
+              >
+                Recommended Questions
+              </button>
+            </div>
+            <button
+              type="button"
+              className="btn-focus-mode"
+              aria-pressed={focusMode}
+              onClick={() => setFocusMode(true)}
+            >
+              Focus mode
             </button>
           </div>
-          {saveMsg === "ok" ? <p className="brief-save-hint ok">Saved — your brief is updated.</p> : null}
-          {saveMsg === "err" ? <p className="brief-save-hint err">Could not save. Try again.</p> : null}
-          <textarea className="brief-field-textarea" value={summary} onChange={(e) => setSummary(e.target.value)} rows={6} spellCheck />
-          <div className="callout-grid" style={{ marginTop: 16 }}>
-            <div className="callout-box callout-box--stack">
-              <div className="callout-label">↗ Strongest Alignment</div>
-              <textarea className="brief-field-textarea brief-field-textarea--sm" value={align} onChange={(e) => setAlign(e.target.value)} rows={3} />
-            </div>
-            <div className="callout-box callout-box--stack">
-              <div className="callout-label">⚠ Biggest Risk Area</div>
-              <textarea className="brief-field-textarea brief-field-textarea--sm" value={riskField} onChange={(e) => setRiskField(e.target.value)} rows={3} />
-            </div>
+        ) : (
+          <div className="brief-focus-toolbar">
+            <button type="button" className="btn-focus-exit" onClick={() => setFocusMode(false)}>
+              ← Exit focus mode
+            </button>
           </div>
-        </div>
+        )}
 
-        <div className="section-label">Top Strengths</div>
-        {strengths.map((s, i) => (
-          <div key={i} className="strength-item">
-            <div className="strength-icon">✓</div>
-            <div>
-              <div className="strength-title">{s.title}</div>
-              <div className="strength-desc">{s.desc}</div>
-            </div>
-          </div>
-        ))}
-
-        <div className="section-label" style={{ marginTop: 20 }}>
-          Critical Gaps &amp; Mitigations
+        <div className="brief-prep-lab-body">
+          {visibleQuestions.map((q, i, arr) => {
+            const prev = arr[i - 1];
+            const showCategory = !prev || prev.category !== q.category;
+            return (
+              <Fragment key={q.id}>
+                {showCategory ? (
+                  <div className="prep-category-block">
+                    <h4 className="prep-category-heading">{formatCategoryLabel(q.category)}</h4>
+                  </div>
+                ) : null}
+                <div className={`q-mini${focusMode ? " q-mini--focus" : ""}`}>
+                  <div className="q-mini-text">{q.question}</div>
+                  <div className="q-mini-actions q-mini-actions--stack">
+                    <Link href={`/sessions/${id}/practice`} className="q-mini-btn primary q-mini-btn--practice">
+                      Practice
+                    </Link>
+                    <Link href={`/sessions/${id}/evaluation`} className="q-mini-btn ghost q-mini-btn--evaluate">
+                      Evaluate
+                    </Link>
+                  </div>
+                  {q.insight ? <WhyThisQuestion insight={q.insight} /> : null}
+                </div>
+              </Fragment>
+            );
+          })}
         </div>
-        {gaps.map((g, i) => (
-          <div key={i} className="gap-item">
-            <div className="gap-icon">⚠</div>
-            <div>
-              <div className="gap-title">{g.title}</div>
-              <div className="gap-strategy">{g.mitigation}</div>
-            </div>
-          </div>
-        ))}
-
-        <div className="ai-transparency-banner ai-transparency-banner--footer" role="note" aria-label="AI disclaimer">
-          <div className="ai-transparency-title ai-transparency-title--compact">AI-generated from your documents</div>
-          <p className="ai-transparency-body ai-transparency-body--compact">
-            Gemini read your JD and resume—mistakes happen. Match % is a prep heuristic, not hiring advice. Edit the
-            summary and alignment notes above if they look off.
-          </p>
-          {usedFallback ? (
-            <p className="ai-transparency-warn ai-transparency-warn--compact">Fallback analysis—treat scores as rough.</p>
-          ) : null}
-          {limitations ? (
-            <p className="ai-transparency-meta ai-transparency-meta--clamp" title={limitations}>
-              <strong>Caveats:</strong> {limitations}
-            </p>
-          ) : null}
-          {evidenceSummary ? (
-            <p className="ai-transparency-meta ai-transparency-meta--clamp" title={evidenceSummary}>
-              <strong>Grounding:</strong> {evidenceSummary}
-            </p>
-          ) : null}
-        </div>
-      </div>
-      <div className="brief-sidebar">
-        <div className="brief-tabs">
-          <button type="button" className={`brief-tab${tab === "prep" ? " active" : ""}`} onClick={() => setTab("prep")}>
-            Prep Lab
-          </button>
-          <button type="button" className={`brief-tab${tab === "questions" ? " active" : ""}`} onClick={() => setTab("questions")}>
-            Recommended Questions
-          </button>
-        </div>
-        {(tab === "questions" ? questions : questions.slice(0, 3)).map((q) => (
-          <div key={q.id} className="q-mini">
-            <div className="q-mini-tag">{q.category}</div>
-            <div className="q-mini-text">{q.question}</div>
-            {q.insight ? <div className="q-mini-insight">{q.insight}</div> : null}
-            <div className="q-mini-actions">
-              <Link href={`/sessions/${id}/practice`} className="q-mini-btn primary">
-                Practice
-              </Link>
-              <Link href={`/sessions/${id}/evaluation`} className="q-mini-btn ghost">
-                Evaluate
-              </Link>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
