@@ -178,7 +178,16 @@ async function extractTextFromFile(file: File): Promise<string> {
     const parsed = await mammoth.extractRawText({ buffer });
     return (parsed.value || "").trim();
   }
-  return "";
+  throw new Error("Unsupported format");
+}
+
+function extractedTextLooksUsable(text: string) {
+  const cleaned = text.replace(/\s+/g, " ").trim();
+  if (!cleaned) return false;
+  const words = cleaned.split(" ").filter(Boolean);
+  const alphaChars = cleaned.replace(/[^A-Za-z]/g, "").length;
+  const ratio = alphaChars / Math.max(1, cleaned.length);
+  return cleaned.length >= 220 && words.length >= 35 && ratio >= 0.45;
 }
 
 export async function POST(req: Request) {
@@ -210,21 +219,51 @@ export async function POST(req: Request) {
       if (!jd && jdFile instanceof File) {
         try {
           jd = await extractTextFromFile(jdFile);
-        } catch {
-          jd = "";
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "";
+          return NextResponse.json(
+            {
+              error:
+                msg === "Unsupported format"
+                  ? "Job description upload must be PDF, DOCX, or TXT."
+                  : "Could not read the uploaded job description file. Try DOCX/TXT, or paste text directly.",
+            },
+            { status: 400 }
+          );
         }
-        if (!jd) {
-          jd = `Uploaded Job Description file: ${jdFile.name}. Text extraction was unavailable, so analysis should infer likely role context from filename and other provided fields.`;
+        if (!extractedTextLooksUsable(jd)) {
+          return NextResponse.json(
+            {
+              error:
+                "We could not extract enough readable text from the uploaded job description. Try DOCX/TXT, or paste the JD text directly for better results.",
+            },
+            { status: 400 }
+          );
         }
       }
       if (!rv && rvFile instanceof File) {
         try {
           rv = await extractTextFromFile(rvFile);
-        } catch {
-          rv = "";
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "";
+          return NextResponse.json(
+            {
+              error:
+                msg === "Unsupported format"
+                  ? "Resume upload must be PDF, DOCX, or TXT."
+                  : "Could not read the uploaded resume file. Try DOCX/TXT, or paste text directly.",
+            },
+            { status: 400 }
+          );
         }
-        if (!rv) {
-          rv = `Uploaded Resume file: ${rvFile.name}. Text extraction was unavailable, so analysis should proceed with conservative assumptions and highlight uncertainty.`;
+        if (!extractedTextLooksUsable(rv)) {
+          return NextResponse.json(
+            {
+              error:
+                "We could not extract enough readable text from the uploaded resume. Try DOCX/TXT, or paste your resume text directly.",
+            },
+            { status: 400 }
+          );
         }
       }
     } else {
