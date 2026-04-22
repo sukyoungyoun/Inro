@@ -1,3 +1,4 @@
 .DS_Store
-.vercel
 .env*.local
+# Vercel CLI at repo root only; linked app lives in app-next/.vercel/
+/.vercel

@@ -33,8 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# vercel
-.vercel
+# vercel (commit project.json for CI deploy; ignore local CLI auth)
+.vercel/*
+!.vercel/project.json
 
 # typescript
 *.tsbuildinfo
