@@ -34,6 +34,7 @@ export default async function SessionBriefLoading() {
       contentFill
     >
       <div id="view-brief" className="view" aria-busy="true" aria-label="Loading role brief">
+        <div className="brief-split">
         <div className="brief-main">
           <div className="inro-skel" style={{ width: 120, height: 10, marginBottom: 14 }} />
           <div className="inro-skel" style={{ width: "min(520px, 90%)", height: 34, marginBottom: 12 }} />
@@ -51,6 +52,7 @@ export default async function SessionBriefLoading() {
           <div className="mock-q-row-skel" />
           <div className="mock-q-row-skel" />
         </aside>
+        </div>
       </div>
     </AppShell>
   );

@@ -159,22 +159,23 @@ body:has(#app) {
   flex-direction: column;
   overflow: hidden;
 }
-/* Session brief is a two-pane grid, not a flex column (flex would stack brief + Prep Lab). */
+/* Session brief: outer #view-brief is a column flex shell (mobile block + split panes). */
 #content.inro-content-fill > #view-brief.view,
 #content.inro-content-fill > #view-brief {
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
-  grid-template-rows: minmax(0, 1fr);
-  align-content: stretch;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
-#content.inro-content-fill > #view-brief.brief--focus-mode {
+#content.inro-content-fill > #view-brief.brief--focus-mode .brief-split {
   grid-template-columns: 1fr;
 }
 #content.inro-content-fill:has(#view-brief) {
   overflow-y: hidden;
 }
-#view-brief > .brief-main,
-#view-brief > aside.brief-sidebar {
+.brief-split > .brief-main,
+.brief-split > aside.brief-sidebar {
   min-height: 0;
 }
 #content.inro-content-fill > .view.mock-interview-hub {
@@ -1342,13 +1343,24 @@ label.drop-zone {
 
 /* ─── BRIEF ─── */
 #view-brief {
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
-  gap: 0;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  gap: 0;
+}
+.brief-split {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
+  grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
 }
-#view-brief.brief--focus-mode {
+#view-brief.brief--focus-mode .brief-split {
   grid-template-columns: 1fr;
 }
 #view-brief.brief--focus-mode .brief-main {
@@ -3422,11 +3434,6 @@ body, p, .setup-sub, .brief-summary-text, .strength-desc, .gap-strategy, .coachi
 .module-segment.done { background: var(--success); }
 .match-badge.accent { background: var(--accent-light); color: var(--accent); }
 
-#view-brief {
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
-  gap: 0;
-}
 .brief-main { border-right: 1px solid var(--border); }
 .brief-tabs {
   display: flex;
@@ -3730,20 +3737,31 @@ html, body {
 }
 #content.inro-content-fill > #view-brief.view,
 #content.inro-content-fill > #view-brief {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr) !important;
-  grid-template-rows: minmax(0, 1fr) !important;
-  align-content: stretch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
 }
-#content.inro-content-fill > #view-brief.brief--focus-mode {
+#content.inro-content-fill > #view-brief.brief--focus-mode .brief-split {
   grid-template-columns: 1fr !important;
 }
 #content.inro-content-fill:has(#view-brief) {
   overflow-y: hidden !important;
 }
-#view-brief > .brief-main,
-#view-brief > aside.brief-sidebar {
+.brief-split > .brief-main,
+.brief-split > aside.brief-sidebar {
   min-height: 0 !important;
+}
+.brief-split {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  overflow: hidden !important;
 }
 
 #content.inro-content-fill > .view.mock-interview-hub {
@@ -3882,13 +3900,6 @@ html, body {
   color: var(--ink3) !important;
 }
 
-#view-brief {
-  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr) !important;
-  gap: 0 !important;
-}
-#view-brief.brief--focus-mode {
-  grid-template-columns: 1fr !important;
-}
 #view-brief.brief--focus-mode .brief-main {
   display: none !important;
 }
@@ -3989,8 +4000,7 @@ html, body {
     padding: 0 !important;
     max-width: none !important;
   }
-  #view-brief .brief-main,
-  #view-brief .brief-sidebar {
+  #view-brief .brief-split {
     display: none !important;
   }
   .mobile-prep-view {
@@ -4300,8 +4310,7 @@ html, body {
     display: block !important;
     padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
   }
-  #view-brief .brief-main,
-  #view-brief .brief-sidebar {
+  #view-brief .brief-split {
     display: none !important;
   }
 

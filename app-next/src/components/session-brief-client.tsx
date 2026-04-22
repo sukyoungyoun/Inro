@@ -203,6 +203,7 @@ export function SessionBriefClient({
         </div>
       </div>
 
+      <div className="brief-split">
       <div className="brief-main" role="region" aria-label="Role overview and coaching notes">
         <div className="brief-eyebrow">Role Overview</div>
         <div className="brief-role-head">
@@ -370,6 +371,7 @@ export function SessionBriefClient({
         setQuestionsExpanded={setQuestionsExpanded}
         visibleQuestions={visibleQuestions}
       />
+      </div>
     </div>
   );
 }
