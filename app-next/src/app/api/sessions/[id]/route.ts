@@ -15,6 +15,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     archived?: boolean;
     recruitingOutcome?: string | null;
     recruitingNextSteps?: string | null;
+    prepFeedback?: string | null;
     title?: string;
     company?: string | null;
   };
@@ -29,6 +30,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     archivedAt?: Date | null;
     recruitingOutcome?: string | null;
     recruitingNextSteps?: string | null;
+    prepFeedback?: string | null;
     title?: string;
     company?: string | null;
   } = {};
@@ -43,6 +45,10 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   if (body.recruitingNextSteps !== undefined) {
     const v = body.recruitingNextSteps == null ? null : String(body.recruitingNextSteps).trim();
     data.recruitingNextSteps = v || null;
+  }
+  if (body.prepFeedback !== undefined) {
+    const v = body.prepFeedback == null ? null : String(body.prepFeedback).trim();
+    data.prepFeedback = v || null;
   }
   if (body.title !== undefined) {
     const v = String(body.title || "").trim();
@@ -60,6 +66,26 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     where: { id },
     data,
   });
+
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await ctx.params;
+  if (!id) return NextResponse.json({ error: "Session id required." }, { status: 400 });
+
+  const owned = await prisma.prepSession.findFirst({
+    where: { id, userId: session.user.id },
+    select: { id: true },
+  });
+  if (!owned) return NextResponse.json({ error: "Session not found." }, { status: 404 });
+
+  await prisma.prepSession.delete({ where: { id } });
 
   return NextResponse.json({ ok: true });
 }

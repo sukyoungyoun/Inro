@@ -21,6 +21,7 @@ export function DashboardSessionCard({
   archivedAtIso,
   recruitingOutcome: initialOutcome,
   recruitingNextSteps: initialNext,
+  prepFeedback: initialPrepFeedback,
   timeLabel,
 }: {
   id: string;
@@ -30,6 +31,7 @@ export function DashboardSessionCard({
   archivedAtIso: string | null;
   recruitingOutcome: string | null;
   recruitingNextSteps: string | null;
+  prepFeedback: string | null;
   timeLabel: string;
 }) {
   const archivedAt = archivedAtIso ? new Date(archivedAtIso) : null;
@@ -38,18 +40,28 @@ export function DashboardSessionCard({
   const [sessionEditOpen, setSessionEditOpen] = useState(false);
   const [titleEdit, setTitleEdit] = useState(title);
   const [companyEdit, setCompanyEdit] = useState(company || "");
-  const [outcomeOpen, setOutcomeOpen] = useState(Boolean(initialOutcome || initialNext));
+  const [notesOpen, setNotesOpen] = useState(
+    Boolean(initialPrepFeedback?.trim() || initialOutcome || initialNext)
+  );
+  const [prepFeedback, setPrepFeedback] = useState(initialPrepFeedback || "");
   const [outcome, setOutcome] = useState(initialOutcome || "");
   const [nextSteps, setNextSteps] = useState(initialNext || "");
-  const [saving, setSaving] = useState(false);
+  const [savingNotes, setSavingNotes] = useState(false);
   const [savingDetails, setSavingDetails] = useState(false);
   const [archiving, setArchiving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setTitleEdit(title);
     setCompanyEdit(company || "");
   }, [title, company]);
+
+  useEffect(() => {
+    setPrepFeedback(initialPrepFeedback || "");
+    setOutcome(initialOutcome || "");
+    setNextSteps(initialNext || "");
+  }, [initialPrepFeedback, initialOutcome, initialNext]);
 
   const score = matchScore ?? 0;
   const badgeLabel = `${score}% match`;
@@ -79,15 +91,35 @@ export function DashboardSessionCard({
     router.refresh();
   }
 
-  async function saveOutcome() {
-    setSaving(true);
+  async function saveNotesAndFeedback() {
+    setSavingNotes(true);
     try {
       await patchSession({
+        prepFeedback: prepFeedback.trim() || null,
         recruitingOutcome: outcome.trim() || null,
         recruitingNextSteps: nextSteps.trim() || null,
       });
     } finally {
-      setSaving(false);
+      setSavingNotes(false);
+    }
+  }
+
+  async function deleteSession() {
+    if (
+      !window.confirm(
+        "Permanently delete this prep session? Your brief, analysis, and practice data for this role will be removed. This cannot be undone."
+      )
+    ) {
+      return;
+    }
+    setDeleting(true);
+    setMenuOpen(false);
+    try {
+      const res = await fetch(`/api/sessions/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("delete failed");
+      router.refresh();
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -158,15 +190,6 @@ export function DashboardSessionCard({
                 <Link href={`/sessions/${id}`} className="session-menu-item" role="menuitem" onClick={() => setMenuOpen(false)}>
                   Open full brief
                 </Link>
-                {archivedAt ? (
-                  <button type="button" className="session-menu-item" role="menuitem" disabled={archiving} onClick={() => void setArchived(false)}>
-                    Unarchive
-                  </button>
-                ) : (
-                  <button type="button" className="session-menu-item" role="menuitem" disabled={archiving} onClick={() => void setArchived(true)}>
-                    Archive
-                  </button>
-                )}
               </div>
             ) : null}
           </div>
@@ -235,35 +258,64 @@ export function DashboardSessionCard({
         Best next step: open your brief and run a targeted practice block on your highest-impact gap.
       </div>
 
-      <div className="session-outcome-block">
-        <button type="button" className="session-outcome-toggle" onClick={() => setOutcomeOpen((o) => !o)}>
-          {outcomeOpen ? "▼" : "▶"} After recruiting: outcome &amp; next steps
+      <div className="session-manage-row" aria-label="Session actions">
+        {!archivedAt ? (
+          <button type="button" className="session-manage-link" disabled={archiving} onClick={() => void setArchived(true)}>
+            {archiving ? "Archiving…" : "Archive session"}
+          </button>
+        ) : (
+          <button type="button" className="session-manage-link" disabled={archiving} onClick={() => void setArchived(false)}>
+            {archiving ? "Restoring…" : "Unarchive"}
+          </button>
+        )}
+        <span className="session-manage-sep" aria-hidden>
+          ·
+        </span>
+        <button type="button" className="session-manage-link session-manage-danger" disabled={deleting} onClick={() => void deleteSession()}>
+          {deleting ? "Deleting…" : "Delete"}
         </button>
-        {outcomeOpen ? (
+      </div>
+
+      <div className="session-outcome-block">
+        <button type="button" className="session-outcome-toggle" onClick={() => setNotesOpen((o) => !o)}>
+          {notesOpen ? "▼" : "▶"} Feedback & notes
+        </button>
+        {notesOpen ? (
           <div className="session-outcome-fields">
+            <label className="session-outcome-label" htmlFor={`feedback-${id}`}>
+              Feedback on this prep
+            </label>
+            <textarea
+              id={`feedback-${id}`}
+              className="session-outcome-textarea"
+              value={prepFeedback}
+              onChange={(e) => setPrepFeedback(e.target.value)}
+              placeholder="What is working, what feels stuck, or ideas for this practice block…"
+              rows={3}
+            />
             <label className="session-outcome-label" htmlFor={`outcome-${id}`}>
-              Result (e.g. offer, rejected, withdrew)
+              Recruiting result (optional)
             </label>
             <input
               id={`outcome-${id}`}
               className="session-outcome-input"
               value={outcome}
               onChange={(e) => setOutcome(e.target.value)}
-              placeholder="How did recruiting end?"
+              placeholder="e.g. offer, rejected, withdrew, still interviewing"
             />
             <label className="session-outcome-label" htmlFor={`next-${id}`}>
-              Notes &amp; follow-ups
+              Follow-ups &amp; learnings
             </label>
             <textarea
               id={`next-${id}`}
               className="session-outcome-textarea"
               value={nextSteps}
               onChange={(e) => setNextSteps(e.target.value)}
-              placeholder="Next steps, learnings, or links you want to remember…"
+              placeholder="Next steps, takeaways, or links to remember…"
               rows={3}
             />
-            <button type="button" className="session-outcome-save" onClick={() => void saveOutcome()} disabled={saving}>
-              {saving ? "Saving…" : "Save outcome notes"}
+            <button type="button" className="session-outcome-save" onClick={() => void saveNotesAndFeedback()} disabled={savingNotes}>
+              {savingNotes ? "Saving…" : "Save feedback & notes"}
             </button>
           </div>
         ) : null}

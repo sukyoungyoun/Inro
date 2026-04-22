@@ -148,7 +148,7 @@ export default async function DashboardPage({
               <div className="session-role">{showArchived ? "No archived sessions" : "No sessions yet"}</div>
               <div className="session-company">
                 {showArchived
-                  ? "Archive a session from the ⋯ menu on an active card."
+                  ? "Archive a session using Archive session on an active prep card."
                   : "Start your first prep session to see your readiness score."}
               </div>
               {!showArchived ? (
@@ -168,6 +168,7 @@ export default async function DashboardPage({
                 archivedAtIso={s.archivedAt?.toISOString() ?? null}
                 recruitingOutcome={s.recruitingOutcome}
                 recruitingNextSteps={s.recruitingNextSteps}
+                prepFeedback={s.prepFeedback}
                 timeLabel={formatSessionTime(s.createdAt)}
               />
             ))

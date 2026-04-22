@@ -67,6 +67,8 @@ model PrepSession {
   recruitingOutcome   String?
   /** Longer notes: next steps, learnings, follow-ups after recruiting. */
   recruitingNextSteps String? @db.Text
+  /** How prep is going, self-coaching notes, or product feedback tied to this session. */
+  prepFeedback        String? @db.Text
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
