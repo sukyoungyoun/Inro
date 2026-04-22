@@ -1826,6 +1826,43 @@ label.drop-zone {
 
 /* ─── PRACTICE (LIVE) ─── */
 #view-practice { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+
+.mock-interviews-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  min-height: min(560px, 70vh);
+}
+.mock-interviews-empty-inner {
+  max-width: 440px;
+  text-align: center;
+}
+.mock-interviews-empty-title {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+.mock-interviews-empty-copy {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink2);
+  margin: 0 0 24px;
+}
+.mock-interviews-empty-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+.mock-interviews-empty-actions .btn-primary,
+.mock-interviews-empty-actions .btn-ghost {
+  justify-content: center;
+  min-height: 44px;
+}
 .practice-topbar { padding: 16px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .back-btn { background: none; border: none; cursor: pointer; color: var(--ink2); font-size: 13px; display: flex; align-items: center; gap: 5px; font-family: var(--ui); padding: 0; border-radius: 6px; }
 .back-btn:hover { color: var(--ink); }

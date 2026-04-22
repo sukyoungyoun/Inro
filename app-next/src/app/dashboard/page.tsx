@@ -149,7 +149,7 @@ export default async function DashboardPage({
 
   const first = activeSessions[0];
   const prepHref = first ? `/sessions/${first.id}` : "/sessions/new";
-  const mockInterviewHref = first ? `/sessions/${first.id}/practice` : "/sessions/new";
+  const mockInterviewHref = "/mock-interviews";
   const displayName = toFirstNameForSidebar(profile.fullName || session.user.email || "");
   const weakest = avgScore < 65 ? "specificity gap" : "systems examples";
 

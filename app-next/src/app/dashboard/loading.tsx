@@ -17,7 +17,7 @@ export default async function DashboardLoading() {
     }),
   ]);
   const prepHref = first ? `/sessions/${first.id}` : "/sessions/new";
-  const mockInterviewHref = first ? `/sessions/${first.id}/practice` : "/sessions/new";
+  const mockInterviewHref = "/mock-interviews";
 
   return (
     <AppShell

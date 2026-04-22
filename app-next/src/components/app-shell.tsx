@@ -23,7 +23,7 @@ export function AppShell({
   roleTitle = "Role",
   roleCompany = "Company",
   prepHref = "/sessions/new",
-  mockInterviewHref = "/sessions/new",
+  mockInterviewHref = "/mock-interviews",
   briefHref = "/sessions/new",
   mobileTab = "home",
   showRoleSwitcher = true,

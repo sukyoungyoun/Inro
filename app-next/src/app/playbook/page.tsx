@@ -99,7 +99,7 @@ export default async function PlaybookPage() {
       showRoleSwitcher={false}
       prepHref={latestSession ? `/sessions/${latestSession.id}` : "/sessions/new"}
       briefHref={latestSession ? `/sessions/${latestSession.id}` : "/sessions/new"}
-      mockInterviewHref={latestSession ? `/sessions/${latestSession.id}/practice` : "/sessions/new"}
+      mockInterviewHref="/mock-interviews"
       mobileTab="home"
     >
       <PlaybookClient

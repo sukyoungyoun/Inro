@@ -31,7 +31,7 @@ export default async function ResumeLibraryPage() {
   const primary = sessions[0];
   const first = sessions[0];
   const prepHref = first ? `/sessions/${first.id}` : "/sessions/new";
-  const mockInterviewHref = first ? `/sessions/${first.id}/practice` : "/sessions/new";
+  const mockInterviewHref = "/mock-interviews";
 
   return (
     <AppShell

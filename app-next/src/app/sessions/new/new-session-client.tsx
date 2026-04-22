@@ -229,7 +229,7 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
       roleCompany={company.trim() || "Company"}
       prepHref="/sessions/new"
       briefHref="/sessions/new"
-      mockInterviewHref="/sessions/new"
+      mockInterviewHref="/mock-interviews"
       mobileTab="role"
     >
       <div id="view-setup" className="view">
