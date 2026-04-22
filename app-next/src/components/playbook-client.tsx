@@ -116,7 +116,7 @@ export function PlaybookClient({
   targetRole: string;
   readinessScore: number;
 }) {
-  const cacheKey = `playbook_v2_${userId}_${weakestModule}`;
+  const cacheKey = `playbook_v4_ai_${userId}_${weakestModule}_${readinessScore}`;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [data, setData] = useState<PlaybookResponse | null>(null);
