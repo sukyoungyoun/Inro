@@ -84,20 +84,6 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
   const jdRef = useRef<HTMLInputElement>(null);
   const rvRef = useRef<HTMLInputElement>(null);
 
-  function normalizeErrorMessage(raw: string) {
-    const text = (raw || "").replace(/\s+/g, " ").trim();
-    if (!text) return "";
-    const pieces = text
-      .split(/(?<=[.!?])\s+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-    const unique: string[] = [];
-    for (const part of pieces) {
-      if (!unique.includes(part)) unique.push(part);
-    }
-    return unique.join(" ");
-  }
-
   useEffect(() => {
     if (!loading) return;
     const id = window.setInterval(() => {
@@ -120,11 +106,30 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
     setFile(file);
     setName(file.name);
     setError("");
-    // Server-side extraction happens on submit to avoid client runtime parser issues.
     clearText();
     if (!file.name.toLowerCase().match(/\.(pdf|docx|txt)$/)) {
       setError(`Unsupported ${label} format. Please upload PDF, DOCX, or TXT.`);
     }
+  }
+
+  // Calls /api/extract-text and returns the extracted string, or throws with a user-friendly message
+  async function extractFile(file: File, label: "job description" | "resume"): Promise<string> {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/extract-text", { method: "POST", body: fd });
+    let payload: { text?: string; error?: string } = {};
+    try {
+      payload = (await res.json()) as { text?: string; error?: string };
+    } catch {
+      /* noop */
+    }
+    if (!res.ok || !payload.text?.trim()) {
+      const reason = payload.error || `${res.status} ${res.statusText}`.trim();
+      throw new Error(
+        reason || `Could not read the uploaded ${label}. Please paste the text instead.`
+      );
+    }
+    return payload.text.trim();
   }
 
   async function onSubmit(e: FormEvent) {
@@ -138,37 +143,51 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
     setError("");
 
     try {
-      const normalizedJd = jd.trim();
-      const normalizedRv = rv.trim();
+      let normalizedJd = jd.trim();
+      let normalizedRv = rv.trim();
 
-      let res: Response;
-      if (jdFile || rvFile) {
-        const fd = new FormData();
-        fd.append("company", company);
-        fd.append("stage", stage);
-        fd.append("jd", normalizedJd);
-        fd.append("rv", normalizedRv);
-        if (jdFile) fd.append("jdFile", jdFile);
-        if (rvFile) fd.append("rvFile", rvFile);
-        res = await fetch("/api/analyze", { method: "POST", body: fd });
-      } else {
-        if (!normalizedJd || !normalizedRv) {
-          setError(
-            "We still need both JD and resume text. Paste missing text manually, or upload a readable file."
-          );
+      // Step 1 — extract JD from file if no pasted text
+      if (!normalizedJd && jdFile) {
+        try {
+          normalizedJd = await extractFile(jdFile, "job description");
+        } catch (err) {
+          setLoading(false);
+          setError(err instanceof Error ? err.message : `Could not read JD file (${jdFile.name}). Please paste the text.`);
           return;
         }
-        res = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            company,
-            stage,
-            jd: normalizedJd,
-            rv: normalizedRv,
-          }),
-        });
       }
+
+      // Step 2 — extract resume from file if no pasted text
+      if (!normalizedRv && rvFile) {
+        try {
+          normalizedRv = await extractFile(rvFile, "resume");
+        } catch (err) {
+          setLoading(false);
+          setError(err instanceof Error ? err.message : `Could not read resume file (${rvFile.name}). Please paste the text.`);
+          return;
+        }
+      }
+
+      // Final guard
+      if (!normalizedJd || !normalizedRv) {
+        setLoading(false);
+        setError(
+          "We still need both JD and resume text. Paste missing text manually, or upload a readable file."
+        );
+        return;
+      }
+
+      // Step 3 — send extracted text to /api/analyze
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company,
+          stage,
+          jd: normalizedJd,
+          rv: normalizedRv,
+        }),
+      });
 
       let data: { id?: string; error?: string } = {};
       let rawText = "";
@@ -181,6 +200,7 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
 
       setLoadStep(ANALYSIS_PIPELINE.length - 1);
       setLoading(false);
+
       if (!res.ok) {
         const explicit =
           data.error ||
