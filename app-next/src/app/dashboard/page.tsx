@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/app-shell";
 import { SignOutButton } from "@/components/sign-out-button";
 import { toFirstNameForSidebar } from "@/lib/user-display-name";
+import { DashboardSessionCard } from "@/components/dashboard-session-card";
 
 function formatSessionTime(d: Date) {
   const diff = Date.now() - d.getTime();
@@ -25,29 +26,48 @@ function cleanRoleTitle(raw: string) {
     .trim();
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ archived?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const [profile, sessions] = await Promise.all([
+  const sp = await searchParams;
+  const showArchived = sp.archived === "1";
+
+  const [profile, activeSessions, archivedSessions, archivedCount] = await Promise.all([
     prisma.userProfile.findUnique({ where: { userId: session.user.id } }),
     prisma.prepSession.findMany({
-      where: { userId: session.user.id },
+      where: { userId: session.user.id, archivedAt: null },
       orderBy: { createdAt: "desc" },
       take: 8,
+    }),
+    showArchived
+      ? prisma.prepSession.findMany({
+          where: { userId: session.user.id, archivedAt: { not: null } },
+          orderBy: { archivedAt: "desc" },
+          take: 20,
+        })
+      : Promise.resolve([]),
+    prisma.prepSession.count({
+      where: { userId: session.user.id, archivedAt: { not: null } },
     }),
   ]);
 
   if (!profile || profile.targetRoles.length === 0) redirect("/onboarding");
 
+  const listSessions = showArchived ? archivedSessions : activeSessions.slice(0, 3);
+
   const avgScore =
-    sessions.length > 0
+    activeSessions.length > 0
       ? Math.round(
-          sessions.reduce((sum, s) => sum + (s.matchScore ?? 0), 0) / sessions.length
+          activeSessions.reduce((sum, s) => sum + (s.matchScore ?? 0), 0) / activeSessions.length
         )
       : 0;
 
-  const first = sessions[0];
+  const first = activeSessions[0];
   const prepHref = first ? `/sessions/${first.id}` : "/sessions/new";
   const mockInterviewHref = first ? `/sessions/${first.id}/practice` : "/sessions/new";
   const displayName = toFirstNameForSidebar(profile.fullName || session.user.email || "");
@@ -69,8 +89,9 @@ export default async function DashboardPage() {
           <div>
             <h1>Welcome back, {displayName}</h1>
             <p>
-              You have {sessions.length} prep session{sessions.length === 1 ? "" : "s"} on record. Continue
-              where you left off or start a new role brief.
+              You have {activeSessions.length} active prep session{activeSessions.length === 1 ? "" : "s"}
+              {archivedCount > 0 ? ` (${archivedCount} archived)` : ""}. Continue where you left off or start a new role
+              brief.
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -95,84 +116,61 @@ export default async function DashboardPage() {
           </div>
           <div className="stat-card">
             <div className="stat-label">Active Preps</div>
-            <div className="stat-num">{sessions.length}</div>
+            <div className="stat-num">{activeSessions.length}</div>
             <div className="stat-sub">Good volume to compare your role fit across options.</div>
             <div className="metric-delta good">↑ Keep weekly cadence at 2 sessions</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Mock Interviews</div>
-            <div className="stat-num">{Math.max(0, sessions.length * 3)}</div>
+            <div className="stat-num">{Math.max(0, activeSessions.length * 3)}</div>
             <div className="stat-sub">Strong practice volume. Focus on specific weak spots next.</div>
             <div className="metric-delta gap">↑ Weak area: quantified outcomes</div>
           </div>
         </div>
 
         <div className="sessions-header">
-          <h3>Recent Sessions</h3>
-          <button type="button" className="view-all">
-            View All
-          </button>
+          <h3>{showArchived ? "Archived Sessions" : "Recent Sessions"}</h3>
+          <div className="sessions-header-links">
+            {archivedCount > 0 ? (
+              <Link href={showArchived ? "/dashboard" : "/dashboard?archived=1"} className="view-all">
+                {showArchived ? "Back to active" : `Archived (${archivedCount})`}
+              </Link>
+            ) : null}
+          </div>
         </div>
         <div className="sessions-grid">
-          {sessions.length === 0 ? (
+          {listSessions.length === 0 ? (
             <div className="inro-empty-state">
               <svg width="88" height="56" viewBox="0 0 88 56" fill="none" aria-hidden>
                 <rect x="1" y="1" width="86" height="54" rx="10" stroke="var(--border2)" />
                 <path d="M16 38h56M16 30h40M16 22h26" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              <div className="session-role">No sessions yet</div>
-              <div className="session-company">Start your first prep session to see your readiness score.</div>
-              <Link href="/sessions/new" className="btn-primary">
-                New Prep Session
-              </Link>
+              <div className="session-role">{showArchived ? "No archived sessions" : "No sessions yet"}</div>
+              <div className="session-company">
+                {showArchived
+                  ? "Archive a session from the ⋯ menu on an active card."
+                  : "Start your first prep session to see your readiness score."}
+              </div>
+              {!showArchived ? (
+                <Link href="/sessions/new" className="btn-primary">
+                  New Prep Session
+                </Link>
+              ) : null}
             </div>
           ) : (
-            sessions.slice(0, 3).map((s) => {
-              const score = s.matchScore ?? 0;
-              const badgeLabel = `${score}% match`;
-              const status =
-                score >= 78
-                  ? { cls: "strong", label: "Strong Fit" }
-                  : score >= 65
-                    ? { cls: "review", label: "Needs Review" }
-                    : { cls: "bench", label: "Benchmark" };
-              return (
-                <Link key={s.id} href={`/sessions/${s.id}`} className="session-card">
-                  <div className="session-card-top">
-                    <div className="session-role">{cleanRoleTitle(s.title)}</div>
-                    <div className="session-time">{formatSessionTime(s.createdAt)}</div>
-                  </div>
-                  <div className="session-company">
-                    <strong>Role:</strong> {cleanRoleTitle(s.title)}
-                  </div>
-                  <div className="session-company" style={{ marginTop: -6 }}>
-                    <strong>Company:</strong> {s.company || "Not set"}
-                  </div>
-                  <div className="match-row">
-                    <div className="match-badge accent">{badgeLabel}</div>
-                    <div className="match-bar">
-                      <div
-                        className={`match-fill${score < 78 ? " mid" : ""}`}
-                        style={{ width: `${Math.min(100, Math.max(8, score))}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="session-modules">3/6 modules</div>
-                  <div className="module-segments" aria-label="module completion segments">
-                    {[0, 1, 2, 3, 4, 5].map((idx) => (
-                      <span key={idx} className={`module-segment${idx < 3 ? " done" : ""}`} />
-                    ))}
-                  </div>
-                  <div className={`status-tag ${status.cls}`}>{status.label}</div>
-                  <div className="session-next">
-                    Best next step: open your brief and run a targeted practice block on your highest-impact gap.
-                  </div>
-                  <span className="session-action">
-                    {score >= 70 ? "→ Continue Prep" : "⟳ Review Insights"}
-                  </span>
-                </Link>
-              );
-            })
+            listSessions.map((s) => (
+              <DashboardSessionCard
+                key={`${s.id}-${s.updatedAt.toISOString()}`}
+                id={s.id}
+                title={s.title}
+                company={s.company}
+                matchScore={s.matchScore}
+                archivedAtIso={s.archivedAt?.toISOString() ?? null}
+                recruitingOutcome={s.recruitingOutcome}
+                recruitingNextSteps={s.recruitingNextSteps}
+                timeLabel={formatSessionTime(s.createdAt)}
+              />
+            ))
           )}
         </div>
       </div>

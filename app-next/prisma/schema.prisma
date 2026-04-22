@@ -61,6 +61,12 @@ model PrepSession {
   matchScore   Int?
   roleSummary  String?
   status       SessionStatus  @default(DRAFT)
+  /** When set, session is archived and hidden from the default overview list. */
+  archivedAt   DateTime?
+  /** Short label for how recruiting ended (e.g. offer, rejected, withdrew). */
+  recruitingOutcome   String?
+  /** Longer notes: next steps, learnings, follow-ups after recruiting. */
+  recruitingNextSteps String? @db.Text
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
@@ -69,6 +75,7 @@ model PrepSession {
   questions  SessionQuestion[]
 
   @@index([userId, createdAt])
+  @@index([userId, archivedAt])
 }
 
 model SessionAnalysis {
