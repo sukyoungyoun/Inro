@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "./inro-html.css";
 
+/* Keyboard focus — minimum visible ring for interactive controls */
+:where(button, a, input, select, textarea, summary):focus-visible {
+  outline: 2px solid #1a1814;
+  outline-offset: 2px;
+}
+:is([data-theme="dark"], .dark) :where(button, a, input, select, textarea, summary):focus-visible {
+  outline-color: #faf8f5;
+}
+
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--ink);

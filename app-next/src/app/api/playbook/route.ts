@@ -12,10 +12,15 @@ type PlaybookTip = {
   id: string;
   title: string;
   body: string;
-  whyForYou: string;
   actionLabel: string;
   personaName: string;
   personaRole: string;
+  /** Filter category label (e.g. "Behavioral answers") */
+  category: string;
+  /** Stable ordering for "most relevant" (higher = more relevant) */
+  relevanceRank: number;
+  /** Order in static library (higher ≈ more recent templates) */
+  libraryIndex: number;
 };
 
 type TipTemplate = {
@@ -161,12 +166,6 @@ function inferReadinessBand(score: number): "early" | "mid" | "late" {
   return "late";
 }
 
-function buildWhyForYou(payload: PlaybookRequest) {
-  const weak = payload.weakestModule || "interview precision";
-  const risk = payload.biggestRiskArea || "inconsistent evidence";
-  return `For ${payload.targetRole || "your target role"}, this helps close your ${weak.toLowerCase()} gap and reduces risk around ${risk.toLowerCase()}.`;
-}
-
 function scoreTemplate(template: TipTemplate, payload: PlaybookRequest, topicKeywords: string[]) {
   const context = normalize(`${payload.weakestModule} ${payload.biggestRiskArea} ${payload.targetRole}`);
   let score = 0;
@@ -185,20 +184,32 @@ function scoreTemplate(template: TipTemplate, payload: PlaybookRequest, topicKey
   return score;
 }
 
-function selectTipsForTopic(payload: PlaybookRequest, topicId: string, topicKeywords: string[]): PlaybookTip[] {
+function selectTipsForTopic(
+  payload: PlaybookRequest,
+  topicId: string,
+  topicKeywords: string[],
+  topicLabel: string,
+  rankOffset: { n: number }
+): PlaybookTip[] {
   return TIP_LIBRARY.filter((item) => item.topic === topicId)
     .map((item) => ({ item, score: scoreTemplate(item, payload, topicKeywords) }))
     .sort((a, b) => b.score - a.score)
     .slice(0, 2)
-    .map(({ item }) => ({
-      id: item.id,
-      title: item.title,
-      body: item.body,
-      whyForYou: buildWhyForYou(payload),
-      actionLabel: item.actionLabel,
-      personaName: item.personaName,
-      personaRole: item.personaRole,
-    }));
+    .map(({ item, score }) => {
+      rankOffset.n += 1;
+      const libraryIndex = TIP_LIBRARY.findIndex((t) => t.id === item.id);
+      return {
+        id: item.id,
+        title: item.title,
+        body: item.body,
+        actionLabel: item.actionLabel,
+        personaName: item.personaName,
+        personaRole: item.personaRole,
+        category: topicLabel,
+        relevanceRank: score * 1000 + rankOffset.n,
+        libraryIndex: libraryIndex >= 0 ? libraryIndex : 0,
+      };
+    });
 }
 
 function sanitizePayload(body: Partial<PlaybookRequest>): PlaybookRequest {
@@ -279,9 +290,10 @@ export async function POST(req: Request) {
     }
 
     const rankedTopics = buildTopicOrder(payload);
+    const rankOffset = { n: 0 };
     const results = rankedTopics.map((topic) => ({
       query: topic.label,
-      tips: selectTipsForTopic(payload, topic.id, [...topic.keywords]),
+      tips: selectTipsForTopic(payload, topic.id, [...topic.keywords], topic.label, rankOffset),
     }));
 
     const geminiApiKey = process.env.GEMINI_API_KEY;

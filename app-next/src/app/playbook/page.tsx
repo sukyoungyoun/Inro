@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/app-shell";
-import { toFirstNameForSidebar } from "@/lib/user-display-name";
 import { PlaybookClient } from "@/components/playbook-client";
 
 function readWeakestModule(gapsJson: unknown): string {
@@ -81,7 +80,6 @@ export default async function PlaybookPage() {
 
   if (!profile || profile.targetRoles.length === 0) redirect("/onboarding");
 
-  const displayName = toFirstNameForSidebar(profile.fullName || session.user.email || "User");
   const weakestModule = readWeakestModule(latestSession?.analysis?.gapsJson);
   const biggestRisk = latestSession?.analysis?.biggestRisk || "Needs stronger interview examples";
   const feedback = [latestSession?.prepFeedback || "", latestSession?.recruitingNextSteps || ""]
@@ -104,7 +102,6 @@ export default async function PlaybookPage() {
     >
       <PlaybookClient
         userId={session.user.id}
-        displayName={displayName}
         weakestModule={weakestModule}
         biggestRiskArea={`${biggestRisk}${feedback ? `. Session feedback: ${feedback}` : ""}`}
         targetRole={targetRole}
