@@ -159,6 +159,24 @@ body:has(#app) {
   flex-direction: column;
   overflow: hidden;
 }
+/* Session brief is a two-pane grid, not a flex column (flex would stack brief + Prep Lab). */
+#content.inro-content-fill > #view-brief.view,
+#content.inro-content-fill > #view-brief {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
+  grid-template-rows: minmax(0, 1fr);
+  align-content: stretch;
+}
+#content.inro-content-fill > #view-brief.brief--focus-mode {
+  grid-template-columns: 1fr;
+}
+#content.inro-content-fill:has(#view-brief) {
+  overflow-y: hidden;
+}
+#view-brief > .brief-main,
+#view-brief > aside.brief-sidebar {
+  min-height: 0;
+}
 #content.inro-content-fill > .view.mock-interview-hub {
   flex: 0 0 auto;
   width: 100%;
@@ -1325,7 +1343,7 @@ label.drop-zone {
 /* ─── BRIEF ─── */
 #view-brief {
   display: grid;
-  grid-template-columns: minmax(0, 1.06fr) minmax(400px, 0.94fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
   gap: 0;
   height: 100%;
   overflow: hidden;
@@ -1341,12 +1359,17 @@ label.drop-zone {
   margin-inline: auto;
   width: 100%;
 }
-.brief-main { padding: 32px 36px; overflow-y: auto; border-right: 1px solid var(--border); }
+.brief-main {
+  padding: 32px 36px;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  background: transparent;
+}
 .brief-sidebar {
   padding: 28px 24px;
   overflow: hidden;
   min-height: 0;
-  background: white;
+  background: transparent;
   display: flex;
   flex-direction: column;
 }
@@ -1440,41 +1463,6 @@ label.drop-zone {
 }
 #prep-lab-panel {
   scroll-margin-top: 88px;
-}
-@media (max-width: 900px) {
-  #view-brief {
-    grid-template-columns: 1fr;
-  }
-  .brief-main {
-    border-right: none;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .brief-skip-to-prep {
-    display: block;
-  }
-  .prep-lab-sidebar {
-    position: relative;
-    padding-top: 28px;
-    margin-top: 4px;
-    border-top: 2px solid var(--border);
-    border-radius: 14px 14px 0 0;
-    background: linear-gradient(180deg, rgba(246, 234, 227, 0.45) 0%, transparent 72px);
-  }
-  :is([data-theme="dark"], .dark) .prep-lab-sidebar {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 72px);
-    border-top-color: var(--border2);
-  }
-  .prep-lab-sidebar::before {
-    content: "Practice workspace";
-    display: block;
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--ink3);
-    margin: 0 0 14px;
-  }
 }
 .brief-ai-disclosure-panel {
   margin-top: 8px;
@@ -3418,10 +3406,6 @@ body, p, .setup-sub, .brief-summary-text, .strength-desc, .gap-strategy, .coachi
   background: var(--bg-card-inner);
   border: 1px solid var(--border-subtle);
 }
-.brief-match-row,
-.brief-role-head {
-  background: var(--bg-card);
-}
 .brief-match-pill,
 .match-badge {
   background: var(--accent-green-bg);
@@ -3440,7 +3424,7 @@ body, p, .setup-sub, .brief-summary-text, .strength-desc, .gap-strategy, .coachi
 
 #view-brief {
   display: grid;
-  grid-template-columns: minmax(0, 1.06fr) minmax(400px, 0.94fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
   gap: 0;
 }
 .brief-main { border-right: 1px solid var(--border); }
@@ -3744,6 +3728,23 @@ html, body {
   display: flex !important;
   flex-direction: column !important;
 }
+#content.inro-content-fill > #view-brief.view,
+#content.inro-content-fill > #view-brief {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  align-content: stretch !important;
+}
+#content.inro-content-fill > #view-brief.brief--focus-mode {
+  grid-template-columns: 1fr !important;
+}
+#content.inro-content-fill:has(#view-brief) {
+  overflow-y: hidden !important;
+}
+#view-brief > .brief-main,
+#view-brief > aside.brief-sidebar {
+  min-height: 0 !important;
+}
 
 #content.inro-content-fill > .view.mock-interview-hub {
   flex: 0 0 auto !important;
@@ -3882,7 +3883,7 @@ html, body {
 }
 
 #view-brief {
-  grid-template-columns: minmax(0, 1.06fr) minmax(400px, 0.94fr) !important;
+  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr) !important;
   gap: 0 !important;
 }
 #view-brief.brief--focus-mode {
@@ -3896,8 +3897,15 @@ html, body {
   margin-inline: auto !important;
   width: 100% !important;
 }
-.brief-main { padding: 32px 36px !important; border-right: 1px solid var(--border) !important; }
-.brief-sidebar { padding: 28px 22px !important; background: var(--bg-card) !important; }
+.brief-main {
+  padding: 32px 36px !important;
+  border-right: 1px solid var(--border) !important;
+  background: transparent !important;
+}
+.brief-sidebar {
+  padding: 28px 22px !important;
+  background: transparent !important;
+}
 .q-mini { padding: 14px !important; }
 .q-mini-insight { background: var(--terra-bg) !important; border-radius: 6px !important; }
 .q-mini-btn.primary, .btn-primary, .btn-new, .mock-btn, .footer-submit {
@@ -3936,16 +3944,6 @@ html, body {
     padding: 28px !important;
   }
   .overview-header h1, .setup-title { font-size: 34px !important; }
-}
-
-@media (max-width: 900px) {
-  #view-brief {
-    grid-template-columns: 1fr !important;
-  }
-  .brief-main {
-    border-right: none !important;
-    border-bottom: 1px solid var(--border) !important;
-  }
 }
 
 @media (max-width: 820px) {
@@ -4794,10 +4792,9 @@ html:not([data-theme="dark"]) {
   font-size: 12px !important;
 }
 
-/* Prep Lab contrast fixes */
+/* Prep Lab: keep pane flush with page (split uses brief-main border-right only). */
 .brief-sidebar {
-  background: var(--bg-card) !important;
-  border-left: 1px solid var(--border-default) !important;
+  background: transparent !important;
 }
 .brief-prep-lab-body {
   background: var(--bg-card-inner) !important;
