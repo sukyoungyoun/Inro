@@ -14,7 +14,12 @@ export default async function PracticePage({ params }: { params: Promise<{ id: s
   const [data, sidebarUserName] = await Promise.all([
     prisma.prepSession.findFirst({
       where: { id, userId: session.user.id },
-      include: { questions: { orderBy: { order: "asc" } } },
+      select: {
+        id: true,
+        title: true,
+        company: true,
+        questions: { orderBy: { order: "asc" } },
+      },
     }),
     getDisplayNameSourceForUser(session.user.id, session.user.email),
   ]);

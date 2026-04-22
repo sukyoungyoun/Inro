@@ -13,7 +13,14 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
   const [data, sidebarUserName] = await Promise.all([
     prisma.prepSession.findFirst({
       where: { id, userId: session.user.id },
-      include: { analysis: true, questions: { orderBy: { order: "asc" } } },
+      select: {
+        id: true,
+        title: true,
+        company: true,
+        matchScore: true,
+        analysis: true,
+        questions: { orderBy: { order: "asc" } },
+      },
     }),
     getDisplayNameSourceForUser(session.user.id, session.user.email),
   ]);

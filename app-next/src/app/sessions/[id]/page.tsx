@@ -17,7 +17,13 @@ export default async function SessionDetailPage({
   const [data, sidebarUserName] = await Promise.all([
     prisma.prepSession.findFirst({
       where: { id, userId: session.user.id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        company: true,
+        matchScore: true,
+        roleSummary: true,
+        updatedAt: true,
         analysis: true,
         questions: { orderBy: { order: "asc" } },
       },

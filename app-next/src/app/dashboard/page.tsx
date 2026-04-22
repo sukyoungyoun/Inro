@@ -48,7 +48,6 @@ export default async function DashboardPage({
     archivedAt: Date | null;
     recruitingOutcome: string | null;
     recruitingNextSteps: string | null;
-    prepFeedback: string | null;
   };
 
   async function loadDashboardData() {
@@ -59,12 +58,34 @@ export default async function DashboardPage({
           where: { userId, archivedAt: null },
           orderBy: { createdAt: "desc" },
           take: 8,
+          select: {
+            id: true,
+            title: true,
+            company: true,
+            matchScore: true,
+            createdAt: true,
+            updatedAt: true,
+            archivedAt: true,
+            recruitingOutcome: true,
+            recruitingNextSteps: true,
+          },
         }),
         showArchived
           ? prisma.prepSession.findMany({
               where: { userId, archivedAt: { not: null } },
               orderBy: { archivedAt: "desc" },
               take: 20,
+              select: {
+                id: true,
+                title: true,
+                company: true,
+                matchScore: true,
+                createdAt: true,
+                updatedAt: true,
+                archivedAt: true,
+                recruitingOutcome: true,
+                recruitingNextSteps: true,
+              },
             })
           : Promise.resolve([]),
         prisma.prepSession.count({
@@ -103,7 +124,6 @@ export default async function DashboardPage({
         archivedAt: null,
         recruitingOutcome: null,
         recruitingNextSteps: null,
-        prepFeedback: null,
       }));
 
       return {
@@ -229,7 +249,7 @@ export default async function DashboardPage({
                 archivedAtIso={s.archivedAt?.toISOString() ?? null}
                 recruitingOutcome={s.recruitingOutcome}
                 recruitingNextSteps={s.recruitingNextSteps}
-                prepFeedback={s.prepFeedback}
+                prepFeedback={null}
                 timeLabel={formatSessionTime(s.createdAt)}
               />
             ))
