@@ -1,6 +1,7 @@
 import { getServerSession, type NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
+import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
 
 // Prevent Invalid URL crashes when NEXTAUTH_URL is not explicitly configured.
@@ -10,7 +11,16 @@ if (!process.env.NEXTAUTH_URL) {
     : "http://localhost:3000";
 }
 
+const resolvedAuthSecret =
+  process.env.NEXTAUTH_SECRET ||
+  process.env.AUTH_SECRET ||
+  process.env.JWT_SECRET ||
+  (process.env.DATABASE_URL
+    ? createHash("sha256").update(process.env.DATABASE_URL).digest("hex")
+    : undefined);
+
 export const authOptions: NextAuthOptions = {
+  secret: resolvedAuthSecret,
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
