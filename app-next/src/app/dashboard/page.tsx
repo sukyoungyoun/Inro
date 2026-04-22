@@ -33,28 +33,89 @@ export default async function DashboardPage({
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
+  const userId = session.user.id;
 
   const sp = await searchParams;
   const showArchived = sp.archived === "1";
 
-  const [profile, activeSessions, archivedSessions, archivedCount] = await Promise.all([
-    prisma.userProfile.findUnique({ where: { userId: session.user.id } }),
-    prisma.prepSession.findMany({
-      where: { userId: session.user.id, archivedAt: null },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-    }),
-    showArchived
-      ? prisma.prepSession.findMany({
-          where: { userId: session.user.id, archivedAt: { not: null } },
-          orderBy: { archivedAt: "desc" },
-          take: 20,
-        })
-      : Promise.resolve([]),
-    prisma.prepSession.count({
-      where: { userId: session.user.id, archivedAt: { not: null } },
-    }),
-  ]);
+  type DashboardSession = {
+    id: string;
+    title: string;
+    company: string | null;
+    matchScore: number | null;
+    createdAt: Date;
+    updatedAt: Date;
+    archivedAt: Date | null;
+    recruitingOutcome: string | null;
+    recruitingNextSteps: string | null;
+    prepFeedback: string | null;
+  };
+
+  async function loadDashboardData() {
+    try {
+      const [profile, activeSessions, archivedSessions, archivedCount] = await Promise.all([
+        prisma.userProfile.findUnique({ where: { userId } }),
+        prisma.prepSession.findMany({
+          where: { userId, archivedAt: null },
+          orderBy: { createdAt: "desc" },
+          take: 8,
+        }),
+        showArchived
+          ? prisma.prepSession.findMany({
+              where: { userId, archivedAt: { not: null } },
+              orderBy: { archivedAt: "desc" },
+              take: 20,
+            })
+          : Promise.resolve([]),
+        prisma.prepSession.count({
+          where: { userId, archivedAt: { not: null } },
+        }),
+      ]);
+
+      return {
+        profile,
+        activeSessions: activeSessions as DashboardSession[],
+        archivedSessions: archivedSessions as DashboardSession[],
+        archivedCount,
+      };
+    } catch {
+      // Backward-compat path: production DB may lag Prisma schema (e.g. missing archived fields).
+      // Keep dashboard usable with legacy session shape until migrations are applied.
+      const [profile, legacySessions] = await Promise.all([
+        prisma.userProfile.findUnique({ where: { userId } }),
+        prisma.prepSession.findMany({
+          where: { userId },
+          orderBy: { createdAt: "desc" },
+          take: 8,
+          select: {
+            id: true,
+            title: true,
+            company: true,
+            matchScore: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        }),
+      ]);
+
+      const normalized = legacySessions.map((s) => ({
+        ...s,
+        archivedAt: null,
+        recruitingOutcome: null,
+        recruitingNextSteps: null,
+        prepFeedback: null,
+      }));
+
+      return {
+        profile,
+        activeSessions: normalized,
+        archivedSessions: [] as DashboardSession[],
+        archivedCount: 0,
+      };
+    }
+  }
+
+  const { profile, activeSessions, archivedSessions, archivedCount } = await loadDashboardData();
 
   if (!profile || profile.targetRoles.length === 0) redirect("/onboarding");
 
