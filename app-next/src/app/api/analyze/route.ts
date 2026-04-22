@@ -323,46 +323,43 @@ ${rvChunk}`.trim();
     };
 
     const created = await prisma.prepSession.create({
-    data: {
-      userId: session.user.id,
-      title: parsed.role || company || "Role Analysis",
-      company: company || null,
-      jdText: jd,
-      resumeText: rv,
-      matchScore: score,
-      roleSummary: parsed.summary ?? null,
-      status: "ANALYZED",
-      analysis: {
-        create: {
-          strongestAlignment: parsed.strongestAlignment ?? null,
-          biggestRisk: parsed.biggestRisk ?? null,
-          strengthsJson: parsed.strengths ?? [],
-          gapsJson: parsed.gaps ?? [],
-          rawResponseJson: rawPersist as object,
+      data: {
+        userId: session.user.id,
+        title: parsed.role || company || "Role Analysis",
+        company: company || null,
+        jdText: jd,
+        resumeText: rv,
+        matchScore: score,
+        roleSummary: parsed.summary ?? null,
+        status: "ANALYZED",
+        analysis: {
+          create: {
+            strongestAlignment: parsed.strongestAlignment ?? null,
+            biggestRisk: parsed.biggestRisk ?? null,
+            strengthsJson: parsed.strengths ?? [],
+            gapsJson: parsed.gaps ?? [],
+            rawResponseJson: rawPersist as object,
+          },
+        },
+        questions: {
+          create: (parsed.questions || []).map((q, i) => ({
+            category: q.type || "Behavioral",
+            question: q.q || "",
+            insight: q.insight || null,
+            principle: q.coachingTips?.principle || null,
+            workflow: q.coachingTips?.workflowExample || null,
+            collaboration: q.coachingTips?.collaboration || null,
+            step1: q.suggestedStructure?.step1_mindset || null,
+            step2: q.suggestedStructure?.step2_example || null,
+            step3: q.suggestedStructure?.step3_outcome || null,
+            order: i,
+          })),
         },
       },
-      questions: {
-        create: (parsed.questions || []).map((q, i) => ({
-          category: q.type || "Behavioral",
-          question: q.q || "",
-          insight: q.insight || null,
-          principle: q.coachingTips?.principle || null,
-          workflow: q.coachingTips?.workflowExample || null,
-          collaboration: q.coachingTips?.collaboration || null,
-          step1: q.suggestedStructure?.step1_mindset || null,
-          step2: q.suggestedStructure?.step2_example || null,
-          step3: q.suggestedStructure?.step3_outcome || null,
-          order: i,
-        })),
-      },
-    },
-    include: {
-      analysis: true,
-      questions: {
-        orderBy: { order: "asc" },
-      },
-    },
-  });
+      // Return only the ID to avoid selecting optional columns that might not yet exist
+      // in lagging production DB schemas.
+      select: { id: true },
+    });
 
     return NextResponse.json({
       id: created.id,
