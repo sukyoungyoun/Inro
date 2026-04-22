@@ -220,6 +220,8 @@ a.view-all {
 .session-card-top-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
   flex-shrink: 0;
 }
@@ -277,6 +279,85 @@ a.view-all {
   background: var(--bg);
 }
 .session-menu-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.session-edit-btn {
+  border: none;
+  background: none;
+  font-family: var(--ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--terra);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+.session-edit-btn:hover {
+  color: var(--ink);
+  background: rgba(0, 0, 0, 0.04);
+}
+.session-inline-edit {
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+.session-inline-label {
+  display: block;
+  font-size: 10px;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink3);
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+.session-inline-label:first-of-type {
+  margin-top: 0;
+}
+.session-inline-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--ui);
+}
+.session-inline-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.session-inline-save,
+.session-inline-cancel {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: var(--ui);
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+.session-inline-save {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+.session-inline-save:hover:not(:disabled) {
+  opacity: 0.92;
+}
+.session-inline-cancel {
+  background: white;
+  color: var(--ink2);
+}
+.session-inline-save:disabled,
+.session-inline-cancel:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

@@ -35,12 +35,21 @@ export function DashboardSessionCard({
   const archivedAt = archivedAtIso ? new Date(archivedAtIso) : null;
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sessionEditOpen, setSessionEditOpen] = useState(false);
+  const [titleEdit, setTitleEdit] = useState(title);
+  const [companyEdit, setCompanyEdit] = useState(company || "");
   const [outcomeOpen, setOutcomeOpen] = useState(Boolean(initialOutcome || initialNext));
   const [outcome, setOutcome] = useState(initialOutcome || "");
   const [nextSteps, setNextSteps] = useState(initialNext || "");
   const [saving, setSaving] = useState(false);
+  const [savingDetails, setSavingDetails] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setTitleEdit(title);
+    setCompanyEdit(company || "");
+  }, [title, company]);
 
   const score = matchScore ?? 0;
   const badgeLabel = `${score}% match`;
@@ -92,19 +101,51 @@ export function DashboardSessionCard({
     }
   }
 
+  function cancelSessionEdit() {
+    setTitleEdit(title);
+    setCompanyEdit(company || "");
+    setSessionEditOpen(false);
+  }
+
+  async function saveSessionDetails() {
+    setSavingDetails(true);
+    try {
+      await patchSession({
+        title: titleEdit.trim() || "Untitled role",
+        company: companyEdit.trim() || null,
+      });
+      setSessionEditOpen(false);
+    } finally {
+      setSavingDetails(false);
+    }
+  }
+
   return (
     <div className={`session-card session-card--dashboard${archivedAt ? " archived" : ""}`}>
       <div className="session-card-top">
-        <div className="session-role">{cleanRoleTitle(title)}</div>
+        <div className="session-role">{cleanRoleTitle(sessionEditOpen ? titleEdit : title)}</div>
         <div className="session-card-top-actions">
           <div className="session-time">{timeLabel}</div>
+          {!archivedAt ? (
+            <button
+              type="button"
+              className="session-edit-btn"
+              onClick={() => {
+                setMenuOpen(false);
+                setSessionEditOpen((o) => !o);
+              }}
+              aria-expanded={sessionEditOpen}
+            >
+              {sessionEditOpen ? "Close edit" : "Edit session"}
+            </button>
+          ) : null}
           <div className="session-menu-wrap" ref={menuRef}>
             <button
               type="button"
               className="session-menu-trigger"
               aria-expanded={menuOpen}
               aria-haspopup="menu"
-              aria-label="Session actions"
+              aria-label="More session actions"
               onClick={(e) => {
                 e.stopPropagation();
                 setMenuOpen((o) => !o);
@@ -115,7 +156,7 @@ export function DashboardSessionCard({
             {menuOpen ? (
               <div className="session-menu-dropdown" role="menu">
                 <Link href={`/sessions/${id}`} className="session-menu-item" role="menuitem" onClick={() => setMenuOpen(false)}>
-                  Edit / open brief
+                  Open full brief
                 </Link>
                 {archivedAt ? (
                   <button type="button" className="session-menu-item" role="menuitem" disabled={archiving} onClick={() => void setArchived(false)}>
@@ -134,12 +175,48 @@ export function DashboardSessionCard({
 
       {archivedAt ? <div className="session-archived-pill">Archived</div> : null}
 
-      <div className="session-company">
-        <strong>Role:</strong> {cleanRoleTitle(title)}
-      </div>
-      <div className="session-company" style={{ marginTop: -6 }}>
-        <strong>Company:</strong> {company || "Not set"}
-      </div>
+      {sessionEditOpen && !archivedAt ? (
+        <div className="session-inline-edit">
+          <label className="session-inline-label" htmlFor={`dash-title-${id}`}>
+            Role title
+          </label>
+          <input
+            id={`dash-title-${id}`}
+            className="session-inline-input"
+            value={titleEdit}
+            onChange={(e) => setTitleEdit(e.target.value)}
+            autoComplete="off"
+          />
+          <label className="session-inline-label" htmlFor={`dash-co-${id}`}>
+            Company
+          </label>
+          <input
+            id={`dash-co-${id}`}
+            className="session-inline-input"
+            value={companyEdit}
+            onChange={(e) => setCompanyEdit(e.target.value)}
+            placeholder="Company name"
+            autoComplete="organization"
+          />
+          <div className="session-inline-edit-actions">
+            <button type="button" className="session-inline-save" onClick={() => void saveSessionDetails()} disabled={savingDetails}>
+              {savingDetails ? "Saving…" : "Save"}
+            </button>
+            <button type="button" className="session-inline-cancel" onClick={cancelSessionEdit} disabled={savingDetails}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="session-company">
+            <strong>Role:</strong> {cleanRoleTitle(title)}
+          </div>
+          <div className="session-company" style={{ marginTop: -6 }}>
+            <strong>Company:</strong> {company || "Not set"}
+          </div>
+        </>
+      )}
 
       <div className="match-row">
         <div className="match-badge accent">{badgeLabel}</div>
