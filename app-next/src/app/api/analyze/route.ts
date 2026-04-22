@@ -238,6 +238,7 @@ export async function POST(req: Request) {
     let rv = "";
     let company = "";
     let stage = "";
+    const extractionWarnings: string[] = [];
 
     if (contentType.includes("multipart/form-data")) {
       const form = await req.formData();
@@ -252,26 +253,24 @@ export async function POST(req: Request) {
           jd = await extractTextFromFile(jdFile);
         } catch (err) {
           const msg = err instanceof Error ? err.message : "";
-          return NextResponse.json(
-            {
-              error:
-                msg === "Unsupported format"
-                  ? "Job description upload must be PDF, DOCX, or TXT."
-                  : msg === "PdfExtractionFailed"
-                    ? "We couldn't reliably read that JD PDF. Try re-exporting as text-based PDF, or upload DOCX/TXT."
-                  : "Could not read the uploaded job description file. Try DOCX/TXT, or paste text directly.",
-            },
-            { status: 400 }
+          if (msg === "Unsupported format") {
+            return NextResponse.json(
+              { error: "Job description upload must be PDF, DOCX, or TXT." },
+              { status: 400 }
+            );
+          }
+          extractionWarnings.push(
+            msg === "PdfExtractionFailed"
+              ? `JD file '${jdFile.name}' could not be read reliably (likely scanned/image PDF).`
+              : `JD file '${jdFile.name}' could not be parsed.`
           );
+          jd = `Uploaded JD filename: ${jdFile.name}. Full text extraction failed; infer role context conservatively and highlight uncertainty.`;
         }
         if (!extractedTextLooksUsable(jd)) {
-          return NextResponse.json(
-            {
-              error:
-                "We could not extract enough readable text from the uploaded job description. Try DOCX/TXT, or paste the JD text directly for better results.",
-            },
-            { status: 400 }
+          extractionWarnings.push(
+            `JD extraction quality was low for '${jdFile.name}'. Analysis should be treated as low confidence unless user pasted JD text.`
           );
+          jd = `Uploaded JD filename: ${jdFile.name}. Extracted text quality was low; infer role context conservatively and highlight uncertainty.`;
         }
       }
       if (!rv && rvFile instanceof File) {
@@ -279,26 +278,24 @@ export async function POST(req: Request) {
           rv = await extractTextFromFile(rvFile);
         } catch (err) {
           const msg = err instanceof Error ? err.message : "";
-          return NextResponse.json(
-            {
-              error:
-                msg === "Unsupported format"
-                  ? "Resume upload must be PDF, DOCX, or TXT."
-                  : msg === "PdfExtractionFailed"
-                    ? "We couldn't reliably read that resume PDF. Try re-exporting as text-based PDF, or upload DOCX/TXT."
-                  : "Could not read the uploaded resume file. Try DOCX/TXT, or paste text directly.",
-            },
-            { status: 400 }
+          if (msg === "Unsupported format") {
+            return NextResponse.json(
+              { error: "Resume upload must be PDF, DOCX, or TXT." },
+              { status: 400 }
+            );
+          }
+          extractionWarnings.push(
+            msg === "PdfExtractionFailed"
+              ? `Resume file '${rvFile.name}' could not be read reliably (likely scanned/image PDF).`
+              : `Resume file '${rvFile.name}' could not be parsed.`
           );
+          rv = `Uploaded resume filename: ${rvFile.name}. Full text extraction failed; analysis should proceed conservatively and call out uncertainty.`;
         }
         if (!extractedTextLooksUsable(rv)) {
-          return NextResponse.json(
-            {
-              error:
-                "We could not extract enough readable text from the uploaded resume. Try DOCX/TXT, or paste your resume text directly.",
-            },
-            { status: 400 }
+          extractionWarnings.push(
+            `Resume extraction quality was low for '${rvFile.name}'. Analysis should be treated as low confidence unless user pasted resume text.`
           );
+          rv = `Uploaded resume filename: ${rvFile.name}. Extracted text quality was low; analysis should proceed conservatively and call out uncertainty.`;
         }
       }
     } else {
@@ -327,6 +324,7 @@ GROUND RULES (critical):
 
 ${company ? `Stated target company: ${company}.` : "No company name was provided — do not invent a company."}
 ${stage ? `Interview stage: ${stage}.` : ""}
+${extractionWarnings.length > 0 ? `Extraction warnings: ${extractionWarnings.join(" ")}` : ""}
 
 Return ONLY a valid JSON object — no markdown, no code fences, no commentary before or after.
 
