@@ -2046,6 +2046,10 @@ label.drop-zone {
 .mock-hub-cat-title {
   margin: 0;
   line-height: 1.35;
+  font-family: var(--ui);
+  font-size: 1rem;
+  font-weight: 400;
+  color: inherit;
 }
 .mock-hub-cat-label {
   font-family: var(--mono);
@@ -2066,8 +2070,8 @@ label.drop-zone {
 .mock-hub-cat-track {
   margin-top: 8px;
   height: 3px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+  background: #edebe7;
   overflow: hidden;
 }
 :is([data-theme="dark"], .dark) .mock-hub-cat-track {
@@ -2075,8 +2079,8 @@ label.drop-zone {
 }
 .mock-hub-cat-fill {
   height: 100%;
-  border-radius: 999px;
-  background: var(--accent-green);
+  border-radius: 2px;
+  background: #1a1814;
   transition: width 0.25s ease;
 }
 .mock-hub-cat-overflow {
@@ -2237,7 +2241,9 @@ label.drop-zone {
   border-color: rgba(255, 255, 255, 0.22);
 }
 .mock-hub-why {
-  margin-top: 10px;
+  margin-top: 8px;
+  padding-top: 0;
+  border-top: none;
 }
 .mock-hub-why-link {
   display: inline;
@@ -3226,7 +3232,12 @@ button.style-option {
 
 html, body { background: var(--bg-base); color: var(--text-primary); }
 * { font-family: var(--ui); }
-h1, .setup-title, .brief-role-name, .prefs-title, .rl-header h1, .overview-header h1 {
+h1:not(.mock-interview-hub-title),
+.setup-title,
+.brief-role-name,
+.prefs-title,
+.rl-header h1,
+.overview-header h1 {
   font-family: var(--serif);
   font-size: 28px;
   font-weight: 500;
@@ -3532,14 +3543,24 @@ html, body { background: var(--bg-base); color: var(--ink-primary); }
 .nav-label { font-size: 11px; letter-spacing: 1.2px; color: var(--ink-muted); }
 #topbar { height: 48px; background: var(--bg-surface); border-bottom: 1px solid var(--border-soft); font-family: var(--mono); font-size: 11px; color: var(--ink-muted); }
 
-h1, .overview-header h1, .setup-title, .brief-role-name, .rl-header h1, .prefs-title {
+h1:not(.mock-interview-hub-title),
+.overview-header h1,
+.setup-title,
+.brief-role-name,
+.rl-header h1,
+.prefs-title {
   font-family: var(--serif);
   font-size: 32px;
   line-height: 1.2;
   font-weight: 500;
   color: var(--ink-primary);
 }
-h2 { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--ink-primary); }
+h2:not(.mock-hub-cat-title) {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
 h3 { font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--ink-primary); }
 body, p { font-size: 14px; color: var(--ink-secondary); }
 .stat-label, .section-label, .upload-label, .eval-label, .coaching-label, .rl-section-label, .q-mini-tag {
