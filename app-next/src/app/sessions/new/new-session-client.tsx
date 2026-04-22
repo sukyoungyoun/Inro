@@ -171,9 +171,7 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
       // Final guard
       if (!normalizedJd || !normalizedRv) {
         setLoading(false);
-        setError(
-          "We still need both JD and resume text. Paste missing text manually, or upload a readable file."
-        );
+        setError("We still need both JD and resume text. Paste missing text manually, or upload a readable file.");
         return;
       }
 
