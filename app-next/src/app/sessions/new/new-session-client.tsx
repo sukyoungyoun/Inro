@@ -84,6 +84,20 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
   const jdRef = useRef<HTMLInputElement>(null);
   const rvRef = useRef<HTMLInputElement>(null);
 
+  function normalizeErrorMessage(raw: string) {
+    const text = (raw || "").replace(/\s+/g, " ").trim();
+    if (!text) return "";
+    const pieces = text
+      .split(/(?<=[.!?])\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const unique: string[] = [];
+    for (const part of pieces) {
+      if (!unique.includes(part)) unique.push(part);
+    }
+    return unique.join(" ");
+  }
+
   useEffect(() => {
     if (!loading) return;
     const id = window.setInterval(() => {
@@ -119,8 +133,6 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
       setError("Add a job description and resume—paste text, upload files, or both for each.");
       return;
     }
-    setLoading(true);
-    setLoadStep(0);
     setError("");
 
     try {
@@ -135,12 +147,10 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
           /* noop */
         }
         if (!res.ok || !payload.text?.trim()) {
-          const reason = payload.error || `${res.status} ${res.statusText}`.trim();
+          const reason = normalizeErrorMessage(payload.error || `${res.status} ${res.statusText}`.trim());
           return {
             text: "",
-            warning:
-              reason ||
-              `Could not read the uploaded ${label}.`,
+            warning: reason || `Could not read the uploaded ${label}.`,
           };
         }
         return { text: payload.text.trim(), warning: "" };
@@ -153,9 +163,10 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
         const parsed = await extractViaApi(jdFile, "job description");
         normalizedJd = parsed.text;
         if (parsed.warning) {
-          setLoading(false);
           setError(
-            `We couldn't read your uploaded job description (${jdFile.name}). ${parsed.warning} Please paste the JD text or upload a readable PDF/DOCX/TXT.`
+            normalizeErrorMessage(
+              `We couldn't read your uploaded job description (${jdFile.name}). ${parsed.warning} Please paste the JD text or upload a readable PDF/DOCX/TXT.`
+            )
           );
           return;
         }
@@ -164,21 +175,24 @@ export function NewSessionClient({ sidebarUserName }: { sidebarUserName: string 
         const parsed = await extractViaApi(rvFile, "resume");
         normalizedRv = parsed.text;
         if (parsed.warning) {
-          setLoading(false);
           setError(
-            `We couldn't read your uploaded resume (${rvFile.name}). ${parsed.warning} Please paste resume text or upload a readable PDF/DOCX/TXT.`
+            normalizeErrorMessage(
+              `We couldn't read your uploaded resume (${rvFile.name}). ${parsed.warning} Please paste resume text or upload a readable PDF/DOCX/TXT.`
+            )
           );
           return;
         }
       }
 
       if (!normalizedJd || !normalizedRv) {
-        setLoading(false);
         setError(
           "We still need both JD and resume text. Paste missing text manually, or upload a more readable file."
         );
         return;
       }
+
+      setLoading(true);
+      setLoadStep(0);
 
       const res = await fetch("/api/analyze", {
         method: "POST",
