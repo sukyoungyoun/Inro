@@ -50,6 +50,12 @@ export default async function PreferencesPage() {
             currentRole: profile?.currentRole || "",
             targetRoles: profile?.targetRoles || [],
             targetStage: profile?.targetStage || "",
+            interviewFocusKeys:
+              profile?.interviewFocusKeys && profile.interviewFocusKeys.length > 0
+                ? [...profile.interviewFocusKeys]
+                : profile?.targetStage
+                  ? [profile.targetStage]
+                  : [],
           }}
         />
       </div>

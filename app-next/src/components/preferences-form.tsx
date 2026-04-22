@@ -8,6 +8,7 @@ type ProfileData = {
   currentRole: string;
   targetRoles: string[];
   targetStage: string;
+  interviewFocusKeys: string[];
 };
 
 export function PreferencesForm({
@@ -27,7 +28,13 @@ export function PreferencesForm({
   const [currentRole, setCurrentRole] = useState(initial.currentRole);
   const [targetRoles, setTargetRoles] = useState<string[]>(initial.targetRoles);
   const [roleDraft, setRoleDraft] = useState("");
-  const [targetStage, setTargetStage] = useState(initial.targetStage);
+  const [interviewFocusKeys, setInterviewFocusKeys] = useState<string[]>(() =>
+    initial.interviewFocusKeys?.length
+      ? [...initial.interviewFocusKeys]
+      : initial.targetStage
+        ? [initial.targetStage]
+        : []
+  );
   const [careerContext, setCareerContext] = useState("");
   const [prepStyle, setPrepStyle] = useState<"guided" | "automated">("guided");
   const [n1, setN1] = useState(true);
@@ -76,11 +83,12 @@ export function PreferencesForm({
     const res = await fetch("/api/profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+        body: JSON.stringify({
         fullName,
         currentRole,
         targetRoles,
-        targetStage: targetStage || null,
+        interviewFocusKeys,
+        targetStage: interviewFocusKeys[0] || null,
       }),
     });
     setLoading(false);
@@ -262,16 +270,24 @@ export function PreferencesForm({
             ["RECRUITER_SCREEN", "Recruiter screen"],
             ["HIRING_MANAGER", "Technical interview"],
             ["FINAL_LOOP", "Final round & offer"],
-          ].map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              className={`segment${targetStage === value ? " active" : ""}`}
-              onClick={() => setTargetStage(value)}
-            >
-              {label}
-            </button>
-          ))}
+          ].map(([value, label]) => {
+            const active = interviewFocusKeys.includes(value);
+            return (
+              <button
+                key={value}
+                type="button"
+                className={`segment${active ? " active" : ""}`}
+                aria-pressed={active}
+                onClick={() =>
+                  setInterviewFocusKeys((prev) =>
+                    prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]
+                  )
+                }
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="pref-label" style={{ marginTop: 16, marginBottom: 8 }}>

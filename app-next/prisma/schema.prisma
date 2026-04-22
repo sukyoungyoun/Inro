@@ -44,6 +44,8 @@ model UserProfile {
   currentRole  String?
   targetRoles  String[]
   targetStage  InterviewStage?
+  /** Multi-select interview prep focuses (InterviewStage enum values as strings). */
+  interviewFocusKeys String[] @default([])
   onboardingAt DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

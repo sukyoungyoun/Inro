@@ -301,9 +301,10 @@ body:has(#app) {
   margin-left: auto;
   display: flex;
   align-items: center;
+  gap: 10px;
 }
-.topbar-actions .theme-toggle {
-  margin-left: 16px;
+.topbar-actions .theme-toggle:last-child {
+  margin-left: 0;
 }
 .theme-toggle {
   border: 1px solid var(--border);
@@ -3447,9 +3448,9 @@ button.style-option {
 .notif-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
 .notif-desc { font-size: 12px; color: var(--ink3); line-height: 1.4; }
 .toggle { width: 44px; height: 24px; border-radius: 999px; border: none; cursor: pointer; position: relative; flex-shrink: 0; transition: background 0.2s; }
-.toggle.on { background: var(--terra); }
+.toggle.on { background: #1a1814; }
 .toggle.off { background: var(--border2); }
-.toggle::after { content:''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: white; top: 3px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle::after { content:''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: #faf8f5; top: 3px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 .toggle.on::after { left: 23px; }
 .toggle.off::after { left: 3px; }
 .prefs-footer { position: sticky; bottom: 0; background: white; border-top: 1px solid var(--border); padding: 14px 44px; display: flex; justify-content: flex-end; gap: 10px; }
@@ -3752,10 +3753,35 @@ body, p, .setup-sub, .brief-summary-text, .strength-desc, .gap-strategy, .coachi
 .role-chip-x { color: var(--accent); }
 .role-chip-x:hover { color: var(--destructive); }
 .role-add-input::placeholder { color: var(--text-muted); }
-.segmented { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.segment { border: 1px solid var(--border); border-radius: 8px; background: var(--bg-subtle); color: var(--text-secondary); padding: 9px 10px; font-size: 13px; cursor: pointer; }
-.segment.active { background: var(--accent); color: var(--text-primary); border-color: var(--accent); }
-.toggle.on { background: var(--accent); }
+.segmented { display: flex; flex-wrap: wrap; gap: 6px; }
+.segment { border: 0.5px solid rgba(28, 26, 23, 0.14); border-radius: 20px; background: transparent; color: var(--text-secondary); padding: 5px 12px; font-size: 11px; font-weight: 500; cursor: pointer; font-family: var(--ui); transition: border-color 0.15s ease, color 0.15s ease; }
+.segment:hover {
+  border-color: rgba(28, 26, 23, 0.22);
+  color: var(--ink-primary);
+}
+.segment.active { background: #1a1814; color: #faf8f5; border-color: #1a1814; }
+:is([data-theme="dark"], .dark) .segment {
+  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--text-secondary);
+}
+:is([data-theme="dark"], .dark) .segment.active {
+  background: #faf8f5;
+  color: #1a1814;
+  border-color: #faf8f5;
+}
+.toggle.on { background: #1a1814; }
+:is([data-theme="dark"], .dark) .toggle.on {
+  background: #faf8f5;
+}
+:is([data-theme="dark"], .dark) .toggle.on::after {
+  background: #1a1814;
+}
+:is([data-theme="dark"], .dark) .toggle.off {
+  background: rgba(255, 255, 255, 0.12);
+}
+:is([data-theme="dark"], .dark) .toggle.off::after {
+  background: #faf8f5;
+}
 .notif-title { color: var(--text-primary); font-size: 14px; }
 .notif-desc { color: var(--text-muted); font-size: 12px; }
 .prefs-footer { position: sticky; bottom: 0; background: var(--bg-surface); border-top: 1px solid var(--border); padding: 16px 32px; }
@@ -3882,7 +3908,6 @@ body, p { font-size: 14px; color: var(--ink-secondary); }
   .sidebar-footer { display: none; }
   #main { min-height: 0; }
   .upload-grid, .context-grid, .prep-style-grid, .name-grid, .tailored-grid, .stats-grid, .sessions-grid { grid-template-columns: 1fr; }
-  .segmented { grid-template-columns: 1fr 1fr; }
   .overview-header, .rl-header { flex-direction: column; gap: 16px; }
 }
 
