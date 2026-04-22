@@ -18,18 +18,7 @@ export async function POST(req: Request) {
     const text = await extractTextFromUploadedFile(file);
     return NextResponse.json({ text });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "";
-    return NextResponse.json(
-      {
-        error:
-          message === "Unsupported format"
-            ? "Unsupported file format. Please upload PDF, DOCX, or TXT."
-            : message === "PdfExtractionFailed"
-              ? "We could not read text from this PDF (it may be scanned/image-based). Please upload DOCX/TXT or paste text."
-              : "Could not extract text from the uploaded file. Please paste text manually.",
-      },
-      { status: message === "Unsupported format" ? 400 : 422 }
-    );
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 422 });
   }
 }
-
