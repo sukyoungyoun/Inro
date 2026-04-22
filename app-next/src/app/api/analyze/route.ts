@@ -32,83 +32,6 @@ type GeminiResult = {
   }>;
 };
 
-function buildHeuristicFallback(jd: string, rv: string, company: string): GeminiResult {
-  const lowerJd = jd.toLowerCase();
-  const lowerRv = rv.toLowerCase();
-  const keywords = [
-    "design",
-    "product",
-    "research",
-    "analytics",
-    "leadership",
-    "system",
-    "accessibility",
-    "collaboration",
-    "strategy",
-  ];
-  const overlap = keywords.filter((k) => lowerJd.includes(k) && lowerRv.includes(k));
-  const roleGuess =
-    (jd.match(/(?:senior|staff|lead)?\s*(product|ux|ui|design|research)[^,\n]*/i)?.[0] || "")
-      .trim() || "Role Analysis";
-  const score = Math.max(52, Math.min(88, 52 + overlap.length * 4));
-
-  return {
-    role: roleGuess,
-    matchScore: score,
-    limitations:
-      "Automatic fallback ran (AI model unavailable or response invalid). Scores and bullets are heuristic guesses from keyword overlap—not verified against your full documents.",
-    evidenceSummary:
-      overlap.length > 0
-        ? `Keyword overlap detected: ${overlap.slice(0, 5).join(", ")}.`
-        : "Limited keyword overlap between pasted JD and resume text.",
-    summary:
-      `Generated in fallback mode due to model capacity limits. You show ${overlap.length} direct skill overlaps with the role requirements; prioritize concrete examples tailored to this job.`,
-    strongestAlignment:
-      overlap[0]
-        ? `Clear overlap in ${overlap[0]} between your resume and the job description.`
-        : "General role-relevant experience appears in your profile.",
-    biggestRisk:
-      "Evidence specificity may be too generic; quantify outcomes and tie each story to role requirements.",
-    strengths: [
-      {
-        title: "Keyword alignment",
-        desc: "Resume language overlaps with job requirements, giving a usable base for interview story framing.",
-      },
-      {
-        title: "Role relevance",
-        desc: "Your materials suggest transferable experience for this position and company context.",
-      },
-    ],
-    gaps: [
-      {
-        title: "Specificity gap",
-        mitigation: "Prepare STAR examples with measurable outcomes for each priority requirement.",
-      },
-      {
-        title: "Company tailoring",
-        mitigation: `Connect your examples to ${company || "the target company"} product domain and collaboration model.`,
-      },
-    ],
-    questions: [
-      {
-        type: "BEHAVIORAL",
-        q: "Tell me about a project where you had to balance quality, speed, and stakeholder constraints.",
-        insight: "Tests prioritization and cross-functional communication.",
-      },
-      {
-        type: "PRODUCT SENSE",
-        q: "How would you evaluate whether your solution improved user outcomes after launch?",
-        insight: "Tests metric design and decision-making rigor.",
-      },
-      {
-        type: "SYSTEM DESIGN",
-        q: "Walk through how you would structure a scalable workflow for this role’s core responsibilities.",
-        insight: "Tests systems thinking and execution planning.",
-      },
-    ],
-  };
-}
-
 async function sleep(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -172,8 +95,6 @@ export async function POST(req: Request) {
     let rv = "";
     let company = "";
     let stage = "";
-    const extractionWarnings: string[] = [];
-
     if (contentType.includes("multipart/form-data")) {
       const form = await req.formData();
       jd = String(form.get("jd") || "").trim();
@@ -193,18 +114,23 @@ export async function POST(req: Request) {
               { status: 400 }
             );
           }
-          extractionWarnings.push(
-            msg === "PdfExtractionFailed"
-              ? `JD file '${jdFile.name}' could not be read reliably (likely scanned/image PDF).`
-              : `JD file '${jdFile.name}' could not be parsed.`
+          return NextResponse.json(
+            {
+              error:
+                msg === "PdfExtractionFailed"
+                  ? `We could not read text from JD PDF (${jdFile.name}). Please upload a text-based PDF, DOCX, TXT, or paste the JD text.`
+                  : `Could not parse JD file (${jdFile.name}). Please upload DOCX/TXT or paste the JD text.`,
+            },
+            { status: 400 }
           );
-          jd = `Uploaded JD filename: ${jdFile.name}. Full text extraction failed; infer role context conservatively and highlight uncertainty.`;
         }
         if (!extractedTextLooksUsable(jd)) {
-          extractionWarnings.push(
-            `JD extraction quality was low for '${jdFile.name}'. Analysis should be treated as low confidence unless user pasted JD text.`
+          return NextResponse.json(
+            {
+              error: `Extracted JD text from ${jdFile.name} is too low quality. Please paste JD text or upload DOCX/TXT.`,
+            },
+            { status: 400 }
           );
-          jd = `Uploaded JD filename: ${jdFile.name}. Extracted text quality was low; infer role context conservatively and highlight uncertainty.`;
         }
       }
       if (!rv && rvFile instanceof File) {
@@ -218,18 +144,23 @@ export async function POST(req: Request) {
               { status: 400 }
             );
           }
-          extractionWarnings.push(
-            msg === "PdfExtractionFailed"
-              ? `Resume file '${rvFile.name}' could not be read reliably (likely scanned/image PDF).`
-              : `Resume file '${rvFile.name}' could not be parsed.`
+          return NextResponse.json(
+            {
+              error:
+                msg === "PdfExtractionFailed"
+                  ? `We could not read text from resume PDF (${rvFile.name}). Please upload a text-based PDF, DOCX, TXT, or paste resume text.`
+                  : `Could not parse resume file (${rvFile.name}). Please upload DOCX/TXT or paste resume text.`,
+            },
+            { status: 400 }
           );
-          rv = `Uploaded resume filename: ${rvFile.name}. Full text extraction failed; analysis should proceed conservatively and call out uncertainty.`;
         }
         if (!extractedTextLooksUsable(rv)) {
-          extractionWarnings.push(
-            `Resume extraction quality was low for '${rvFile.name}'. Analysis should be treated as low confidence unless user pasted resume text.`
+          return NextResponse.json(
+            {
+              error: `Extracted resume text from ${rvFile.name} is too low quality. Please paste resume text or upload DOCX/TXT.`,
+            },
+            { status: 400 }
           );
-          rv = `Uploaded resume filename: ${rvFile.name}. Extracted text quality was low; analysis should proceed conservatively and call out uncertainty.`;
         }
       }
     } else {
@@ -258,8 +189,6 @@ GROUND RULES (critical):
 
 ${company ? `Stated target company: ${company}.` : "No company name was provided — do not invent a company."}
 ${stage ? `Interview stage: ${stage}.` : ""}
-${extractionWarnings.length > 0 ? `Extraction warnings: ${extractionWarnings.join(" ")}` : ""}
-
 Return ONLY a valid JSON object — no markdown, no code fences, no commentary before or after.
 
 {
@@ -292,10 +221,15 @@ RESUME:
 ${rvChunk}`.trim();
 
     const gemini = await callGeminiWithFallback(apiKey, prompt);
-    const usedFallbackAnalysis = !gemini.ok;
     let parsed: GeminiResult;
     if (!gemini.ok) {
-      parsed = buildHeuristicFallback(jd, rv, company);
+      return NextResponse.json(
+        {
+          error:
+            "AI analysis is temporarily unavailable. Please retry in a moment; we only generate briefs from fully parsed text.",
+        },
+        { status: 503 }
+      );
     } else {
       const rawData = gemini.data;
       let raw = rawData.candidates?.[0]?.content?.parts?.[0]?.text || "";
@@ -306,10 +240,15 @@ ${rvChunk}`.trim();
         const s = raw.indexOf("{");
         const e = raw.lastIndexOf("}");
         if (s === -1 || e <= s) {
-          parsed = buildHeuristicFallback(jd, rv, company);
-        } else {
-          parsed = JSON.parse(raw.slice(s, e + 1));
+          return NextResponse.json(
+            {
+              error:
+                "AI returned an invalid response format. Please retry; analysis only proceeds with verifiable structured output.",
+            },
+            { status: 502 }
+          );
         }
+        parsed = JSON.parse(raw.slice(s, e + 1));
       }
     }
 
@@ -317,12 +256,9 @@ ${rvChunk}`.trim();
     const rawPersist = {
       ...parsed,
       matchScore: score,
-      usedFallbackAnalysis,
       limitations:
         parsed.limitations?.trim() ||
-        (usedFallbackAnalysis
-          ? "Heuristic fallback was used."
-          : "AI-generated from your pasted or extracted text; verify against the original JD and resume."),
+        "AI-generated from your pasted or extracted text; verify against the original JD and resume.",
       evidenceSummary:
         parsed.evidenceSummary?.trim() ||
         "Compare this brief side-by-side with your source documents to catch mistakes.",
