@@ -5748,6 +5748,262 @@ html:not([data-theme="dark"]) .brief-strength-ico {
   color: #7EC86A !important;
 }
 
+/* Neutral metrics: overview stat values are not semantic success */
+.stat-num {
+  color: var(--text-primary) !important;
+}
+
+/* ===== Mobile responsive + scroll hardening ===== */
+@media (max-width: 768px) {
+  html,
+  body,
+  body:has(#app) {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+  }
+
+  #app {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  #sidebar,
+  .sidebar {
+    display: none !important;
+  }
+
+  #main,
+  .main,
+  .shell,
+  .content {
+    width: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    flex-direction: column !important;
+  }
+
+  #content,
+  #content.inro-content-fill,
+  #content > .view,
+  .panel,
+  .right-panel,
+  [class*="panel"] {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  #content {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .mobile-tabbar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 100 !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    background: #FAF8F5 !important;
+    border-top: 0.5px solid rgba(0, 0, 0, 0.08) !important;
+  }
+
+  [data-theme="dark"] .mobile-tabbar,
+  :is([data-theme="dark"], .dark) .mobile-tabbar {
+    background: #1A1614 !important;
+    border-top: 0.5px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .mobile-tab-item {
+    min-height: 56px !important;
+    color: #A09C96 !important;
+  }
+
+  [data-theme="dark"] .mobile-tab-item,
+  :is([data-theme="dark"], .dark) .mobile-tab-item {
+    color: #6B5F58 !important;
+  }
+
+  .mobile-tab-item.active {
+    color: #1A1814 !important;
+  }
+
+  .mobile-tab-item.active .mobile-tab-dot {
+    background: #1A1814 !important;
+  }
+
+  [data-theme="dark"] .mobile-tab-item.active,
+  :is([data-theme="dark"], .dark) .mobile-tab-item.active {
+    color: #F0EAE4 !important;
+  }
+
+  [data-theme="dark"] .mobile-tab-item.active .mobile-tab-dot,
+  :is([data-theme="dark"], .dark) .mobile-tab-item.active .mobile-tab-dot {
+    background: #F0EAE4 !important;
+  }
+
+  #topbar,
+  .top-bar,
+  header {
+    padding-top: env(safe-area-inset-top) !important;
+  }
+
+  #topbar .breadcrumb,
+  .breadcrumb,
+  .prefs-breadcrumb {
+    font-size: 10px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .page-title,
+  h1 {
+    font-size: 22px !important;
+    line-height: 1.2 !important;
+  }
+
+  .page-header,
+  .overview-header,
+  .rl-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .cards-grid,
+  .stats-grid,
+  .sessions-grid,
+  .tailored-grid,
+  .upload-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .insight-row,
+  .callout-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .panel,
+  .right-panel,
+  [class*="panel"] {
+    width: 100% !important;
+    border-left: none !important;
+    border-top: 0.5px solid var(--border) !important;
+  }
+
+  /* Prep sessions right panel hidden on mobile; use tabbed mobile view */
+  #view-brief .brief-sidebar,
+  #view-brief .brief-split {
+    display: none !important;
+  }
+
+  .mobile-prep-view {
+    display: block !important;
+  }
+
+  .mobile-prep-tab.active {
+    color: #1A1814 !important;
+    background: #FFFFFF !important;
+    font-weight: 500 !important;
+  }
+
+  [data-theme="dark"] .mobile-prep-tab.active,
+  :is([data-theme="dark"], .dark) .mobile-prep-tab.active {
+    color: #F0EAE4 !important;
+    background: #2C2826 !important;
+    font-weight: 500 !important;
+  }
+
+  .mobile-prep-tab {
+    color: #7A7570 !important;
+  }
+
+  [data-theme="dark"] .mobile-prep-tab,
+  :is([data-theme="dark"], .dark) .mobile-prep-tab {
+    color: #9E9089 !important;
+  }
+
+  .stat-card {
+    max-height: none !important;
+    padding: 14px 16px !important;
+  }
+
+  .stat-num {
+    font-size: 36px !important;
+    color: var(--text-primary) !important;
+  }
+
+  .metric-delta {
+    color: var(--text-secondary) !important;
+  }
+
+  .mock-hub-start-full {
+    width: auto !important;
+    display: inline-flex !important;
+    align-self: flex-start !important;
+  }
+
+  .mock-hub-btn-practice,
+  .mock-hub-btn-evaluate {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 10px 18px !important;
+    display: inline-flex !important;
+  }
+
+  .match-badge {
+    font-size: 11px !important;
+    padding: 3px 9px !important;
+  }
+
+  /* Mobile touch targets */
+  button,
+  [role="button"],
+  .btn-primary,
+  .btn-ghost,
+  .session-menu-trigger,
+  .playbook-bookmark {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  .session-manage-link,
+  .mock-hub-why-link {
+    padding: 8px 0 !important;
+  }
+}
+
+/* Light mode nav color spec */
+html:not([data-theme="dark"]) #sidebar {
+  background: #F6F1ED !important;
+}
+
+html:not([data-theme="dark"]) .nav-btn {
+  color: #7A7570 !important;
+}
+
+html:not([data-theme="dark"]) .nav-btn:hover:not(.active) {
+  background: #F0EBE6 !important;
+  color: #8B5E52 !important;
+}
+
+html:not([data-theme="dark"]) .nav-btn.active {
+  background: #F6EAE3 !important;
+  color: #8B5E52 !important;
+}
+
 /* Resume Library dark-only brightness tuning */
 :is([data-theme="dark"], .dark) .primary-resume-card {
   background: var(--surface) !important;
