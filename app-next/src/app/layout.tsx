@@ -5,6 +5,7 @@ import "./globals.css";
 const lora = Lora({
   variable: "--font-serif",
   subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 const dmMono = DM_Mono({

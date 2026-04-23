@@ -235,7 +235,7 @@ export function DashboardSessionCard({
               className="session-menu-trigger"
               aria-expanded={menuOpen}
               aria-haspopup="menu"
-              aria-label="Session menu: updates and archive"
+              aria-label="More options"
               disabled={quickSaving || archiving}
               onClick={(e) => {
                 e.stopPropagation();
@@ -365,8 +365,8 @@ export function DashboardSessionCard({
               className={`match-fill${score < 78 ? " mid" : ""}`}
               style={
                 {
-                  width: `${Math.min(100, Math.max(8, score))}%`,
-                  ["--match-score" as string]: String(Math.min(100, Math.max(8, score))),
+                  width: `${Math.max(0, Math.min(100, score))}%`,
+                  ["--match-score" as string]: String(Math.max(0, Math.min(100, score))),
                 } as React.CSSProperties
               }
             />

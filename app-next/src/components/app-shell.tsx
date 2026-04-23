@@ -123,7 +123,7 @@ export function AppShell({
             <span>INRO</span> <span aria-hidden>&gt;</span> <span className="breadcrumb-current">{crumb}</span>
           </nav>
           <div className="top-nav-actions" aria-label="Mobile top actions">
-            <Link href="/sessions/new" className="new-session-icon-btn" aria-label="New prep session">
+            <Link href="/sessions/new" className="new-session-icon-btn new-session-btn" aria-label="New prep session">
               +
             </Link>
             <div className="top-nav-avatar" aria-label="Profile">

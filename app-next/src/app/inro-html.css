@@ -6293,6 +6293,218 @@ html:not([data-theme="dark"]) .role-chip {
   padding: 0 2px;
 }
 
+/* ===== Final mobile polish: logo, nav, cards, interactions ===== */
+.logo,
+[class*="logo"],
+a[href="/dashboard"].mobile-wordmark {
+  font-family: var(--serif) !important;
+  font-weight: 400 !important;
+  font-size: 20px !important;
+  color: var(--text-primary) !important;
+  text-decoration: none !important;
+  letter-spacing: 0 !important;
+  font-style: normal !important;
+}
+
+.new-session-btn,
+[class*="new-session-icon"],
+[aria-label="New prep session"] {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  border-radius: 50% !important;
+  background: var(--text-primary) !important;
+  color: var(--bg) !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  transition: opacity 0.12s ease, transform 0.12s ease !important;
+}
+
+.new-session-btn:hover { opacity: 0.85; }
+.new-session-btn:active { opacity: 0.7; transform: scale(0.96); }
+
+:is([data-theme="dark"], .dark) .new-session-btn {
+  background: #F0EAE4 !important;
+  color: #1A1614 !important;
+}
+
+.stat-number,
+[class*="readiness"] [class*="number"],
+[class*="stat-card"] h2,
+[class*="stat-card"] h3,
+[class*="StatCard"] [class*="value"],
+.stat-num {
+  color: var(--text-primary) !important;
+}
+
+[class*="weakest"],
+[class*="cadence"],
+[class*="action-tip"],
+[class*="tip-line"],
+.metric-delta {
+  color: var(--text-secondary) !important;
+}
+
+.card-menu-btn,
+[class*="menu-btn"],
+[aria-label="More options"],
+.session-menu-trigger {
+  background: transparent !important;
+  border: 0.5px solid var(--border-md) !important;
+  border-radius: 8px !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  color: var(--text-tertiary) !important;
+}
+
+.match-track,
+.match-bar {
+  flex: 1;
+  height: 3px !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 2px !important;
+  overflow: hidden !important;
+}
+
+:is([data-theme="dark"], .dark) .match-track,
+:is([data-theme="dark"], .dark) .match-bar {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.match-fill {
+  height: 100% !important;
+  background: #5AA84A !important;
+  border-radius: 2px !important;
+  max-width: 100% !important;
+}
+
+.module-seg,
+.module-segment {
+  height: 3px !important;
+}
+
+.module-seg.done {
+  background: #3A3632 !important;
+}
+
+.module-seg.active {
+  background: #C87D1E !important;
+}
+
+.module-seg:not(.done):not(.active) {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+:is([data-theme="dark"], .dark) .module-seg.done {
+  background: #F0EAE4 !important;
+}
+
+:is([data-theme="dark"], .dark) .module-seg.active {
+  background: #C87D1E !important;
+}
+
+:is([data-theme="dark"], .dark) .module-seg:not(.done):not(.active) {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--text-primary) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  #topbar,
+  .top-nav,
+  [class*="topbar"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px 16px !important;
+    padding-top: calc(12px + env(safe-area-inset-top)) !important;
+    width: 100% !important;
+  }
+
+  .mobile-wordmark {
+    margin-right: auto !important;
+  }
+
+  .top-nav-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-left: auto !important;
+  }
+
+  #topbar .topbar-actions,
+  #topbar .theme-toggle,
+  #topbar [class*="theme-toggle"] {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  #content,
+  #view-overview {
+    overflow: visible !important;
+  }
+
+  .overview-header,
+  .stats-section,
+  .stats-wrapper {
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .stats-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    gap: 10px !important;
+    padding: 0 16px 4px !important;
+    margin: 0 -16px 16px !important;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .stats-grid::-webkit-scrollbar { display: none; }
+
+  .stat-card {
+    flex-shrink: 0 !important;
+    width: 195px !important;
+    scroll-snap-align: start;
+    padding: 14px 16px !important;
+  }
+
+  .stat-card:last-child {
+    margin-right: 16px !important;
+  }
+
+  .session-company,
+  .session-outcome-block,
+  .session-manage-row {
+    display: none !important;
+  }
+
+  *:focus:not(:focus-visible) {
+    outline: none !important;
+  }
+}
+
 /* ===== Mobile regression fixes: top nav + overview cards ===== */
 @media (max-width: 768px) {
   #topbar,
