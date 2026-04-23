@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type ProfileData = {
   fullName: string;
@@ -320,6 +321,18 @@ export function PreferencesForm({
           onChange={(e) => setCareerContext(e.target.value)}
           placeholder="Add context that helps tailor your prep plans."
         />
+      </div>
+
+      <div className="prefs-card">
+        <div className="prefs-card-title">Appearance</div>
+        <div className="prefs-card-sub">Customize how inro looks for you.</div>
+        <div className="notif-row">
+          <div>
+            <div className="notif-title">Dark mode</div>
+            <div className="notif-desc">Switch between light and dark themes.</div>
+          </div>
+          <ThemeToggle />
+        </div>
       </div>
 
       <div className="prefs-card">

@@ -116,12 +116,20 @@ export function AppShell({
 
       <div id="main">
         <header id="topbar" role="banner">
-          <div className="mobile-wordmark" aria-hidden>
+          <Link href="/dashboard" className="mobile-wordmark" aria-label="inro home">
             inro
-          </div>
+          </Link>
           <nav className="breadcrumb" aria-label="Breadcrumb">
             <span>INRO</span> <span aria-hidden>&gt;</span> <span className="breadcrumb-current">{crumb}</span>
           </nav>
+          <div className="top-nav-actions" aria-label="Mobile top actions">
+            <Link href="/sessions/new" className="new-session-icon-btn" aria-label="New prep session">
+              +
+            </Link>
+            <div className="top-nav-avatar" aria-label="Profile">
+              {initial}
+            </div>
+          </div>
           <div className="topbar-actions">
             {topbarActions}
             <ThemeToggle />
