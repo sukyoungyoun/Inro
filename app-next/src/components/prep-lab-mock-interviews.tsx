@@ -307,23 +307,25 @@ export function PrepLabMockInterviews({
               Recommended Questions
             </button>
           </div>
-          <button
-            type="button"
-            className="btn-open-mock"
-            aria-label="Expand prep questions"
-            onClick={() => setQuestionsExpanded(true)}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path d="M4 9V4h5" />
-              <path d="M20 15v5h-5" />
-              <path d="M9 4 4 9" />
-              <path d="M15 20 20 15" />
-              <path d="M15 4h5v5" />
-              <path d="M20 9 15 4" />
-              <path d="M4 15v5h5" />
-              <path d="M9 20 4 15" />
-            </svg>
-          </button>
+          <div className="brief-tab-expand-wrap">
+            <button
+              type="button"
+              className="btn-open-mock"
+              aria-label="Expand prep questions"
+              onClick={() => setQuestionsExpanded(true)}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <path d="M4 9V4h5" />
+                <path d="M20 15v5h-5" />
+                <path d="M9 4 4 9" />
+                <path d="M15 20 20 15" />
+                <path d="M15 4h5v5" />
+                <path d="M20 9 15 4" />
+                <path d="M4 15v5h5" />
+                <path d="M9 20 4 15" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="prep-lab-start-block">

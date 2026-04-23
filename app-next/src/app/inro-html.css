@@ -7247,6 +7247,93 @@ a[href="/dashboard"].mobile-wordmark {
   cursor: default;
 }
 
+/* ===== Right panel tab bar polish (header only) ===== */
+.brief-sidebar-head {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  border-bottom: 1px solid var(--color-border-tertiary) !important;
+  padding: 0 20px !important;
+  gap: 0 !important;
+  background: transparent !important;
+  margin-bottom: 14px !important;
+}
+
+.brief-tabs {
+  display: flex !important;
+  align-items: flex-end !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  gap: 0 !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.brief-tab {
+  padding: 10px 4px 10px 0 !important;
+  margin-right: 24px !important;
+  margin-bottom: -1px !important;
+  font-family: "Instrument Sans", var(--ui) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  cursor: pointer !important;
+  border-bottom: 2px solid transparent !important;
+  color: var(--color-text-tertiary) !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  transition: color 0.15s ease !important;
+}
+
+.brief-tab:last-child {
+  margin-right: 0 !important;
+}
+
+.brief-tab.active,
+.brief-tab[aria-selected="true"] {
+  color: var(--color-text-primary) !important;
+  font-weight: 500 !important;
+  border-bottom-color: #3D5A45 !important;
+}
+
+.brief-tab:not(.active):hover,
+.brief-tab[aria-selected="false"]:hover {
+  color: var(--color-text-secondary) !important;
+}
+
+.brief-tab-expand-wrap {
+  margin-left: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.brief-tab-expand-wrap .btn-open-mock {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--color-text-tertiary) !important;
+  border-radius: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.brief-tab-expand-wrap .btn-open-mock:hover {
+  color: var(--color-text-secondary) !important;
+  background: transparent !important;
+}
+
+:is([data-theme="dark"], .dark) .brief-tab.active,
+:is([data-theme="dark"], .dark) .brief-tab[aria-selected="true"] {
+  border-bottom-color: #5C8A6A !important;
+  color: var(--color-text-primary) !important;
+}
+
 :is([data-theme="dark"], .dark) .mock-hub-why-link {
   color: #9E9089 !important;
 }
