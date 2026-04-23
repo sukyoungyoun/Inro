@@ -4875,6 +4875,61 @@ html:not([data-theme="dark"]) .topbar-actions .btn-ghost {
   border: 1px solid var(--border-default) !important;
   color: var(--text-secondary) !important;
 }
+
+/* ===== Sidebar nav DS states (light + dark) ===== */
+.nav-section {
+  padding: 0 6px !important; /* inset highlight from sidebar edges */
+}
+
+.nav-btn {
+  min-height: 36px !important;
+  padding: 7px 12px !important;
+  border-radius: 8px !important;
+  font-weight: 400 !important;
+  background: transparent !important;
+  color: #7a7570 !important;
+  transition: background-color 0.12s ease, color 0.12s ease !important;
+}
+
+.nav-btn svg {
+  opacity: 1 !important;
+  color: currentColor !important;
+}
+
+.nav-btn.active {
+  background: #f2e8e3 !important;
+  color: #7b4a3a !important;
+  font-weight: 500 !important;
+  border-left: 0 !important;
+  box-shadow: none !important;
+}
+
+.nav-btn.active svg {
+  color: currentColor !important;
+}
+
+.nav-btn:hover:not(.active) {
+  background: #f7f0ec !important;
+  color: #4a3228 !important;
+}
+
+:is([data-theme="dark"], .dark) .nav-btn {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  font-weight: 400 !important;
+}
+
+:is([data-theme="dark"], .dark) .nav-btn.active {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e8d5cc !important;
+  font-weight: 500 !important;
+  border-left: 0 !important;
+}
+
+:is([data-theme="dark"], .dark) .nav-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #c8b5ac !important;
+}
 html:not([data-theme="dark"]) .topbar-actions .btn-new {
   background: var(--accent-terra) !important;
   color: #FFFFFF !important;
