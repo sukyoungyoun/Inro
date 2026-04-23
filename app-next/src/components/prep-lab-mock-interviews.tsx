@@ -286,13 +286,13 @@ export function PrepLabMockInterviews({
         role="complementary"
         aria-label="Mock interviews and prep lab"
       >
-        <div className="brief-sidebar-head">
-          <div className="brief-tabs" role="tablist" aria-label="Prep session workspace">
+        <div className="prep-panel-header">
+          <div className="prep-panel-tablist" role="tablist" aria-label="Prep session workspace">
             <button
               type="button"
               role="tab"
               aria-selected={tab === "prep"}
-              className={`brief-tab${tab === "prep" ? " active" : ""}`}
+              className={`prep-panel-tab${tab === "prep" ? " active" : ""}`}
               onClick={() => setTab("prep")}
             >
               Prep Lab
@@ -301,16 +301,16 @@ export function PrepLabMockInterviews({
               type="button"
               role="tab"
               aria-selected={tab === "questions"}
-              className={`brief-tab${tab === "questions" ? " active" : ""}`}
+              className={`prep-panel-tab${tab === "questions" ? " active" : ""}`}
               onClick={() => setTab("questions")}
             >
               Recommended Questions
             </button>
           </div>
-          <div className="brief-tab-expand-wrap">
+          <div className="prep-panel-actions">
             <button
               type="button"
-              className="btn-open-mock"
+              className="prep-panel-expand-btn"
               aria-label="Expand prep questions"
               onClick={() => setQuestionsExpanded(true)}
             >

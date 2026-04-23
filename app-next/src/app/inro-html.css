@@ -7017,6 +7017,94 @@ a[href="/dashboard"].mobile-wordmark {
   background: transparent !important;
 }
 
+/* Prep panel tabs: isolated, non-overlapping layout */
+#prep-lab-panel .prep-panel-header {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--color-border-tertiary);
+  padding: 0 20px;
+  background: transparent;
+  gap: 0;
+}
+
+#prep-lab-panel .prep-panel-tablist {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+  min-width: 0;
+  gap: 0;
+  flex: 1 1 auto;
+}
+
+#prep-lab-panel .prep-panel-tab {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 10px 4px 10px 0;
+  margin-right: 24px;
+  margin-bottom: -1px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  font-family: "Instrument Sans", var(--ui);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+#prep-lab-panel .prep-panel-tab:last-child {
+  margin-right: 0;
+}
+
+#prep-lab-panel .prep-panel-tab.active,
+#prep-lab-panel .prep-panel-tab[aria-selected="true"] {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  border-bottom-color: #3D5A45;
+}
+
+#prep-lab-panel .prep-panel-tab:not(.active):hover,
+#prep-lab-panel .prep-panel-tab[aria-selected="false"]:hover {
+  color: var(--color-text-secondary);
+}
+
+#prep-lab-panel .prep-panel-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#prep-lab-panel .prep-panel-expand-btn {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#prep-lab-panel .prep-panel-expand-btn:hover {
+  color: var(--color-text-secondary);
+}
+
+:is([data-theme="dark"], .dark) #prep-lab-panel .prep-panel-tab.active,
+:is([data-theme="dark"], .dark) #prep-lab-panel .prep-panel-tab[aria-selected="true"] {
+  border-bottom-color: #5C8A6A;
+}
+
 /* Final-final lock: prep header tabs must never overlap */
 #prep-lab-panel .brief-sidebar-head {
   display: grid !important;
