@@ -7017,6 +7017,118 @@ a[href="/dashboard"].mobile-wordmark {
   background: transparent !important;
 }
 
+/* Final-final lock: prep header tabs must never overlap */
+#prep-lab-panel .brief-sidebar-head {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  width: 100% !important;
+  padding: 0 20px !important;
+  border-bottom: 1px solid var(--color-border-tertiary) !important;
+  background: transparent !important;
+  gap: 12px !important;
+}
+
+#prep-lab-panel .brief-tabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: flex-end !important;
+  min-width: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  scrollbar-width: none !important;
+}
+
+#prep-lab-panel .brief-tabs::-webkit-scrollbar {
+  display: none !important;
+}
+
+#prep-lab-panel .brief-tab {
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+  margin: 0 24px -1px 0 !important;
+  padding: 10px 0 !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  transform: none !important;
+  font-family: "Instrument Sans", var(--ui) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  color: var(--color-text-tertiary) !important;
+  transition: color 0.15s ease !important;
+}
+
+#prep-lab-panel .brief-tab:last-child {
+  margin-right: 0 !important;
+}
+
+#prep-lab-panel .brief-tab.active,
+#prep-lab-panel .brief-tab[aria-selected="true"] {
+  color: var(--color-text-primary) !important;
+  font-weight: 500 !important;
+  border-bottom-color: #3D5A45 !important;
+}
+
+#prep-lab-panel .brief-tab:not(.active),
+#prep-lab-panel .brief-tab[aria-selected="false"] {
+  color: var(--color-text-tertiary) !important;
+}
+
+#prep-lab-panel .brief-tab:not(.active):hover,
+#prep-lab-panel .brief-tab[aria-selected="false"]:hover {
+  color: var(--color-text-secondary) !important;
+}
+
+#prep-lab-panel .brief-tab-expand-wrap {
+  margin-left: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#prep-lab-panel .brief-tab-expand-wrap .btn-open-mock {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--color-text-tertiary) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#prep-lab-panel .brief-tab-expand-wrap .btn-open-mock:hover {
+  color: var(--color-text-secondary) !important;
+  background: transparent !important;
+}
+
+:is([data-theme="dark"], .dark) #prep-lab-panel .brief-tab.active,
+:is([data-theme="dark"], .dark) #prep-lab-panel .brief-tab[aria-selected="true"] {
+  border-bottom-color: #5C8A6A !important;
+}
+
+/* Sidebar logo breathing room */
+#sidebar .logo {
+  padding-left: 12px !important;
+}
+
 /* Ultimate lock: prevent prep tab label overlap */
 #prep-lab-panel .brief-sidebar-head {
   display: grid !important;
