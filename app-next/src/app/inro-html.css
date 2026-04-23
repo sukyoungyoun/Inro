@@ -432,6 +432,11 @@ body:has(#app) {
   font-size: 12px;
   margin-bottom: 14px;
 }
+.session-error-inline {
+  margin: 6px 0 10px;
+  font-size: 12px;
+  color: var(--red-text, #B44938);
+}
 .session-manage-link {
   border: none;
   background: none;

@@ -90,6 +90,7 @@ export function DashboardSessionCard({
   const [archiving, setArchiving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [quickSaving, setQuickSaving] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -132,18 +133,24 @@ export function DashboardSessionCard({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    if (!res.ok) throw new Error("update failed");
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      throw new Error(json.error || "Update failed");
+    }
     router.refresh();
   }
 
   async function saveNotesAndFeedback() {
     setSavingNotes(true);
+    setActionError(null);
     try {
       await patchSession({
         prepFeedback: prepFeedback.trim() || null,
         recruitingOutcome: outcome.trim() || null,
         recruitingNextSteps: nextSteps.trim() || null,
       });
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Could not save notes.");
     } finally {
       setSavingNotes(false);
     }
@@ -155,10 +162,16 @@ export function DashboardSessionCard({
     }
     setDeleting(true);
     setMenuOpen(false);
+    setActionError(null);
     try {
       const res = await fetch(`/api/sessions/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("delete failed");
+      if (!res.ok) {
+        const json = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(json.error || "Delete failed");
+      }
       router.refresh();
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Could not delete session.");
     } finally {
       setDeleting(false);
     }
@@ -167,8 +180,11 @@ export function DashboardSessionCard({
   async function setArchived(archived: boolean) {
     setArchiving(true);
     setMenuOpen(false);
+    setActionError(null);
     try {
       await patchSession({ archived });
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Could not update archive state.");
     } finally {
       setArchiving(false);
     }
@@ -177,10 +193,13 @@ export function DashboardSessionCard({
   async function quickSetRecruitingOutcome(value: string) {
     setQuickSaving(true);
     setMenuOpen(false);
+    setActionError(null);
     try {
       await patchSession({ recruitingOutcome: value });
       setOutcome(value);
       setNotesOpen(true);
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Could not save recruiting update.");
     } finally {
       setQuickSaving(false);
     }
@@ -194,12 +213,15 @@ export function DashboardSessionCard({
 
   async function saveSessionDetails() {
     setSavingDetails(true);
+    setActionError(null);
     try {
       await patchSession({
         title: titleEdit.trim() || "Untitled role",
         company: companyEdit.trim() || null,
       });
       setSessionEditOpen(false);
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Could not save session details.");
     } finally {
       setSavingDetails(false);
     }
@@ -382,6 +404,7 @@ export function DashboardSessionCard({
         ))}
       </div>
       <div className={`status-tag ${status.cls}`}>{status.label}</div>
+      {actionError ? <div className="session-error-inline">{actionError}</div> : null}
 
       <div className="session-manage-row" aria-label="Session actions">
         {!archivedAt ? (
