@@ -94,7 +94,8 @@ export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string 
     await prisma.$transaction(async (tx) => {
       await tx.sessionQuestion.deleteMany({ where: { sessionId: id } });
       await tx.sessionAnalysis.deleteMany({ where: { sessionId: id } });
-      await tx.prepSession.delete({ where: { id } });
+      // Use deleteMany for schema-drift tolerance (avoids delete() return-shape coupling).
+      await tx.prepSession.deleteMany({ where: { id } });
     });
 
     return NextResponse.json({ ok: true });
