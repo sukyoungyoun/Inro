@@ -57,7 +57,9 @@ export function AppShell({
   return (
     <div id="app">
       <aside id="sidebar" aria-label="Application sidebar">
-        <div className="logo">inro</div>
+        <div className="logo" aria-label="inro">
+          <img src="/inro-logo.png" alt="inro" className="logo-img" />
+        </div>
         {showRoleSwitcher ? (
           <details className="role-switcher">
             <summary className="role-switcher-trigger">

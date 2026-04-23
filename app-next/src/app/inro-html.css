@@ -4937,16 +4937,16 @@ html:not([data-theme="dark"]) .topbar-actions .btn-ghost {
   align-items: center !important;
   justify-content: center !important;
   margin: 12px 10px 10px !important;
-  padding: 12px 16px !important;
+  padding: 10px 12px !important;
   border-radius: 12px !important;
-  font-size: 30px !important;
-  font-family: var(--serif) !important;
-  font-weight: 600 !important;
-  line-height: 1 !important;
-  letter-spacing: -0.4px !important;
   background: var(--bg-surface) !important;
   border: 1px solid var(--border-default) !important;
-  color: var(--text-primary) !important;
+}
+
+.logo-img {
+  display: block !important;
+  width: 88px !important;
+  height: auto !important;
 }
 
 :is([data-theme="dark"], .dark) .logo {
