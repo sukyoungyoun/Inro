@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { userProfilePublicSelect } from "@/lib/user-profile-public-select";
 import { AppShell } from "@/components/app-shell";
 import { TailoredResumeCard } from "@/components/tailored-resume-card";
 import { PrimaryResumeActions } from "@/components/primary-resume-actions";
@@ -19,7 +20,10 @@ export default async function ResumeLibraryPage() {
   if (!session?.user?.id) redirect("/login");
 
   const [profile, sessions] = await Promise.all([
-    prisma.userProfile.findUnique({ where: { userId: session.user.id } }),
+    prisma.userProfile.findUnique({
+      where: { userId: session.user.id },
+      select: userProfilePublicSelect,
+    }),
     prisma.prepSession.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
@@ -38,7 +42,7 @@ export default async function ResumeLibraryPage() {
       crumb="RESUME LIBRARY"
       active="resume"
       userName={profile?.fullName || session.user.email || "User"}
-      roleTitle={profile?.currentRole || profile?.targetRoles[0] || "Role"}
+      roleTitle={profile?.currentRole || profile?.targetRoles?.[0] || "Role"}
       roleCompany={sessions[0]?.company || "Company"}
       prepHref={prepHref}
       briefHref={prepHref}

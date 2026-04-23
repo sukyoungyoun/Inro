@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { userProfilePublicSelect } from "@/lib/user-profile-public-select";
 import { AppShell } from "@/components/app-shell";
 import { toFirstNameForSidebar } from "@/lib/user-display-name";
 import { DashboardSessionCard } from "@/components/dashboard-session-card";
@@ -52,7 +53,10 @@ export default async function DashboardPage({
   async function loadDashboardData() {
     try {
       const [profile, activeSessions, archivedSessions, archivedCount] = await Promise.all([
-        prisma.userProfile.findUnique({ where: { userId } }),
+        prisma.userProfile.findUnique({
+          where: { userId },
+          select: userProfilePublicSelect,
+        }),
         prisma.prepSession.findMany({
           where: { userId, archivedAt: null },
           orderBy: { createdAt: "desc" },
@@ -102,7 +106,10 @@ export default async function DashboardPage({
       // Backward-compat path: production DB may lag Prisma schema (e.g. missing archived fields).
       // Keep dashboard usable with legacy session shape until migrations are applied.
       const [profile, legacySessions] = await Promise.all([
-        prisma.userProfile.findUnique({ where: { userId } }),
+        prisma.userProfile.findUnique({
+          where: { userId },
+          select: userProfilePublicSelect,
+        }),
         prisma.prepSession.findMany({
           where: { userId },
           orderBy: { createdAt: "desc" },

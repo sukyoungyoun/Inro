@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { loadUserProfileFormSnapshot } from "@/lib/load-user-profile-form-snapshot";
 import { AppShell } from "@/components/app-shell";
 import { PreferencesForm } from "@/components/preferences-form";
 import { SignOutButton } from "@/components/sign-out-button";
@@ -9,9 +10,7 @@ export default async function PreferencesPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const profile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-  });
+  const profile = await loadUserProfileFormSnapshot(session.user.id);
 
   const prepSessions = await prisma.prepSession.findMany({
     where: { userId: session.user.id },
@@ -51,11 +50,7 @@ export default async function PreferencesPage() {
             targetRoles: profile?.targetRoles || [],
             targetStage: profile?.targetStage || "",
             interviewFocusKeys:
-              profile?.interviewFocusKeys && profile.interviewFocusKeys.length > 0
-                ? [...profile.interviewFocusKeys]
-                : profile?.targetStage
-                  ? [profile.targetStage]
-                  : [],
+              profile?.interviewFocusKeys?.length ? [...profile.interviewFocusKeys] : [],
           }}
         />
       </div>

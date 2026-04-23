@@ -2,6 +2,7 @@ import { InterviewStage } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { loadUserProfileFormSnapshot } from "@/lib/load-user-profile-form-snapshot";
 
 const FOCUS_STAGE_VALUES = new Set<string>(Object.values(InterviewStage));
 
@@ -9,9 +10,7 @@ export async function GET() {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const profile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-  });
+  const profile = await loadUserProfileFormSnapshot(session.user.id);
   return NextResponse.json({ profile });
 }
 

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { userProfilePublicSelect } from "@/lib/user-profile-public-select";
 import { AppShell } from "@/components/app-shell";
 import { PlaybookClient } from "@/components/playbook-client";
 
@@ -19,7 +20,10 @@ export default async function PlaybookPage() {
   const userId = session.user.id;
 
   async function loadPlaybookData() {
-    const profilePromise = prisma.userProfile.findUnique({ where: { userId } });
+    const profilePromise = prisma.userProfile.findUnique({
+      where: { userId },
+      select: userProfilePublicSelect,
+    });
 
     try {
       const [profile, latestSession] = await Promise.all([
