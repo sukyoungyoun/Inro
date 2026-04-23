@@ -126,9 +126,9 @@ export function AppShell({
             <Link href="/sessions/new" className="new-session-icon-btn new-session-btn" aria-label="New prep session">
               +
             </Link>
-            <div className="top-nav-avatar" aria-label="Profile">
+            <Link href="/preferences" className="top-nav-avatar avatar" role="button" aria-label="Go to preferences">
               {initial}
-            </div>
+            </Link>
           </div>
           <div className="topbar-actions">
             {topbarActions}

@@ -6505,6 +6505,147 @@ a[href="/dashboard"].mobile-wordmark {
   }
 }
 
+/* ===== Mobile final follow-up fixes ===== */
+@media (max-width: 768px) {
+  /* Keep horizontal scroller from clipping at any parent level */
+  #app,
+  #main,
+  #content,
+  #view-overview,
+  .view,
+  .overview-header,
+  .stats-section,
+  .stats-wrapper {
+    overflow: visible !important;
+  }
+
+  /* Breathing room below fixed top nav */
+  #content {
+    padding-top: 80px !important; /* 52px topbar + 28px breathing room */
+  }
+
+  #view-overview h1:first-of-type,
+  .overview-header h1,
+  .page-title,
+  [class*="welcome-heading"] {
+    margin-top: 8px !important;
+    margin-bottom: 6px !important;
+    font-size: 30px !important;
+    line-height: 1.15 !important;
+  }
+
+  #view-overview h1 + p,
+  .overview-header p,
+  .page-subtitle,
+  [class*="welcome-sub"] {
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+    color: var(--text-secondary) !important;
+    margin-bottom: 24px !important;
+  }
+
+  /* subtle layer separation like native apps */
+  #topbar {
+    border-bottom: 0.5px solid rgba(0, 0, 0, 0.07) !important;
+  }
+
+  :is([data-theme="dark"], .dark) #topbar {
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Avatar press state and tap affordance */
+  .top-nav-avatar,
+  .avatar {
+    cursor: pointer !important;
+  }
+
+  .top-nav-avatar:active,
+  .avatar:active {
+    opacity: 0.7 !important;
+    transform: scale(0.94);
+  }
+
+  /* + button must be filled circle, not plain text */
+  .new-session-btn,
+  .new-session-icon-btn,
+  [aria-label="New prep session"] {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    border-radius: 50% !important;
+    background: #1A1814 !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 22px !important;
+    font-weight: 300 !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    transition: opacity 0.12s ease, transform 0.1s ease !important;
+    text-decoration: none !important;
+  }
+
+  .new-session-btn:hover,
+  .new-session-icon-btn:hover {
+    opacity: 0.85 !important;
+  }
+
+  .new-session-btn:active,
+  .new-session-icon-btn:active {
+    opacity: 0.7 !important;
+    transform: scale(0.93);
+  }
+
+  :is([data-theme="dark"], .dark) .new-session-btn,
+  :is([data-theme="dark"], .dark) .new-session-icon-btn {
+    background: #F0EAE4 !important;
+    color: #1A1614 !important;
+  }
+
+  /* Remaining color regressions */
+  .stat-num,
+  .stat-number,
+  [class*="stat-card"] h2,
+  [class*="stat-card"] h3 {
+    color: var(--text-primary) !important;
+  }
+
+  .metric-delta,
+  [class*="action-tip"],
+  [class*="tip-line"],
+  [class*="cadence"],
+  [class*="weakest"] {
+    color: var(--text-secondary) !important;
+  }
+
+  .session-edit-btn {
+    color: var(--text-tertiary) !important;
+  }
+
+  .session-edit-btn:hover {
+    color: var(--text-secondary) !important;
+  }
+
+  .session-menu-trigger,
+  .card-menu-btn,
+  [aria-label="More options"] {
+    background: transparent !important;
+    border: 0.5px solid var(--border-md) !important;
+    border-radius: 8px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    color: var(--text-tertiary) !important;
+  }
+
+  .match-fill {
+    width: calc(var(--match-score, 75) * 1%) !important;
+  }
+}
+
 /* ===== Mobile regression fixes: top nav + overview cards ===== */
 @media (max-width: 768px) {
   #topbar,
