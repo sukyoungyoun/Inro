@@ -68,6 +68,7 @@
   --color-border-tertiary: var(--border-default);
   --color-background-primary: #FFFFFF;
 }
+
 :is([data-theme="dark"], .dark) {
   --bg-base: #1A1714;
   --bg-panel: #1E1B18;
@@ -7448,4 +7449,289 @@ html:not([data-theme="dark"]) .q-mini-actions {
   :is([data-theme="dark"], .dark) .mobile-tab-item.active .mobile-tab-dot {
     background: #F0EAE4 !important;
   }
+}
+
+/* ===== Prep Sessions right panel polish (tabs, depth, contrast) ===== */
+.panel-tab-bar,
+.brief-tabs {
+  display: flex !important;
+  align-items: flex-end !important;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.1) !important;
+  padding: 0 16px !important;
+  gap: 24px !important;
+  background: transparent !important;
+  margin-bottom: 0 !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.panel-tab,
+.brief-tab {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  padding: 12px 0 !important;
+  cursor: pointer !important;
+  border-bottom: 2px solid transparent !important;
+  margin-bottom: -0.5px !important;
+  transition: color 0.15s, border-color 0.15s !important;
+  background: transparent !important;
+  white-space: nowrap !important;
+  border-radius: 0 !important;
+}
+
+.panel-tab.active,
+.panel-tab[data-state="active"],
+.panel-tab[aria-selected="true"],
+.brief-tab.active,
+.brief-tab[aria-selected="true"] {
+  color: #1A1814 !important;
+  font-weight: 500 !important;
+  border-bottom: 2px solid #1A1814 !important;
+  background: transparent !important;
+}
+
+.panel-tab:not(.active),
+.panel-tab[aria-selected="false"],
+.brief-tab:not(.active),
+.brief-tab[aria-selected="false"] {
+  color: #A09C96 !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.panel-tab:not(.active):hover,
+.brief-tab:not(.active):hover {
+  color: #7A7570 !important;
+  background: transparent !important;
+}
+
+:is([data-theme="dark"], .dark) .panel-tab-bar,
+:is([data-theme="dark"], .dark) .brief-tabs {
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+:is([data-theme="dark"], .dark) .panel-tab.active,
+:is([data-theme="dark"], .dark) .panel-tab[data-state="active"],
+:is([data-theme="dark"], .dark) .panel-tab[aria-selected="true"],
+:is([data-theme="dark"], .dark) .brief-tab.active,
+:is([data-theme="dark"], .dark) .brief-tab[aria-selected="true"] {
+  color: #F0EAE4 !important;
+  border-bottom-color: #F0EAE4 !important;
+}
+
+:is([data-theme="dark"], .dark) .panel-tab:not(.active),
+:is([data-theme="dark"], .dark) .panel-tab[aria-selected="false"],
+:is([data-theme="dark"], .dark) .brief-tab:not(.active),
+:is([data-theme="dark"], .dark) .brief-tab[aria-selected="false"] {
+  color: #6B5F58 !important;
+}
+
+:is([data-theme="dark"], .dark) .panel-tab:not(.active):hover,
+:is([data-theme="dark"], .dark) .brief-tab:not(.active):hover {
+  color: #9E9089 !important;
+}
+
+.panel-expand-btn,
+[class*="expand-btn"],
+[class*="ExpandBtn"],
+[aria-label*="expand"],
+[aria-label*="fullscreen"],
+.panel-header button:last-child,
+.brief-sidebar-head button:last-child,
+.btn-open-mock {
+  background: transparent !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+  color: #9E9089 !important;
+  border-radius: 7px !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+html:not([data-theme="dark"]) .panel-expand-btn,
+html:not([data-theme="dark"]) [aria-label*="expand"],
+html:not([data-theme="dark"]) .brief-sidebar-head button:last-child,
+html:not([data-theme="dark"]) .btn-open-mock {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #7A7570 !important;
+}
+
+.brief-match-pill,
+.match-badge.high {
+  background: #EEF5E8 !important;
+  color: #3B6D11 !important;
+  border: 0.5px solid rgba(59, 109, 17, 0.15) !important;
+  font-size: 11px !important;
+  padding: 3px 10px !important;
+  border-radius: 20px !important;
+  font-weight: 500 !important;
+}
+
+:is([data-theme="dark"], .dark) .brief-match-pill,
+:is([data-theme="dark"], .dark) .match-badge.high {
+  background: #1A2E18 !important;
+  color: #7EC86A !important;
+  border: 0.5px solid rgba(126, 200, 106, 0.2) !important;
+}
+
+.mock-hub-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+}
+
+.mock-hub-btn-practice,
+.mock-hub-btn-evaluate {
+  width: auto !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+}
+
+html:not([data-theme="dark"]) .mock-hub-btn-practice {
+  background: #1A1814 !important;
+  color: #FAF8F5 !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+html:not([data-theme="dark"]) .mock-hub-btn-evaluate {
+  background: transparent !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.15) !important;
+  color: #1A1814 !important;
+  padding: 8px 16px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-btn-practice {
+  background: #F0EAE4 !important;
+  color: #141210 !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-btn-evaluate {
+  background: transparent !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.18) !important;
+  color: #C4B8B0 !important;
+  padding: 8px 16px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+}
+
+.brief-insight-tile--align {
+  background: #F4FAF0 !important;
+  border: 0.5px solid rgba(59, 109, 17, 0.12) !important;
+}
+
+.brief-insight-tile--risk {
+  background: #FEF9F0 !important;
+  border: 0.5px solid rgba(133, 83, 11, 0.12) !important;
+}
+
+.brief-insight-tile-label {
+  color: #6B6760 !important;
+  font-size: 10px !important;
+}
+
+.brief-insight-tile--align .brief-insight-tile-label {
+  color: #3B6D11 !important;
+}
+
+.brief-insight-tile--risk .brief-insight-tile-label {
+  color: #85530B !important;
+}
+
+.brief-insight-tile-body {
+  color: #6B6760 !important;
+}
+
+:is([data-theme="dark"], .dark) .brief-insight-tile--align {
+  background: #1A2E18 !important;
+  border: 0.5px solid rgba(126, 200, 106, 0.12) !important;
+}
+
+:is([data-theme="dark"], .dark) .brief-insight-tile--risk {
+  background: #2A1E0E !important;
+  border: 0.5px solid rgba(232, 164, 74, 0.12) !important;
+}
+
+:is([data-theme="dark"], .dark) .brief-insight-tile--align .brief-insight-tile-label {
+  color: #7EC86A !important;
+  font-size: 10px !important;
+}
+
+:is([data-theme="dark"], .dark) .brief-insight-tile--risk .brief-insight-tile-label {
+  color: #E8A44A !important;
+  font-size: 10px !important;
+}
+
+:is([data-theme="dark"], .dark) .brief-insight-tile-body {
+  color: #C4B8B0 !important;
+}
+
+:is([data-theme="dark"], .dark) #view-brief,
+:is([data-theme="dark"], .dark) .brief-main {
+  background: #141210 !important;
+}
+
+:is([data-theme="dark"], .dark) .prep-lab-sidebar,
+:is([data-theme="dark"], .dark) #prep-lab-panel {
+  background: #1E1B19 !important;
+  border-left: 0.5px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+:is([data-theme="dark"], .dark) .brief-sidebar-head {
+  background: #1E1B19 !important;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.prep-lab-hub-link {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #1A1814 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  min-height: 0 !important;
+}
+
+:is([data-theme="dark"], .dark) .prep-lab-hub-link {
+  color: #F0EAE4 !important;
+}
+
+.mock-hub-meta-tag {
+  color: #7A7570 !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.12) !important;
+  background: transparent !important;
+  font-family: var(--mono) !important;
+  font-size: 10px !important;
+  padding: 2px 7px !important;
+  border-radius: 4px !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-meta-tag {
+  color: #9E9089 !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
 }
