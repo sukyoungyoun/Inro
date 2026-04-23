@@ -6646,6 +6646,446 @@ a[href="/dashboard"].mobile-wordmark {
   }
 }
 
+/* ===== Mobile fixes: Brief flow + toggles + preferences controls ===== */
+@media (max-width: 768px) {
+  /* 1) Brief page: remove tab switchers and stack sections in one scroll flow */
+  .tab-switcher,
+  [class*="tab-switcher"],
+  [class*="TabSwitcher"],
+  [role="tablist"],
+  .mobile-prep-tabs,
+  .brief-tabs,
+  .mobile-prep-view {
+    display: none !important;
+  }
+
+  [role="tabpanel"],
+  [class*="tab-panel"],
+  [class*="TabPanel"] {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  #view-brief .brief-split {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #view-brief .brief-main,
+  #view-brief .brief-sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  #view-brief .callout-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* 2) Toggles — constrained track + thumb */
+  .toggle,
+  [class*="toggle-track"],
+  [class*="Switch"],
+  [role="switch"] {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    width: 44px !important;
+    height: 26px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    border-radius: 13px !important;
+    cursor: pointer !important;
+    transition: background 0.2s ease !important;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .toggle.off,
+  .toggle[data-state="unchecked"],
+  .toggle:not(.on),
+  [aria-checked="false"][role="switch"] {
+    background: rgba(0, 0, 0, 0.15) !important;
+  }
+
+  :is([data-theme="dark"], .dark) .toggle.off,
+  :is([data-theme="dark"], .dark) .toggle[data-state="unchecked"],
+  :is([data-theme="dark"], .dark) .toggle:not(.on),
+  :is([data-theme="dark"], .dark) [aria-checked="false"][role="switch"] {
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .toggle.on,
+  .toggle[data-state="checked"],
+  [aria-checked="true"][role="switch"] {
+    background: var(--accent) !important;
+  }
+
+  .toggle::after,
+  .toggle-thumb,
+  [class*="toggle-thumb"],
+  [class*="Switch"] span,
+  [class*="Thumb"] {
+    position: absolute !important;
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    border-radius: 50% !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    transition: transform 0.2s ease !important;
+    top: 3px !important;
+    left: 3px !important;
+    content: "" !important;
+  }
+
+  .toggle.on::after,
+  .toggle[data-state="checked"] .toggle-thumb,
+  [aria-checked="true"] [class*="Thumb"] {
+    transform: translateX(18px) !important;
+  }
+
+  .toggle.off::after,
+  .toggle[data-state="unchecked"] .toggle-thumb,
+  [aria-checked="false"] [class*="Thumb"] {
+    transform: translateX(0) !important;
+  }
+
+  /* 3) Preferences pills/cards/footer actions on mobile */
+  .segmented,
+  .focus-pill-group {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .segment,
+  .focus-pill {
+    font-size: 13px !important;
+    padding: 8px 14px !important;
+    border-radius: 20px !important;
+    white-space: nowrap !important;
+    min-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  .segment.active,
+  .focus-pill.active {
+    background: #1A1814 !important;
+    color: #FAF8F5 !important;
+    border: none !important;
+  }
+
+  .segment:not(.active),
+  .focus-pill:not(.active) {
+    background: transparent !important;
+    border: 0.5px solid rgba(0, 0, 0, 0.2) !important;
+    color: var(--text-secondary) !important;
+  }
+
+  .style-radio {
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+  }
+
+  .style-radio.checked {
+    background: var(--accent) !important;
+    border: 2px solid var(--accent) !important;
+  }
+
+  .style-radio.checked::after {
+    background: #FFFFFF !important;
+    width: 6px !important;
+    height: 6px !important;
+  }
+
+  .style-radio:not(.checked) {
+    background: transparent !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .role-chip {
+    font-size: 12px !important;
+    padding: 5px 10px !important;
+    border-radius: 20px !important;
+    background: #F5EAE3 !important;
+    color: #8B4A2E !important;
+    border: 0.5px solid rgba(196, 113, 74, 0.2) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  .role-chip-x {
+    font-size: 14px !important;
+    color: #8B4A2E !important;
+  }
+
+  .prefs-footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    padding: 12px 16px !important;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+    background: var(--bg) !important;
+    border-top: 0.5px solid rgba(0, 0, 0, 0.08) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    z-index: 80 !important;
+  }
+
+  .prefs-footer .btn-primary {
+    order: 1 !important;
+    width: 100% !important;
+    padding: 14px !important;
+    border-radius: 10px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    background: #C4714A !important;
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+  }
+
+  .prefs-footer .btn-primary:disabled {
+    background: rgba(196, 113, 74, 0.25) !important;
+    color: rgba(196, 113, 74, 0.5) !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+  }
+
+  .prefs-footer .btn-ghost {
+    order: 2 !important;
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-tertiary) !important;
+    font-size: 14px !important;
+    padding: 12px !important;
+    text-align: center !important;
+  }
+
+  .prefs-scroll {
+    padding-bottom: calc(150px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* ===== Dark mode depth system rebuild (global) ===== */
+:is([data-theme="dark"], .dark) {
+  --bg: #141210 !important;
+  --surface: #1E1B19 !important;
+  --surface-2: #272320 !important;
+  --surface-3: #302C29 !important;
+  --border: rgba(255, 255, 255, 0.06) !important;
+  --border-md: rgba(255, 255, 255, 0.12) !important;
+  --text-primary: #F0EAE4 !important;
+  --text-secondary: #C4B8B0 !important;
+  --text-tertiary: #9E9089 !important;
+  --text-muted: #6B5F58 !important;
+  --green-bg: #1A2E18 !important;
+  --green-text: #7EC86A !important;
+  --amber-bg: #2A1E0E !important;
+  --amber-text: #E8A44A !important;
+  --red-bg: #2A1510 !important;
+  --red-text: #E87060 !important;
+  --accent: #D4845A !important;
+  --accent-light: #2A1A12 !important;
+
+  /* alias mapping used throughout existing stylesheet */
+  --bg-base: var(--bg) !important;
+  --bg-page: var(--bg) !important;
+  --bg-panel: var(--surface) !important;
+  --bg-sidebar: var(--surface) !important;
+  --bg-surface: var(--surface) !important;
+  --bg-card: var(--surface) !important;
+  --bg-card-inner: var(--surface-2) !important;
+  --bg-elevated: var(--surface-2) !important;
+  --border-default: var(--border) !important;
+  --border-subtle: var(--border-md) !important;
+  --ink: var(--text-primary) !important;
+  --ink2: var(--text-secondary) !important;
+  --ink3: var(--text-tertiary) !important;
+}
+
+/* ensure visible hierarchy globally in dark mode */
+:is([data-theme="dark"], .dark) .stat-card,
+:is([data-theme="dark"], .dark) .session-card,
+:is([data-theme="dark"], .dark) .upload-panel,
+:is([data-theme="dark"], .dark) .brief-card,
+:is([data-theme="dark"], .dark) .prefs-card,
+:is([data-theme="dark"], .dark) .tailored-card,
+:is([data-theme="dark"], .dark) .playbook-tip-card,
+:is([data-theme="dark"], .dark) .q-mini,
+:is([data-theme="dark"], .dark) .mock-hub-card {
+  background: var(--surface) !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* ===== Mock interviews dark mode ===== */
+:is([data-theme="dark"], .dark) .mock-interview-hub {
+  background: #141210 !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-card {
+  background: var(--surface) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 10px !important;
+  padding: 16px 18px !important;
+  margin-bottom: 10px !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-cat-header {
+  border-bottom: none !important;
+  margin-bottom: 8px !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-cat-section {
+  border-top: 0.5px solid rgba(255, 255, 255, 0.06) !important;
+  padding-top: 8px !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-start-full {
+  background: #F0EAE4 !important;
+  color: #141210 !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  width: auto !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-btn-practice {
+  background: #F0EAE4 !important;
+  color: #141210 !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  width: auto !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-btn-evaluate {
+  background: transparent !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+  color: #C4B8B0 !important;
+  padding: 8px 16px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  width: auto !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+  justify-content: flex-start !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-cat-label,
+:is([data-theme="dark"], .dark) .mock-hub-cat-count,
+:is([data-theme="dark"], .dark) .mock-hub-duration {
+  color: #9E9089 !important;
+  font-size: 10px !important;
+  text-transform: uppercase;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-q-text {
+  color: #F0EAE4 !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-meta-tag {
+  color: #9E9089 !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-why-link {
+  color: #9E9089 !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-why-link:hover {
+  color: #C4B8B0 !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-global-track,
+:is([data-theme="dark"], .dark) .mock-hub-cat-track {
+  height: 3px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-global-fill,
+:is([data-theme="dark"], .dark) .mock-hub-cat-fill {
+  background: #F0EAE4 !important;
+}
+
+/* ===== Prep sessions light mode targeted fixes ===== */
+html:not([data-theme="dark"]) .match-badge.high {
+  background: #EEF5E8 !important;
+  color: #3B6D11 !important;
+  border: 0.5px solid rgba(59, 109, 17, 0.15) !important;
+  font-size: 11px !important;
+  padding: 3px 10px !important;
+  border-radius: 20px !important;
+}
+
+html:not([data-theme="dark"]) .mock-hub-cat-overflow,
+html:not([data-theme="dark"]) .prep-category-overflow {
+  background: transparent !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.12) !important;
+  color: var(--text-tertiary) !important;
+}
+
+html:not([data-theme="dark"]) .q-mini-btn--practice,
+html:not([data-theme="dark"]) .mock-hub-btn-practice {
+  background: #1A1814 !important;
+  color: #FAF8F5 !important;
+  border: none !important;
+  padding: 7px 14px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  width: auto !important;
+  min-height: 36px !important;
+}
+
+html:not([data-theme="dark"]) .q-mini-btn--evaluate,
+html:not([data-theme="dark"]) .mock-hub-btn-evaluate {
+  border: 0.5px solid rgba(0, 0, 0, 0.15) !important;
+  background: transparent !important;
+  color: #1A1814 !important;
+  padding: 7px 14px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  width: auto !important;
+  min-height: 36px !important;
+}
+
+html:not([data-theme="dark"]) .mock-hub-actions,
+html:not([data-theme="dark"]) .q-mini-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+  justify-content: flex-start !important;
+}
+
 /* ===== Mobile regression fixes: top nav + overview cards ===== */
 @media (max-width: 768px) {
   #topbar,
