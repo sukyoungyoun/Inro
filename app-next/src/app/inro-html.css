@@ -6004,6 +6004,135 @@ html:not([data-theme="dark"]) .nav-btn.active {
   color: #8B5E52 !important;
 }
 
+/* ===== Preferences terracotta interactive accent restore ===== */
+:root {
+  --accent: #C4714A;
+  --accent-light: #F5EAE3;
+  --accent-border: #C4714A;
+  --accent-text: #8B4A2E;
+}
+
+:is([data-theme="dark"], .dark) {
+  --accent: #D4845A;
+  --accent-light: #2E1F18;
+  --accent-border: #D4845A;
+  --accent-text: #E8A882;
+}
+
+/* Selected prep style card + radio */
+.style-option.selected {
+  border: 1.5px solid var(--accent) !important;
+  background: var(--accent-light) !important;
+}
+
+.style-radio.checked {
+  border-color: var(--accent) !important;
+  background: transparent !important;
+}
+
+.style-radio.checked::after {
+  background: var(--accent) !important;
+}
+
+html:not([data-theme="dark"]) .style-option:not(.selected) {
+  border: 0.5px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+:is([data-theme="dark"], .dark) .style-option:not(.selected) {
+  border: 0.5px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Interview focus selected pills */
+.segment.active {
+  background: var(--accent) !important;
+  color: #FAF8F5 !important;
+  border-color: var(--accent) !important;
+}
+
+:is([data-theme="dark"], .dark) .segment.active {
+  background: var(--accent) !important;
+  color: #FAF8F5 !important;
+  border-color: var(--accent) !important;
+}
+
+.segment:not(.active) {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  border-color: var(--border-md) !important;
+}
+
+/* Toggle on/off */
+.toggle.on {
+  background: var(--accent) !important;
+}
+
+html:not([data-theme="dark"]) .toggle.off {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+
+:is([data-theme="dark"], .dark) .toggle.off {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Role chips */
+html:not([data-theme="dark"]) .role-chip {
+  background: var(--accent-light) !important;
+  color: var(--accent-text) !important;
+  border: 0.5px solid rgba(196, 113, 74, 0.25) !important;
+}
+
+:is([data-theme="dark"], .dark) .role-chip {
+  background: var(--accent-light) !important;
+  color: var(--accent-text) !important;
+  border: 0.5px solid rgba(212, 132, 90, 0.25) !important;
+}
+
+.role-chip-x {
+  color: var(--accent-text) !important;
+}
+
+/* Active nav item uses terracotta tint */
+.nav-btn.active {
+  background: var(--accent-light) !important;
+  color: var(--accent-text) !important;
+}
+
+.nav-btn.active svg {
+  color: var(--accent) !important;
+}
+
+/* Save preferences button */
+.prefs-footer .btn-primary {
+  background: var(--accent) !important;
+  color: #FAF8F5 !important;
+}
+
+.prefs-footer .btn-primary:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.prefs-footer .btn-primary:disabled {
+  background: rgba(196, 113, 74, 0.3) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Focus rings use terracotta accent */
+:is(a, button, input, textarea, select, summary, [role="tab"], [role="switch"]):focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 1px !important;
+}
+
+.pref-input:focus,
+.career-ta:focus,
+.target-roles-input:focus-within,
+.role-add-input:focus,
+.field-input:focus,
+.field-select:focus,
+.ta:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 28%, transparent) !important;
+}
+
 /* Resume Library dark-only brightness tuning */
 :is([data-theme="dark"], .dark) .primary-resume-card {
   background: var(--surface) !important;
