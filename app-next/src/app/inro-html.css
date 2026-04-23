@@ -5748,6 +5748,43 @@ html:not([data-theme="dark"]) .brief-strength-ico {
   color: #7EC86A !important;
 }
 
+/* Resume Library dark-only brightness tuning */
+:is([data-theme="dark"], .dark) .primary-resume-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-default) !important;
+}
+
+:is([data-theme="dark"], .dark) .tailored-card {
+  background: var(--surface) !important;
+  border-color: var(--border-default) !important;
+}
+
+:is([data-theme="dark"], .dark) .btn-preview,
+:is([data-theme="dark"], .dark) .tailored-actions button {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+:is([data-theme="dark"], .dark) .btn-update,
+:is([data-theme="dark"], .dark) .btn-upload,
+:is([data-theme="dark"], .dark) .tailored-actions a {
+  background: var(--surface-2) !important;
+  color: var(--text-primary) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+:is([data-theme="dark"], .dark) .btn-preview:hover,
+:is([data-theme="dark"], .dark) .tailored-actions button:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+:is([data-theme="dark"], .dark) .btn-update:hover,
+:is([data-theme="dark"], .dark) .btn-upload:hover,
+:is([data-theme="dark"], .dark) .tailored-actions a:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
 /* Brief strengths / gaps readability in dark mode */
 :is([data-theme="dark"], .dark) .brief-list-section-label {
   color: var(--text-tertiary) !important;
