@@ -5387,3 +5387,220 @@ html:not([data-theme="dark"]) {
 .session-manage-link {
   font-size: 12px !important;
 }
+
+/* ===== Dark mode text contrast fix (global component pass) ===== */
+:is([data-theme="dark"], .dark) {
+  --text-primary: #F0EAE4;
+  --text-secondary: #C4B8B0;
+  --text-tertiary: #9E9089;
+  --text-muted: #6B5F58; /* placeholders only */
+  --surface: #242120;
+  --surface-2: #2C2826;
+  --surface-3: #343028;
+  --green-text: #7EC86A;
+  --amber-text: #E8A44A;
+  --red-text: #E87060;
+  --blue-text: #8AAAE8;
+}
+
+/* Overview cards */
+:is([data-theme="dark"], .dark) .stat-num { color: var(--text-primary) !important; }
+:is([data-theme="dark"], .dark) .stat-sub,
+:is([data-theme="dark"], .dark) .metric-delta { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .stat-card-cta { color: var(--green-text) !important; }
+:is([data-theme="dark"], .dark) .stat-card-cta:hover { opacity: 0.8; }
+
+:is([data-theme="dark"], .dark) .session-role { color: var(--text-primary) !important; font-weight: 500 !important; }
+:is([data-theme="dark"], .dark) .session-company { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .session-time,
+:is([data-theme="dark"], .dark) .session-modules,
+:is([data-theme="dark"], .dark) .session-outcome-toggle,
+:is([data-theme="dark"], .dark) .session-edit-btn { color: var(--text-tertiary) !important; }
+:is([data-theme="dark"], .dark) .session-edit-btn:hover,
+:is([data-theme="dark"], .dark) .session-outcome-toggle:hover { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .session-action { color: var(--text-primary) !important; }
+
+:is([data-theme="dark"], .dark) .module-segment { background: rgba(255, 255, 255, 0.12) !important; }
+:is([data-theme="dark"], .dark) .module-segment.done { background: #5AA84A !important; }
+:is([data-theme="dark"], .dark) .session-card .module-segment:nth-child(4):not(.done) { background: #C87D1E !important; }
+
+:is([data-theme="dark"], .dark) .match-badge.high {
+  background: #1E3020 !important;
+  color: #7EC86A !important;
+  border: 0.5px solid rgba(126, 200, 106, 0.25) !important;
+}
+:is([data-theme="dark"], .dark) .match-badge.mid {
+  background: #2E2010 !important;
+  color: #E8A44A !important;
+  border: 0.5px solid rgba(232, 164, 74, 0.25) !important;
+}
+
+:is([data-theme="dark"], .dark) .status-tag.review {
+  background: #2E2010 !important;
+  color: #E8A44A !important;
+  border: 0.5px solid rgba(232, 164, 74, 0.2) !important;
+}
+:is([data-theme="dark"], .dark) .status-tag.bench {
+  background: #1A2030 !important;
+  color: #8AAAE8 !important;
+  border: 0.5px solid rgba(138, 170, 232, 0.2) !important;
+}
+:is([data-theme="dark"], .dark) .status-tag.pending {
+  background: var(--surface-2) !important;
+  color: var(--text-tertiary) !important;
+}
+:is([data-theme="dark"], .dark) .session-manage-danger { color: var(--red-text) !important; }
+:is([data-theme="dark"], .dark) .session-manage-danger:hover { opacity: 0.8; }
+
+/* Mock interviews */
+:is([data-theme="dark"], .dark) .mock-interview-hub-title { color: var(--text-primary) !important; }
+:is([data-theme="dark"], .dark) .mock-interview-hub-role,
+:is([data-theme="dark"], .dark) .mock-hub-hint { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .mock-hub-progress-count,
+:is([data-theme="dark"], .dark) .mock-hub-cat-label,
+:is([data-theme="dark"], .dark) .mock-hub-cat-count,
+:is([data-theme="dark"], .dark) .mock-hub-duration,
+:is([data-theme="dark"], .dark) .mock-hub-why-link { color: var(--text-tertiary) !important; }
+:is([data-theme="dark"], .dark) .mock-hub-global-fill,
+:is([data-theme="dark"], .dark) .mock-hub-cat-fill { background: var(--text-primary) !important; }
+:is([data-theme="dark"], .dark) .mock-hub-q-text { color: var(--text-primary) !important; font-size: 13px !important; }
+:is([data-theme="dark"], .dark) .mock-hub-meta-tag {
+  color: var(--text-tertiary) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.12) !important;
+  background: transparent !important;
+}
+:is([data-theme="dark"], .dark) .mock-hub-why-link:hover { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .mock-hub-btn-practice {
+  background: var(--text-primary) !important;
+  color: #1A1614 !important;
+}
+:is([data-theme="dark"], .dark) .mock-hub-btn-evaluate {
+  border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* New role / setup */
+:is([data-theme="dark"], .dark) .setup-title { color: var(--text-primary) !important; }
+:is([data-theme="dark"], .dark) .setup-sub { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .upload-label { color: var(--text-tertiary) !important; font-size: 11px !important; }
+:is([data-theme="dark"], .dark) .drop-zone { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .ta,
+:is([data-theme="dark"], .dark) .field-input,
+:is([data-theme="dark"], .dark) .field-select {
+  background: var(--surface-3) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-primary) !important;
+}
+:is([data-theme="dark"], .dark) .ta::placeholder,
+:is([data-theme="dark"], .dark) .field-input::placeholder { color: var(--text-muted) !important; }
+:is([data-theme="dark"], .dark) #view-setup .context-title { color: var(--text-primary) !important; }
+:is([data-theme="dark"], .dark) #view-setup .context-title .context-optional { color: var(--text-tertiary) !important; }
+:is([data-theme="dark"], .dark) .field-label { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .btn-primary {
+  background: var(--text-primary) !important;
+  color: #1A1614 !important;
+}
+:is([data-theme="dark"], .dark) .btn-primary:disabled {
+  background: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+/* Preferences */
+:is([data-theme="dark"], .dark) .prefs-card-title { color: var(--text-primary) !important; font-weight: 500 !important; }
+:is([data-theme="dark"], .dark) .prefs-card-sub,
+:is([data-theme="dark"], .dark) .pref-label { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .pref-input,
+:is([data-theme="dark"], .dark) .pref-input-lock,
+:is([data-theme="dark"], .dark) .target-roles-input,
+:is([data-theme="dark"], .dark) .role-add-input,
+:is([data-theme="dark"], .dark) .career-ta {
+  background: var(--surface-3) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary) !important;
+}
+:is([data-theme="dark"], .dark) .pref-input::placeholder,
+:is([data-theme="dark"], .dark) .role-add-input::placeholder,
+:is([data-theme="dark"], .dark) .career-ta::placeholder { color: var(--text-muted) !important; }
+
+:is([data-theme="dark"], .dark) .style-option.selected {
+  background: var(--surface-2) !important;
+  border: 1.5px solid var(--green-text) !important;
+}
+:is([data-theme="dark"], .dark) .style-option.selected .style-option-title { color: var(--text-primary) !important; }
+:is([data-theme="dark"], .dark) .style-option.selected .style-option-desc { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .style-radio.checked { border-color: var(--green-text) !important; }
+:is([data-theme="dark"], .dark) .style-radio.checked::after { background: var(--green-text) !important; }
+:is([data-theme="dark"], .dark) .style-option:not(.selected) {
+  background: var(--surface) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.1) !important;
+}
+:is([data-theme="dark"], .dark) .style-option:not(.selected) .style-option-title { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .style-option:not(.selected) .style-option-desc { color: var(--text-tertiary) !important; }
+
+:is([data-theme="dark"], .dark) .segment.active {
+  background: var(--surface-2) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+:is([data-theme="dark"], .dark) .segment:not(.active) {
+  background: transparent !important;
+  color: var(--text-tertiary) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+:is([data-theme="dark"], .dark) .notif-title { color: var(--text-primary) !important; }
+:is([data-theme="dark"], .dark) .notif-desc { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .toggle.on { background: var(--green-text) !important; }
+:is([data-theme="dark"], .dark) .toggle.off { background: rgba(255, 255, 255, 0.15) !important; }
+
+:is([data-theme="dark"], .dark) .prefs-footer .btn-ghost {
+  color: var(--text-secondary) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+}
+:is([data-theme="dark"], .dark) .prefs-footer .btn-primary {
+  background: var(--text-primary) !important;
+  color: #1A1614 !important;
+}
+:is([data-theme="dark"], .dark) .prefs-footer .btn-primary:disabled {
+  background: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+  opacity: 0.5 !important;
+}
+
+/* Resume library */
+:is([data-theme="dark"], .dark) .rl-header h1 { color: var(--text-primary) !important; }
+:is([data-theme="dark"], .dark) .rl-header p { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .resume-name { color: var(--text-primary) !important; }
+:is([data-theme="dark"], .dark) .primary-badge {
+  background: #1E3020 !important;
+  color: var(--green-text) !important;
+}
+:is([data-theme="dark"], .dark) .resume-meta { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .btn-preview {
+  border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+  color: var(--text-secondary) !important;
+}
+:is([data-theme="dark"], .dark) .btn-update,
+:is([data-theme="dark"], .dark) .btn-upload {
+  background: var(--surface-2) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+}
+:is([data-theme="dark"], .dark) .rl-section-label { color: var(--text-tertiary) !important; font-size: 11px !important; }
+:is([data-theme="dark"], .dark) .tailored-name { color: var(--text-primary) !important; }
+:is([data-theme="dark"], .dark) .tailored-company-empty,
+:is([data-theme="dark"], .dark) .tailored-meta { color: var(--text-tertiary) !important; }
+:is([data-theme="dark"], .dark) .tailored-company-empty:hover,
+:is([data-theme="dark"], .dark) .tailored-meta:hover { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .tailored-tag {
+  color: var(--text-tertiary) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.1) !important;
+}
+:is([data-theme="dark"], .dark) .tailored-actions button { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .tailored-actions a { color: var(--text-primary) !important; }
+
+:is([data-theme="dark"], .dark) .tailored-name--error { color: var(--red-text) !important; }
+:is([data-theme="dark"], .dark) .tailored-name--secondary { color: var(--text-secondary) !important; }
+:is([data-theme="dark"], .dark) .tailored-error-caption { color: var(--text-secondary) !important; }

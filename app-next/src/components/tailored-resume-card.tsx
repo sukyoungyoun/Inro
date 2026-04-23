@@ -19,20 +19,20 @@ export function TailoredResumeCard({
   const shown = value.trim();
   const [saving, setSaving] = useState(false);
 
-  function normalizeTitle(raw: string) {
+  function normalizeTitle(raw: string): { title: string; errorCaption: string; tone: "normal" | "error" | "secondary" } {
     const source = (raw || "").trim();
     const lower = source.toLowerCase();
 
     if (lower.includes("full text extraction failed")) {
-      return { title: "Upload error", errorCaption: source };
+      return { title: "Upload error", errorCaption: source, tone: "error" };
     }
     if (lower.includes("unable to infer")) {
-      return { title: "Missing job description", errorCaption: source };
+      return { title: "Missing job description", errorCaption: source, tone: "secondary" };
     }
     if (lower.includes("infer role context conservatively")) {
-      return { title: "Incomplete session", errorCaption: source };
+      return { title: "Incomplete session", errorCaption: source, tone: "secondary" };
     }
-    return { title: source || "Untitled session", errorCaption: "" };
+    return { title: source || "Untitled session", errorCaption: "", tone: "normal" };
   }
 
   const normalized = normalizeTitle(title);
@@ -57,7 +57,7 @@ export function TailoredResumeCard({
           ···
         </button>
       </div>
-      <div className="tailored-name">{normalized.title}</div>
+      <div className={`tailored-name${normalized.tone === "error" ? " tailored-name--error" : ""}${normalized.tone === "secondary" ? " tailored-name--secondary" : ""}`}>{normalized.title}</div>
       {normalized.errorCaption ? <div className="tailored-error-caption">{normalized.errorCaption}</div> : null}
       {!editing ? (
         <div
