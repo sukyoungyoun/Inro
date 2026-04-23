@@ -6170,6 +6170,98 @@ html:not([data-theme="dark"]) .role-chip {
   background: rgba(255, 255, 255, 0.08) !important;
 }
 
+/* Revert nav + prefs interactive accents away from terracotta */
+html:not([data-theme="dark"]) .nav-btn.active {
+  background: #F0EBE6 !important;
+  color: #1A1814 !important;
+}
+
+html:not([data-theme="dark"]) .nav-btn.active svg {
+  color: currentColor !important;
+}
+
+:is([data-theme="dark"], .dark) .nav-btn.active {
+  background: #2C2826 !important;
+  color: #F0EAE4 !important;
+}
+
+:is([data-theme="dark"], .dark) .nav-btn.active svg {
+  color: currentColor !important;
+}
+
+html:not([data-theme="dark"]) .style-option.selected {
+  border: 1.5px solid rgba(0, 0, 0, 0.4) !important;
+  background: #F0EDE8 !important;
+}
+
+:is([data-theme="dark"], .dark) .style-option.selected {
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  background: #2C2826 !important;
+}
+
+html:not([data-theme="dark"]) .style-radio.checked,
+html:not([data-theme="dark"]) .style-radio.checked::after {
+  border-color: #1A1814 !important;
+  background: #1A1814 !important;
+}
+
+:is([data-theme="dark"], .dark) .style-radio.checked,
+:is([data-theme="dark"], .dark) .style-radio.checked::after {
+  border-color: #F0EAE4 !important;
+  background: #F0EAE4 !important;
+}
+
+html:not([data-theme="dark"]) .segment.active {
+  background: #1A1814 !important;
+  color: #FAF8F5 !important;
+  border-color: #1A1814 !important;
+}
+
+:is([data-theme="dark"], .dark) .segment.active {
+  background: #F0EAE4 !important;
+  color: #1A1614 !important;
+  border-color: #F0EAE4 !important;
+}
+
+html:not([data-theme="dark"]) .toggle.on {
+  background: #1A1814 !important;
+}
+
+:is([data-theme="dark"], .dark) .toggle.on {
+  background: #F0EAE4 !important;
+}
+
+:is([data-theme="dark"], .dark) .toggle.on::after {
+  background: #1A1614 !important;
+}
+
+html:not([data-theme="dark"]) .role-chip {
+  background: #F0EDE8 !important;
+  color: #1A1814 !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.2) !important;
+}
+
+:is([data-theme="dark"], .dark) .role-chip {
+  background: #2C2826 !important;
+  color: #F0EAE4 !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.role-chip-x {
+  color: currentColor !important;
+}
+
+/* Preferences dark mode: change photo button should not be white */
+:is([data-theme="dark"], .dark) .change-img-btn {
+  background: var(--surface-2) !important;
+  color: var(--text-primary) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+:is([data-theme="dark"], .dark) .change-img-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
 /* Brief strengths / gaps readability in dark mode */
 :is([data-theme="dark"], .dark) .brief-list-section-label {
   color: var(--text-tertiary) !important;
