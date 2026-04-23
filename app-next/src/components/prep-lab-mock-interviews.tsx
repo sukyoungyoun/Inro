@@ -36,7 +36,7 @@ function WhyThisQuestionPrep({ insight }: { insight: string }) {
   return (
     <div className="mock-hub-why">
       <button type="button" className="mock-hub-why-link" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-        <span className="mock-hub-why-text">{open ? "▾ Why this question" : "▸ Why this question"}</span>
+        <span className="mock-hub-why-text">+ Why this question</span>
       </button>
       {open ? <div className="mock-hub-why-body">{insight}</div> : null}
     </div>
@@ -192,7 +192,11 @@ export function PrepLabMockInterviews({
           <p className="prep-lab-list-question">{q.text}</p>
           <div className="prep-lab-list-meta">
             <span className="prep-lab-list-duration">{q.duration}</span>
-            {showDifficultyTags ? <span className="mock-hub-meta-tag">{formatDifficultyLabel(q.difficulty)}</span> : null}
+            {showDifficultyTags ? (
+              <span className={`mock-hub-meta-tag prep-lab-diff${q.difficulty === "hard" ? " is-hard" : ""}`}>
+                {formatDifficultyLabel(q.difficulty)}
+              </span>
+            ) : null}
           </div>
           <div className="mock-hub-actions prep-lab-list-actions">
             <Link href={`/sessions/${sessionId}/practice?q=${qIndex}`} className="mock-hub-btn-practice">
@@ -286,13 +290,13 @@ export function PrepLabMockInterviews({
         role="complementary"
         aria-label="Mock interviews and prep lab"
       >
-        <div className="prep-panel-header">
-          <div className="prep-panel-tablist" role="tablist" aria-label="Prep session workspace">
+        <div className="brief-sidebar-head">
+          <div className="brief-tabs" role="tablist" aria-label="Prep session workspace">
             <button
               type="button"
               role="tab"
               aria-selected={tab === "prep"}
-              className={`prep-panel-tab${tab === "prep" ? " active" : ""}`}
+              className={`brief-tab${tab === "prep" ? " active" : ""}`}
               onClick={() => setTab("prep")}
             >
               Prep Lab
@@ -301,16 +305,16 @@ export function PrepLabMockInterviews({
               type="button"
               role="tab"
               aria-selected={tab === "questions"}
-              className={`prep-panel-tab${tab === "questions" ? " active" : ""}`}
+              className={`brief-tab${tab === "questions" ? " active" : ""}`}
               onClick={() => setTab("questions")}
             >
               Recommended Questions
             </button>
           </div>
-          <div className="prep-panel-actions">
+          <div className="brief-tab-expand-wrap">
             <button
               type="button"
-              className="prep-panel-expand-btn"
+              className="btn-open-mock"
               aria-label="Expand prep questions"
               onClick={() => setQuestionsExpanded(true)}
             >
@@ -329,6 +333,12 @@ export function PrepLabMockInterviews({
         </div>
 
         <div className="prep-lab-start-block">
+          <div className="prep-global-progress prep-lab-global-progress" aria-label="Overall mock interview progress">
+            <div className="prep-progress-meta prep-lab-progress-meta">{doneCount} / {total || 0} done</div>
+            <div className="prep-progress-track prep-lab-progress-track">
+              <div className="prep-progress-fill prep-lab-progress-fill" style={{ width: `${globalPct}%` }} />
+            </div>
+          </div>
           <Link href={`/sessions/${sessionId}/practice`} className="prep-lab-hub-link">
             Open mock interview hub →
           </Link>
@@ -337,12 +347,6 @@ export function PrepLabMockInterviews({
               ? `See all ${total} tailored questions and pick where to practice`
               : "Open the hub once questions are generated"}
           </p>
-          <div className="prep-global-progress prep-lab-global-progress" aria-label="Overall mock interview progress">
-            <div className="prep-progress-meta prep-lab-progress-meta">{doneCount} / {total || 0} done</div>
-            <div className="prep-progress-track prep-lab-progress-track">
-              <div className="prep-progress-fill prep-lab-progress-fill" style={{ width: `${globalPct}%` }} />
-            </div>
-          </div>
         </div>
 
         <div className="prep-lab-scroll-wrap">
