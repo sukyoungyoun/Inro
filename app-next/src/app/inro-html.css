@@ -4930,6 +4930,27 @@ html:not([data-theme="dark"]) .topbar-actions .btn-ghost {
   background: rgba(255, 255, 255, 0.05) !important;
   color: #c8b5ac !important;
 }
+
+/* ===== Sidebar logo sizing + rounded container ===== */
+.logo {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 14px 12px 12px !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.4px !important;
+  background: #f5ede8 !important;
+  color: #7b4a3a !important;
+}
+
+:is([data-theme="dark"], .dark) .logo {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e8d5cc !important;
+}
 html:not([data-theme="dark"]) .topbar-actions .btn-new {
   background: var(--accent-terra) !important;
   color: #FFFFFF !important;
