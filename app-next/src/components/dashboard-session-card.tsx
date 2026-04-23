@@ -361,7 +361,15 @@ export function DashboardSessionCard({
         <div className={`match-badge${hasParsedScore ? "" : " neutral"} accent`}>{badgeLabel}</div>
         {hasParsedScore ? (
           <div className="match-bar">
-            <div className={`match-fill${score < 78 ? " mid" : ""}`} style={{ width: `${Math.min(100, Math.max(8, score))}%` }} />
+            <div
+              className={`match-fill${score < 78 ? " mid" : ""}`}
+              style={
+                {
+                  width: `${Math.min(100, Math.max(8, score))}%`,
+                  ["--match-score" as string]: String(Math.min(100, Math.max(8, score))),
+                } as React.CSSProperties
+              }
+            />
           </div>
         ) : null}
       </div>
@@ -370,7 +378,7 @@ export function DashboardSessionCard({
       </div>
       <div className="module-segments" aria-label={`module completion segments: ${MODULE_NAMES.join(", ")}`} title={MODULE_NAMES.join("\n")}>
         {[0, 1, 2, 3, 4, 5].map((idx) => (
-          <span key={idx} className={`module-segment${idx < 3 ? " done" : ""}`} />
+          <span key={idx} className={`module-segment module-seg${idx < 3 ? " done" : idx === 3 ? " active" : ""}`} />
         ))}
       </div>
       <div className={`status-tag ${status.cls}`}>{status.label}</div>
