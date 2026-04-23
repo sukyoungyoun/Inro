@@ -1494,7 +1494,7 @@ label.drop-zone {
 .brief-edit-btn {
   padding: 8px 16px !important;
   font-size: 12px !important;
-  font-weight: 600 !important;
+  font-weight: 400 !important;
 }
 .brief-save-btn {
   flex-shrink: 0;
@@ -5178,4 +5178,212 @@ html:not([data-theme="dark"]) {
 }
 [data-theme="dark"] .prep-category-heading {
   color: #AAAAAA !important;
+}
+
+/* ===== Global contrast + token rebuild ===== */
+:root {
+  --text-tertiary: #7A7570;
+}
+
+:is([data-theme="dark"], .dark) {
+  --bg: #1A1614;
+  --surface: #242120;
+  --surface-2: #2C2826;
+  --surface-3: #343028;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-md: rgba(255, 255, 255, 0.14);
+  --text-primary: #F0EAE4;
+  --text-secondary: #C4B8B0;
+  --text-tertiary: #9E9089;
+  --text-disabled: #6B5F58;
+  --green-bg: #1E3020;
+  --green-text: #7EC86A;
+  --green-bar: #5AA84A;
+  --amber-bg: #2E2010;
+  --amber-text: #E8A44A;
+  --amber-bar: #C87D1E;
+  --red-bg: #2E1810;
+  --red-text: #E87060;
+  --match-bg: #1A2E18;
+  --match-text: #7EC86A;
+
+  --bg-base: var(--bg);
+  --bg-page: var(--bg);
+  --bg-panel: var(--surface);
+  --bg-sidebar: var(--surface);
+  --bg-surface: var(--surface);
+  --bg-card: var(--surface);
+  --bg-card-inner: var(--surface-2);
+  --bg-elevated: var(--surface-2);
+  --border-soft: var(--border);
+  --border-mid: var(--border-md);
+  --border-default: var(--border);
+  --border-subtle: var(--border-md);
+  --ink-primary: var(--text-primary);
+  --ink-secondary: var(--text-secondary);
+  --ink-muted: var(--text-tertiary);
+  --ink: var(--text-primary);
+  --ink2: var(--text-secondary);
+  --ink3: var(--text-tertiary);
+  --green: var(--green-text);
+  --amber: var(--amber-text);
+  --accent-green: var(--green-text);
+  --accent-green-bg: var(--green-bg);
+  --accent-amber: var(--amber-text);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--text-primary) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+
+.session-time,
+.session-modules,
+.mock-hub-cat-label,
+.mock-hub-cat-count,
+.mock-hub-diff,
+.playbook-tip-cat {
+  font-size: 11px !important;
+}
+
+.status-tag {
+  font-size: 11px !important;
+}
+
+:is([data-theme="dark"], .dark) .status-tag.review {
+  background: var(--amber-bg) !important;
+  color: var(--amber-text) !important;
+  border: 0.5px solid rgba(232, 164, 74, 0.2) !important;
+}
+
+:is([data-theme="dark"], .dark) .status-tag.bench {
+  background: #1A2030 !important;
+  color: #8AAAE8 !important;
+  border: 0.5px solid rgba(138, 170, 232, 0.2) !important;
+}
+
+:is([data-theme="dark"], .dark) .status-tag.pending {
+  background: var(--surface-2) !important;
+  color: var(--text-tertiary) !important;
+  border: 0.5px solid var(--border-md) !important;
+}
+
+:is([data-theme="dark"], .dark) .match-badge.high {
+  background: var(--match-bg) !important;
+  color: var(--match-text) !important;
+  border-color: rgba(126, 200, 106, 0.2) !important;
+}
+
+:is([data-theme="dark"], .dark) .match-badge.mid {
+  background: var(--amber-bg) !important;
+  color: var(--amber-text) !important;
+  border-color: rgba(232, 164, 74, 0.2) !important;
+}
+
+:is([data-theme="dark"], .dark) .module-segment {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+:is([data-theme="dark"], .dark) .module-segment.done {
+  background: #5AA84A !important;
+}
+
+:is([data-theme="dark"], .dark) .module-segment.active {
+  background: #C87D1E !important;
+}
+
+:is([data-theme="dark"], .dark) .session-manage-link,
+:is([data-theme="dark"], .dark) .tailored-meta,
+:is([data-theme="dark"], .dark) .tailored-company-empty,
+:is([data-theme="dark"], .dark) .mock-hub-why-link,
+:is([data-theme="dark"], .dark) .playbook-dismiss,
+:is([data-theme="dark"], .dark) .playbook-meta-link {
+  color: var(--text-tertiary) !important;
+}
+
+:is([data-theme="dark"], .dark) .session-manage-link:hover:not(:disabled),
+:is([data-theme="dark"], .dark) .tailored-meta:hover,
+:is([data-theme="dark"], .dark) .tailored-company-empty:hover,
+:is([data-theme="dark"], .dark) .mock-hub-why-link:hover,
+:is([data-theme="dark"], .dark) .playbook-meta-link:hover {
+  color: var(--text-secondary) !important;
+}
+
+:is([data-theme="dark"], .dark) .session-manage-danger,
+:is([data-theme="dark"], .dark) .session-manage-danger:hover:not(:disabled) {
+  color: var(--red-text) !important;
+}
+
+:is([data-theme="dark"], .dark) .playbook-dismiss:hover {
+  color: var(--red-text) !important;
+}
+
+.tailored-error-caption {
+  color: var(--text-tertiary) !important;
+  font-size: 11px !important;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+:is([data-theme="dark"], .dark) .brief-strength-ico {
+  background: var(--green-bg) !important;
+  border: 1px solid var(--green-text) !important;
+  color: var(--green-text) !important;
+}
+
+:is([data-theme="dark"], .dark) .brief-gap-ico {
+  background: var(--amber-bg) !important;
+  border: 1px solid var(--amber-text) !important;
+  color: var(--amber-text) !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-cat-label,
+:is([data-theme="dark"], .dark) .mock-hub-cat-count,
+:is([data-theme="dark"], .dark) .mock-hub-why-link {
+  color: var(--text-tertiary) !important;
+}
+
+:is([data-theme="dark"], .dark) .mock-hub-why-link:hover {
+  color: var(--text-secondary) !important;
+}
+
+:is([data-theme="dark"], .dark) .pref-input,
+:is([data-theme="dark"], .dark) .career-ta,
+:is([data-theme="dark"], .dark) .pref-input-lock,
+:is([data-theme="dark"], .dark) .role-add-input,
+:is([data-theme="dark"], .dark) .target-roles-input {
+  background: var(--surface-3) !important;
+  border-color: var(--border-md) !important;
+  color: var(--text-primary) !important;
+}
+
+:is([data-theme="dark"], .dark) .pref-label,
+:is([data-theme="dark"], .dark) .prefs-card-sub {
+  color: var(--text-secondary) !important;
+}
+
+.prefs-footer .btn-primary:disabled {
+  opacity: 0.4 !important;
+}
+
+:is([data-theme="dark"], .dark) .playbook-tip-body {
+  color: var(--text-secondary) !important;
+}
+
+:is([data-theme="dark"], .dark) .playbook-tip-cat {
+  color: var(--text-tertiary) !important;
+}
+
+:is([data-theme="dark"], .dark) .playbook-bookmark {
+  color: var(--text-tertiary) !important;
+}
+
+:is([data-theme="dark"], .dark) .playbook-bookmark--saved,
+:is([data-theme="dark"], .dark) .playbook-bookmark:hover {
+  color: var(--amber-text) !important;
+}
+
+.session-manage-link {
+  font-size: 12px !important;
 }

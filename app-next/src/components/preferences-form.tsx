@@ -44,6 +44,15 @@ export function PreferencesForm({
   const [message, setMessage] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const initialFocus = useMemo(
+    () =>
+      initial.interviewFocusKeys?.length
+        ? [...initial.interviewFocusKeys]
+        : initial.targetStage
+          ? [initial.targetStage]
+          : [],
+    [initial.interviewFocusKeys, initial.targetStage]
+  );
 
   const initials = useMemo(
     () =>
@@ -56,6 +65,18 @@ export function PreferencesForm({
         .join("") || "U",
     [firstName, lastName]
   );
+
+  const isUnchanged = useMemo(() => {
+    const fullNameNow = `${firstName} ${lastName}`.trim();
+    const rolesSame = JSON.stringify(targetRoles) === JSON.stringify(initial.targetRoles);
+    const focusSame = JSON.stringify(interviewFocusKeys) === JSON.stringify(initialFocus);
+    return (
+      fullNameNow === initial.fullName.trim() &&
+      currentRole.trim() === initial.currentRole.trim() &&
+      rolesSame &&
+      focusSame
+    );
+  }, [currentRole, firstName, initial.currentRole, initial.fullName, initial.targetRoles, initialFocus, interviewFocusKeys, lastName, targetRoles]);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("inro-avatar-preview");
@@ -335,7 +356,7 @@ export function PreferencesForm({
         <button type="button" className="btn-ghost">
           Discard
         </button>
-        <button type="submit" form="prefs-form" className="btn-primary" disabled={loading}>
+        <button type="submit" form="prefs-form" className="btn-primary" disabled={loading || isUnchanged}>
           {loading ? "Saving…" : "Save Preferences"}
         </button>
       </div>

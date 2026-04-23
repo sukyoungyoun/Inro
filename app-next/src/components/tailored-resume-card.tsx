@@ -19,6 +19,24 @@ export function TailoredResumeCard({
   const shown = value.trim();
   const [saving, setSaving] = useState(false);
 
+  function normalizeTitle(raw: string) {
+    const source = (raw || "").trim();
+    const lower = source.toLowerCase();
+
+    if (lower.includes("full text extraction failed")) {
+      return { title: "Upload error", errorCaption: source };
+    }
+    if (lower.includes("unable to infer")) {
+      return { title: "Missing job description", errorCaption: source };
+    }
+    if (lower.includes("infer role context conservatively")) {
+      return { title: "Incomplete session", errorCaption: source };
+    }
+    return { title: source || "Untitled session", errorCaption: "" };
+  }
+
+  const normalized = normalizeTitle(title);
+
   async function saveCompany() {
     setSaving(true);
     await fetch("/api/resume", {
@@ -39,7 +57,8 @@ export function TailoredResumeCard({
           ···
         </button>
       </div>
-      <div className="tailored-name">{title}</div>
+      <div className="tailored-name">{normalized.title}</div>
+      {normalized.errorCaption ? <div className="tailored-error-caption">{normalized.errorCaption}</div> : null}
       {!editing ? (
         <div
           className={shown ? "tailored-meta" : "tailored-company-empty"}
