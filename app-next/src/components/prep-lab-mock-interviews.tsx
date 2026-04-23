@@ -19,6 +19,12 @@ function formatCategoryLabel(cat: MockInterviewCategory) {
   return "BEHAVIORAL";
 }
 
+function formatCategoryTitle(cat: MockInterviewCategory) {
+  if (cat === "product_sense") return "Product Sense";
+  if (cat === "portfolio") return "Portfolio";
+  return "Behavioral";
+}
+
 function formatDifficultyLabel(d: MockInterviewQuestion["difficulty"]) {
   if (d === "hard") return "HARD";
   if (d === "easy") return "EASY";
@@ -59,6 +65,7 @@ export function PrepLabMockInterviews({
   const [progress, setProgress] = useState<Record<string, "pending" | "done" | "skipped">>({});
   const [toast, setToast] = useState<string | null>(null);
   const [regenBusy, setRegenBusy] = useState<string | null>(null);
+  const [queuedQuestionIds, setQueuedQuestionIds] = useState<string[]>([]);
 
   const refreshProgress = useCallback(() => {
     setProgress(readMockProgress(sessionId));
@@ -91,7 +98,12 @@ export function PrepLabMockInterviews({
 
   const mockRows = useMemo(() => mapDbQuestionsToMock(questions, progress), [questions, progress]);
   const visibleMock = useMemo(() => mapDbQuestionsToMock(visibleQuestions, progress), [visibleQuestions, progress]);
-  const groupedVisible = useMemo(() => groupQuestionsByCategory(visibleMock), [visibleMock]);
+  const queuedMock = useMemo(() => {
+    if (queuedQuestionIds.length === 0) return visibleMock;
+    const byId = new Map(mockRows.map((q) => [q.id, q]));
+    return queuedQuestionIds.map((id) => byId.get(id)).filter((q): q is MockInterviewQuestion => Boolean(q));
+  }, [queuedQuestionIds, mockRows, visibleMock]);
+  const groupedQueued = useMemo(() => groupQuestionsByCategory(queuedMock), [queuedMock]);
   const groupedAll = useMemo(() => groupQuestionsByCategory(mockRows), [mockRows]);
 
   const fullByCat = useMemo(() => {
@@ -107,6 +119,12 @@ export function PrepLabMockInterviews({
   const doneCount = mockRows.filter((q) => q.status === "done").length;
   const globalPct = total ? Math.round((doneCount / total) * 100) : 0;
   const showDifficultyTags = useMemo(() => shouldShowDifficultyTags(mockRows), [mockRows]);
+
+  useEffect(() => {
+    if (queuedQuestionIds.length > 0) return;
+    const seed = questions.slice(0, 3).map((q) => q.id);
+    setQueuedQuestionIds(seed);
+  }, [questions, queuedQuestionIds.length]);
 
   const globalIndexById = useMemo(() => {
     const m = new Map<string, number>();
@@ -160,6 +178,65 @@ export function PrepLabMockInterviews({
           </Link>
         </div>
         {q.insight ? <WhyThisQuestionPrep insight={q.insight} /> : null}
+      </li>
+    );
+  }
+
+  function renderPrepLabListItem(q: MockInterviewQuestion) {
+    const qIndex = globalIndexById.get(q.id) ?? 0;
+    const isDone = q.status === "done";
+    return (
+      <li key={`prep-${q.id}`} className="prep-lab-list-item">
+        <div className={`prep-lab-status-dot${isDone ? " done" : ""}`} aria-hidden />
+        <div className="prep-lab-list-main">
+          <p className="prep-lab-list-question">{q.text}</p>
+          <div className="prep-lab-list-meta">
+            <span className="prep-lab-list-duration">{q.duration}</span>
+            {showDifficultyTags ? <span className="mock-hub-meta-tag">{formatDifficultyLabel(q.difficulty)}</span> : null}
+          </div>
+          <div className="mock-hub-actions prep-lab-list-actions">
+            <Link href={`/sessions/${sessionId}/practice?q=${qIndex}`} className="mock-hub-btn-practice">
+              Practice
+            </Link>
+            <Link
+              href={`/sessions/${sessionId}/evaluation?q=${qIndex}&qid=${encodeURIComponent(q.id)}`}
+              className="mock-hub-btn-evaluate"
+            >
+              Evaluate
+            </Link>
+          </div>
+          {q.insight ? <WhyThisQuestionPrep insight={q.insight} /> : null}
+        </div>
+      </li>
+    );
+  }
+
+  function renderRecommendedCard(q: MockInterviewQuestion) {
+    const isQueued = queuedQuestionIds.includes(q.id);
+    const isHard = q.difficulty === "hard";
+    return (
+      <li key={`rec-${q.id}`} className="recommended-q-card">
+        <div className="recommended-q-head">
+          <span className="recommended-q-pill">{formatCategoryTitle(q.category)}</span>
+          {showDifficultyTags ? (
+            <span className={`recommended-q-pill recommended-q-pill--difficulty${isHard ? " is-hard" : ""}`}>
+              {q.difficulty === "easy" ? "Easy" : q.difficulty === "hard" ? "Hard" : "Medium"}
+            </span>
+          ) : null}
+        </div>
+        <p className="recommended-q-text">{q.text}</p>
+        <div className="recommended-q-meta">{q.duration}</div>
+        <button
+          type="button"
+          className="recommended-q-add"
+          disabled={isQueued}
+          onClick={() => {
+            setQueuedQuestionIds((prev) => (prev.includes(q.id) ? prev : [...prev, q.id]));
+            setTab("prep");
+          }}
+        >
+          {isQueued ? "Added to practice" : "Add to practice"}
+        </button>
       </li>
     );
   }
@@ -280,13 +357,28 @@ export function PrepLabMockInterviews({
                     New prep session
                   </Link>
                 </div>
-              ) : (
-                groupedVisible.map(([category, catQuestions]) => (
+              ) : tab === "prep" ? (
+                groupedQueued.map(([category, catQuestions]) => (
                   <Fragment key={category}>
-                    {renderCategoryHeader(category)}
-                    <ol className="prep-mock-question-list prep-lab-q-list">{catQuestions.map((q) => renderQuestionRow(q))}</ol>
+                    <div className="prep-lab-list-header-row">
+                      <h4 className="prep-lab-list-heading">{formatCategoryLabel(category)}</h4>
+                      <span className="prep-lab-list-count">
+                        {catQuestions.filter((x) => x.status === "done").length}/{catQuestions.length} done
+                      </span>
+                    </div>
+                    <ol className="prep-lab-list">{catQuestions.map((q) => renderPrepLabListItem(q))}</ol>
                   </Fragment>
                 ))
+              ) : (
+                <>
+                  <p className="recommended-q-intro">Questions curated for your gaps</p>
+                  {groupedAll.map(([category, catQuestions]) => (
+                    <Fragment key={category}>
+                      <div className="recommended-q-group-label">{formatCategoryLabel(category)}</div>
+                      <ol className="recommended-q-list">{catQuestions.map((q) => renderRecommendedCard(q))}</ol>
+                    </Fragment>
+                  ))}
+                </>
               )}
             </div>
           </div>
