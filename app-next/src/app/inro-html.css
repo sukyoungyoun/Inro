@@ -4936,20 +4936,23 @@ html:not([data-theme="dark"]) .topbar-actions .btn-ghost {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  margin: 14px 12px 12px !important;
-  padding: 10px 14px !important;
+  margin: 12px 10px 10px !important;
+  padding: 12px 16px !important;
   border-radius: 12px !important;
-  font-size: 22px !important;
-  font-weight: 700 !important;
+  font-size: 30px !important;
+  font-family: var(--serif) !important;
+  font-weight: 600 !important;
   line-height: 1 !important;
   letter-spacing: -0.4px !important;
-  background: #f5ede8 !important;
-  color: #7b4a3a !important;
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-default) !important;
+  color: var(--text-primary) !important;
 }
 
 :is([data-theme="dark"], .dark) .logo {
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: #e8d5cc !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-primary) !important;
 }
 html:not([data-theme="dark"]) .topbar-actions .btn-new {
   background: var(--accent-terra) !important;
