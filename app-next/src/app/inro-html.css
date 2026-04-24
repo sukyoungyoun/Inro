@@ -7039,7 +7039,7 @@ a[href="/dashboard"].mobile-wordmark {
 .session-card--dashboard .session-role {
   font-family: var(--serif);
   font-size: 22px;
-  font-weight: 500;
+  font-weight: 700;
   color: #1f1a17;
   line-height: 1.2;
   margin: 0;
@@ -7064,19 +7064,19 @@ a[href="/dashboard"].mobile-wordmark {
 }
 
 .session-card--dashboard .match-row {
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 }
 
 .session-card--dashboard .match-badge--session {
-  background: #f2c5b8;
-  color: #8b4a3c;
-  border: 1px solid rgba(139, 74, 60, 0.22);
+  background: #FADDD5;
+  color: #7B3326;
   font-family: var(--mono);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 7px 14px;
+  padding: 6px 16px;
   border-radius: 999px;
+  border: none;
 }
 
 .session-card--dashboard .session-modules--heading {
@@ -7091,22 +7091,22 @@ a[href="/dashboard"].mobile-wordmark {
 .session-card--dashboard .module-segments {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 8px;
+  gap: 4px;
   margin-bottom: 16px;
 }
 
 .session-card--dashboard .module-segment {
-  height: 7px;
-  border-radius: 999px;
-  background: #e8e2dc;
+  height: 6px;
+  border-radius: 3px;
+  background: #E8E2D9;
 }
 
 .session-card--dashboard .module-segment.done {
-  background: #8b3a2a;
+  background: #7B3326;
 }
 
 .session-card--dashboard .module-segment.active {
-  background: #8b3a2a;
+  background: #7B3326;
 }
 
 .session-card--dashboard .status-tag,
@@ -7126,8 +7126,8 @@ a[href="/dashboard"].mobile-wordmark {
 .session-card--dashboard .session-action {
   width: 100%;
   min-height: 52px;
-  border: 1px solid #d9d2cb;
-  border-radius: 14px;
+  border: 1px solid #D9D3CA;
+  border-radius: 12px;
   background: #fff;
   display: inline-flex;
   justify-content: center;
