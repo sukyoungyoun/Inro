@@ -61,7 +61,6 @@ export function DashboardSessionCard({
   recruitingOutcome: initialOutcome,
   recruitingNextSteps: initialNext,
   prepFeedback: initialPrepFeedback,
-  timeLabel,
 }: {
   id: string;
   title: string;
@@ -109,15 +108,6 @@ export function DashboardSessionCard({
   const badgeLabel = hasParsedScore ? `${score}% match` : "–";
   const { heading, roleLine, missingJd } = buildSessionHeading(title, company);
   const hasCompany = Boolean((company || "").trim()) && (company || "").trim().toLowerCase() !== "not set";
-  const status =
-    !hasParsedScore
-      ? { cls: "pending", label: "Pending score" }
-      : score >= 78
-      ? { cls: "strong", label: "Strong Fit" }
-      : score >= 65
-        ? { cls: "review", label: "Needs Review" }
-        : { cls: "bench", label: "Benchmark" };
-
   useEffect(() => {
     if (!menuOpen) return;
     function close(e: MouseEvent) {
@@ -231,26 +221,12 @@ export function DashboardSessionCard({
     <div className={`session-card session-card--dashboard${archivedAt ? " archived" : ""}`}>
       <div className="session-card-top">
         <div className="session-role-wrap">
-          <div className="session-role">{sessionEditOpen ? cleanRoleTitle(titleEdit) : heading}</div>
+          <div className="session-role">{sessionEditOpen ? cleanRoleTitle(titleEdit) : roleLine}</div>
           {missingJd ? (
             <span className="session-warning-tag">⚠ Could not parse job description</span>
           ) : null}
         </div>
         <div className="session-card-top-actions">
-          <div className="session-time">{timeLabel}</div>
-          {!archivedAt ? (
-            <button
-              type="button"
-              className="session-edit-btn"
-              onClick={() => {
-                setMenuOpen(false);
-                setSessionEditOpen((o) => !o);
-              }}
-              aria-expanded={sessionEditOpen}
-            >
-              {sessionEditOpen ? "Close edit" : "Edit session"}
-            </button>
-          ) : null}
           <div className="session-menu-wrap" ref={menuRef}>
             <button
               type="button"
@@ -368,66 +344,55 @@ export function DashboardSessionCard({
         </div>
       ) : (
         <>
-          <div className="session-company">
-            <strong>Role:</strong> {roleLine}
+          <div className="session-company session-company-row">
+            <span className="session-company-icon" aria-hidden>
+              🏢
+            </span>
+            <span>{hasCompany ? company : "Company unknown"}</span>
           </div>
-          {hasCompany ? (
-            <div className="session-company" style={{ marginTop: -6 }}>
-              <strong>Company:</strong> {company}
-            </div>
-          ) : null}
         </>
       )}
 
       <div className="match-row">
-        <div className={`match-badge${hasParsedScore ? "" : " neutral"} accent`}>{badgeLabel}</div>
-        {hasParsedScore ? (
-          <div className="match-bar">
-            <div
-              className={`match-fill${score < 78 ? " mid" : ""}`}
-              style={
-                {
-                  width: `${Math.max(0, Math.min(100, score))}%`,
-                  ["--match-score" as string]: String(Math.max(0, Math.min(100, score))),
-                } as React.CSSProperties
-              }
-            />
-          </div>
-        ) : null}
+        <div className={`match-badge${hasParsedScore ? "" : " neutral"} match-badge--session`}>{badgeLabel}</div>
       </div>
-      <div className="session-modules" title={MODULE_NAMES.join("\n")}>
-        3 of 6 modules
+      <div className="session-modules session-modules--heading" title={MODULE_NAMES.join("\n")}>
+        <span>Modules Completed</span>
+        <span>3 of 6</span>
       </div>
       <div className="module-segments" aria-label={`module completion segments: ${MODULE_NAMES.join(", ")}`} title={MODULE_NAMES.join("\n")}>
         {[0, 1, 2, 3, 4, 5].map((idx) => (
-          <span key={idx} className={`module-segment module-seg${idx < 3 ? " done" : idx === 3 ? " active" : ""}`} />
+          <span key={idx} className={`module-segment module-seg${idx < 3 ? " done" : ""}`} />
         ))}
       </div>
-      <div className={`status-tag ${status.cls}`}>{status.label}</div>
       {actionError ? <div className="session-error-inline">{actionError}</div> : null}
 
-      <div className="session-manage-row" aria-label="Session actions">
+      <div className="session-divider" aria-hidden />
+
+      <div className="session-cta-footer">
+        <Link href={`/sessions/${id}`} className="session-action">
+          Continue Practice →
+        </Link>
+      </div>
+
+      <div className="session-divider" aria-hidden />
+
+      <div className="session-footer-row">
+        <button type="button" className="session-outcome-toggle session-outcome-toggle--footer" onClick={() => setNotesOpen((o) => !o)}>
+          <span aria-hidden>🗎</span> <span>Feedback &amp; Notes</span>
+        </button>
         {!archivedAt ? (
-          <button type="button" className="session-manage-link" disabled={archiving} onClick={() => void setArchived(true)}>
-            {archiving ? "Archiving…" : "Archive session"}
+          <button type="button" className="session-archive-inline" disabled={archiving} onClick={() => void setArchived(true)}>
+            {archiving ? "Archiving…" : "Archive"}
           </button>
         ) : (
-          <button type="button" className="session-manage-link" disabled={archiving} onClick={() => void setArchived(false)}>
+          <button type="button" className="session-archive-inline" disabled={archiving} onClick={() => void setArchived(false)}>
             {archiving ? "Restoring…" : "Unarchive"}
           </button>
         )}
-        <span className="session-manage-sep" aria-hidden>
-          ·
-        </span>
-        <button type="button" className="session-manage-link session-manage-danger" disabled={deleting} onClick={() => void deleteSession()}>
-          {deleting ? "Deleting…" : "Delete"}
-        </button>
       </div>
 
       <div className="session-outcome-block">
-        <button type="button" className="session-outcome-toggle" onClick={() => setNotesOpen((o) => !o)}>
-          {notesOpen ? "▼" : "▶"} Feedback & notes
-        </button>
         {notesOpen ? (
           <div className="session-outcome-fields">
             <label className="session-outcome-label" htmlFor={`feedback-${id}`}>
@@ -467,12 +432,6 @@ export function DashboardSessionCard({
             </button>
           </div>
         ) : null}
-      </div>
-
-      <div className="session-cta-footer">
-        <Link href={`/sessions/${id}`} className="session-action">
-          Continue practice →
-        </Link>
       </div>
     </div>
   );

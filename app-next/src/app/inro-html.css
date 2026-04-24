@@ -7022,6 +7022,148 @@ a[href="/dashboard"].mobile-wordmark {
   background: transparent !important;
 }
 
+/* Recent Sessions card redesign */
+.session-card--dashboard {
+  background: #ffffff;
+  border: 1px solid #e5ded8;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(20, 16, 12, 0.04);
+  padding: 24px;
+}
+
+.session-card--dashboard .session-card-top {
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.session-card--dashboard .session-role {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: #1f1a17;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.session-card--dashboard .session-card-top-actions {
+  align-items: flex-start;
+}
+
+.session-card--dashboard .session-company-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #8a837c;
+  margin-bottom: 14px;
+}
+
+.session-card--dashboard .session-company-icon {
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+.session-card--dashboard .match-row {
+  margin-bottom: 14px;
+}
+
+.session-card--dashboard .match-badge--session {
+  background: #f2c5b8;
+  color: #8b4a3c;
+  border: 1px solid rgba(139, 74, 60, 0.22);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 7px 14px;
+  border-radius: 999px;
+}
+
+.session-card--dashboard .session-modules--heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #8a837c;
+  margin-bottom: 10px;
+}
+
+.session-card--dashboard .module-segments {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.session-card--dashboard .module-segment {
+  height: 7px;
+  border-radius: 999px;
+  background: #e8e2dc;
+}
+
+.session-card--dashboard .module-segment.done {
+  background: #8b3a2a;
+}
+
+.session-card--dashboard .module-segment.active {
+  background: #8b3a2a;
+}
+
+.session-card--dashboard .status-tag,
+.session-card--dashboard .session-manage-row,
+.session-card--dashboard .session-time,
+.session-card--dashboard .session-edit-btn,
+.session-card--dashboard .match-bar {
+  display: none;
+}
+
+.session-card--dashboard .session-divider {
+  height: 1px;
+  background: #e7e1db;
+  margin: 14px 0;
+}
+
+.session-card--dashboard .session-action {
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid #d9d2cb;
+  border-radius: 14px;
+  background: #fff;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2a2522;
+  text-decoration: none;
+}
+
+.session-card--dashboard .session-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.session-card--dashboard .session-outcome-toggle--footer {
+  border: none;
+  background: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8a837c;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.session-card--dashboard .session-archive-inline {
+  border: none;
+  background: none;
+  padding: 0;
+  color: #9a928a;
+  font-size: 14px;
+}
+
 /* Hard reset for prep tabs (isolated from legacy brief-tab styles) */
 #prep-lab-panel .prep-tabs-header-v2 {
   display: flex !important;
