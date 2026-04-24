@@ -145,7 +145,7 @@ export default async function DashboardPage({
 
   if (!profile || profile.targetRoles.length === 0) redirect("/onboarding");
 
-  const listSessions = showArchived ? archivedSessions : activeSessions.slice(0, 3);
+  const listSessions = showArchived ? archivedSessions : activeSessions;
 
   const avgScore =
     activeSessions.length > 0
