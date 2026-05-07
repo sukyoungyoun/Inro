@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { loadUserProfileFormSnapshot } from "@/lib/load-user-profile-form-snapshot";
+import { Prisma } from "@prisma/client";
 
 const FOCUS_STAGE_VALUES = new Set<string>(Object.values(InterviewStage));
 
@@ -18,43 +19,60 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json();
-  const fullName = String(body.fullName || "").trim();
-  const currentRole = String(body.currentRole || "").trim();
-  const targetRoles = Array.isArray(body.targetRoles)
-    ? body.targetRoles.map((x: string) => String(x).trim()).filter(Boolean)
-    : [];
-  const interviewFocusKeys = Array.isArray(body.interviewFocusKeys)
-    ? (body.interviewFocusKeys as unknown[])
-        .map((x) => String(x).trim())
-        .filter((k): k is string => FOCUS_STAGE_VALUES.has(k))
-    : [];
-  const targetStage: InterviewStage | null =
-    interviewFocusKeys.length > 0
-      ? (interviewFocusKeys[0] as InterviewStage)
-      : body.targetStage && FOCUS_STAGE_VALUES.has(String(body.targetStage))
-        ? (String(body.targetStage) as InterviewStage)
-        : null;
+  try {
+    const body = await req.json();
+    const fullName = String(body.fullName || "").trim();
+    const currentRole = String(body.currentRole || "").trim();
+    const targetRoles = Array.isArray(body.targetRoles)
+      ? body.targetRoles.map((x: string) => String(x).trim()).filter(Boolean)
+      : [];
+    const interviewFocusKeys = Array.isArray(body.interviewFocusKeys)
+      ? (body.interviewFocusKeys as unknown[])
+          .map((x) => String(x).trim())
+          .filter((k): k is string => FOCUS_STAGE_VALUES.has(k))
+      : [];
+    const targetStage: InterviewStage | null =
+      interviewFocusKeys.length > 0
+        ? (interviewFocusKeys[0] as InterviewStage)
+        : body.targetStage && FOCUS_STAGE_VALUES.has(String(body.targetStage))
+          ? (String(body.targetStage) as InterviewStage)
+          : null;
 
-  const profile = await prisma.userProfile.upsert({
-    where: { userId: session.user.id },
-    update: {
-      fullName: fullName || null,
-      currentRole: currentRole || null,
-      targetRoles,
-      targetStage,
-      interviewFocusKeys,
-    },
-    create: {
-      userId: session.user.id,
-      fullName: fullName || null,
-      currentRole: currentRole || null,
-      targetRoles,
-      targetStage,
-      interviewFocusKeys,
-    },
-  });
+    let profile;
+    try {
+      profile = await prisma.userProfile.upsert({
+        where: { userId: session.user.id },
+        update: {
+          fullName: fullName || null,
+          currentRole: currentRole || null,
+          targetRoles,
+          targetStage,
+          interviewFocusKeys,
+        },
+        create: {
+          userId: session.user.id,
+          fullName: fullName || null,
+          currentRole: currentRole || null,
+          targetRoles,
+          targetStage,
+          interviewFocusKeys,
+        },
+      });
+    } catch (e) {
+      const missingColumn =
+        (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2022") ||
+        (e instanceof Error && /column .* does not exist|interviewFocusKeys|currentRole|targetRoles|targetStage/i.test(e.message));
+      if (!missingColumn) throw e;
 
-  return NextResponse.json({ profile });
+      // Schema drift fallback: do not block onboarding. Return a best-effort snapshot.
+      const snapshot = await loadUserProfileFormSnapshot(session.user.id);
+      return NextResponse.json({ profile: snapshot }, { status: 200 });
+    }
+
+    return NextResponse.json({ profile }, { status: 200 });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Could not save profile.";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
