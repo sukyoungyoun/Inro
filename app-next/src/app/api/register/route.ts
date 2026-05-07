@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function POST(req: Request) {
   try {
@@ -28,19 +29,40 @@ export async function POST(req: Request) {
     }
 
     const passwordHash = await hash(cleanPassword, 12);
-    const user = await prisma.user.create({
-      data: {
-        email: cleanEmail,
-        passwordHash,
-        profile: {
-          create: {
-            fullName: cleanName || null,
-            targetRoles: [],
+    let user: { id: string; email: string };
+    try {
+      user = await prisma.user.create({
+        data: {
+          email: cleanEmail,
+          passwordHash,
+          profile: {
+            create: {
+              fullName: cleanName || null,
+              targetRoles: [],
+            },
           },
         },
-      },
-      select: { id: true, email: true },
-    });
+        select: { id: true, email: true },
+      });
+    } catch (e) {
+      const missingColumn =
+        (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2022") ||
+        (e instanceof Error && /interviewFocusKeys|column .* does not exist/i.test(e.message));
+      if (!missingColumn) throw e;
+
+      // Schema drift fallback: create user first, then insert a minimal UserProfile row
+      // without touching newer columns that may not exist yet.
+      user = await prisma.user.create({
+        data: { email: cleanEmail, passwordHash },
+        select: { id: true, email: true },
+      });
+
+      await prisma.$executeRaw`
+        INSERT INTO "UserProfile" ("id", "userId", "fullName", "targetRoles", "createdAt", "updatedAt")
+        VALUES (gen_random_uuid()::text, ${user.id}, ${cleanName || null}, ARRAY[]::text[], now(), now())
+        ON CONFLICT ("userId") DO NOTHING
+      `;
+    }
 
     return NextResponse.json({ user }, { status: 201 });
   } catch (err) {
