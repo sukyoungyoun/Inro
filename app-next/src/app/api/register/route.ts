@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
   try {
@@ -57,11 +58,24 @@ export async function POST(req: Request) {
         select: { id: true, email: true },
       });
 
-      await prisma.$executeRaw`
-        INSERT INTO "UserProfile" ("id", "userId", "fullName", "targetRoles", "createdAt", "updatedAt")
-        VALUES (gen_random_uuid()::text, ${user.id}, ${cleanName || null}, ARRAY[]::text[], now(), now())
-        ON CONFLICT ("userId") DO NOTHING
-      `;
+      const profileId = randomUUID();
+      try {
+        await prisma.$executeRaw`
+          INSERT INTO "UserProfile" ("id", "userId", "fullName", "targetRoles", "createdAt", "updatedAt")
+          VALUES (${profileId}, ${user.id}, ${cleanName || null}, ARRAY[]::text[], now(), now())
+          ON CONFLICT ("userId") DO NOTHING
+        `;
+      } catch (rawErr) {
+        const missingAuditCols =
+          rawErr instanceof Error && /column \"createdAt\"|column \"updatedAt\"/i.test(rawErr.message);
+        if (!missingAuditCols) throw rawErr;
+        // Older DB: no createdAt/updatedAt columns on UserProfile
+        await prisma.$executeRaw`
+          INSERT INTO "UserProfile" ("id", "userId", "fullName", "targetRoles")
+          VALUES (${profileId}, ${user.id}, ${cleanName || null}, ARRAY[]::text[])
+          ON CONFLICT ("userId") DO NOTHING
+        `;
+      }
     }
 
     return NextResponse.json({ user }, { status: 201 });
